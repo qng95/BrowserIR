@@ -200,6 +200,20 @@ const TASK_DEFINITIONS: TaskDefinition[] = [
         .prepare('SELECT * FROM customers WHERE lower(name) = lower(?)')
         .get('Nordlicht Spedition') as Row | undefined;
       if (!c) return { passed: false, reason: 'Customer "Nordlicht Spedition" was never created.' };
+      if (String(c['city']) !== 'Bremen') {
+        return {
+          passed: false,
+          reason: `City is "${c['city']}"; expected "Bremen".`,
+          evidence: c,
+        };
+      }
+      if (String(c['country']) !== 'Germany') {
+        return {
+          passed: false,
+          reason: `Country is "${c['country']}"; expected "Germany".`,
+          evidence: c,
+        };
+      }
       // 250000 is the documented ceiling; the rule is only discoverable by
       // submitting and reading the rendered validation error.
       if (Number(c['credit_limit']) !== 250000) {

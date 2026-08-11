@@ -2,7 +2,7 @@
 
 Assessment updated: 2026-08-11 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha is public and commit `e21fb1b` has a
+Status: **the Apache-2.0 source alpha is public and commit `0097f28` has a
 qualified, source-bound GitHub Actions dossier; npm packages and a tagged release
 remain unpublished.** Publication gates must not be bypassed by weakening the
 release verifier or by presenting dirty/unbound local evidence as release
@@ -14,7 +14,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Current complete workspace verification | 589 declared cases: 570 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 83/83, Playwright driver 107/107, benchmark 151/151, and MCP 169 passed with 19 skipped. All five package type checks passed. |
+| Current local working-tree verification (v12; not yet hosted) | 631 declared cases: 612 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 169 passed with 19 skipped. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
 | Earlier combined workspace run | 324 passed with the same 19 opt-in cases skipped; retained only as a historical pre-release-evidence count |
@@ -22,12 +22,12 @@ Local development and clean hosted CI produced the following engineering evidenc
 | Capability qualification | 5/5 browser workflows passed |
 | Database-backed task qualification | 14/14 tasks passed through the official MCP client; 299 MCP calls; 0 tool errors |
 | First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
-| Clean hosted requalification | [Run `31518078584`](https://github.com/qng95/BrowserIR/actions/runs/31518078584) passed every required job on commit `e21fb1b`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
+| Clean hosted requalification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required job on commit `0097f28`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Representation release gate | 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3 stable identities, and 18/18 omissions accounted for |
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
 | Production dependency audit | Clean hosted audit passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories |
-| Release evidence dossier | Qualified for source-bound commit `e21fb1b`; the GitHub artifact is checksummed and retained for 90 days |
+| Release evidence dossier | Qualified for source-bound commit `0097f28`; the GitHub artifact is checksummed and retained for 90 days |
 | Public-release verifier | Apache-2.0 and repository checks pass. It now reports only six intentional npm-publication blockers: `private` and missing public `publishConfig` on each of the three product packages. |
 
 The qualification client used MCP protocol `2026-07-28`. Every isolated
@@ -53,19 +53,22 @@ archive hashes; the production audit records one of `passed`,
 The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
-gate-specific results, and the exact reviewed workspace test-count policy ID
-(`2026-08-11-v11`, requiring 589 declared, 570 executed, and 19 skipped cases).
-The first qualified public dossier is the GitHub artifact
-`release-evidence-dossier-31518078584-1-e21fb1b…`, bound to commit `e21fb1b`.
-GitHub reports the artifact digest as
-`sha256:134d43b50a410a710e06504c43e6d18037c8d7d363b009a55b77d8cd9aaa5dee`.
-That dossier used the immediately preceding `v10` policy (588 declared, 569
-executed, 19 skipped); the additional `v11` case locks the stale-target recovery
-exposed by the next hosted run.
+gate-specific results, and the exact reviewed workspace test-count policy ID.
+The current local policy is `2026-08-11-v12`, requiring 631 declared, 612
+executed, and 19 skipped cases. It includes the sealed-benchmark hardening in
+this working tree and is not yet a qualified hosted dossier.
+
+The latest qualified public dossier is
+`release-evidence-dossier-31520630516-1-0097f28c754e029f5f4f32fb3476a56d3035fc64`,
+bound to commit `0097f28c754e029f5f4f32fb3476a56d3035fc64` under policy `v11`
+(589 declared, 570 executed, 19 skipped). GitHub reports the artifact digest as
+`sha256:d995c1d73fb5fb5b3b69c2b121715f634c76e5113ff155bd6dbbb6324a32b83a`.
+The new `v12` hardening must receive its own clean hosted qualification after it
+is committed; the prior dossier does not certify uncommitted code.
 
 The retained local fragments below were produced before the public Git source
 commit and therefore cannot be assembled into a qualified dossier. The latest
-post-hardening local fragments are:
+retained pre-publication local fragments are:
 
 | Gate | Local fragment | `evidence.json` SHA-256 |
 | --- | --- | --- |
@@ -84,7 +87,7 @@ An earlier workspace attempt, `workspace-local-2026-08-11-v3`, correctly
 retained a failure caused by another local build cleaning `dist` concurrently.
 The retained `v8` run above superseded that earlier failure, but it now predates
 the latest changes; both that fragment and its `v8` exact-count policy are stale.
-Run `31518078584` supersedes those local fragments as the first current-policy,
+Run `31520630516` supersedes those local fragments as the latest qualified,
 clean-commit qualification.
 
 CI fragments and the dossier are retained for 90 days. Before publication, the
@@ -103,6 +106,20 @@ model-facing tool traces, and create-only comparison artifacts have focused
 tests. Both BrowserIR and Playwright MCP deterministic reference models can
 complete `create-customer` through real Chromium and the same sealed
 database/audit oracle.
+
+The sealed path now requires a fresh checkout of the freeze tag, frozen
+dependency installation, a complete build before the runner loads, exact
+start/end Git and built-package byte identity, matching start/end environment
+including CPU/RAM and explicit isolation status (sequential, shared process,
+container/VM limits unverified), a hash-chained resumable
+journal, one precommitted model seed shared by both arms in every matched block,
+and a non-zero frozen sampling temperature. The launcher isolates child
+home/config/cache state, strips ambient loader and secret variables, restricts
+sealed Ollama to literal loopback with redirects rejected, and records its model
+digest as endpoint-reported rather than independently weight-verified. The final
+marker verifies the canonical journal tail and every required sealed provenance
+artifact. The `validation-recovery` oracle also checks the requested city and
+country, not only the customer name and credit workflow.
 
 Real-model paired **development diagnostics** have now run on the excluded
 `create-customer` task. Failed v4–v6 protocols remain retained. v7 produced the
@@ -164,22 +181,18 @@ even after a frozen reinstall.
 
 ## Publication blockers
 
-1. The canonical repository, remote, homepage, and issue metadata now point to
-   [github.com/qng95/BrowserIR](https://github.com/qng95/BrowserIR). Create and
-   review the first Git `HEAD`, then configure the host's private security
-   reporting location before launch.
+1. Configure the canonical GitHub repository's private security reporting
+   location before launch.
 2. Confirm ownership and publishing authority for `@browserir/core`,
    `@browserir/playwright`, and `@browserir/mcp`.
 3. Select version and dist-tag semantics. The recommended alpha identity is
    `0.1.0-alpha.1` published under the `alpha` tag.
-4. Create and review a clean initial commit. Remove local authenticated
-   screenshots and other sensitive/generated release-worktree artifacts before
-   selecting the release commit.
-5. Run the pinned Node 22.13.0 and 24.19.0 CI matrix from that clean commit,
-   assemble all nine source-bound fragments, verify the dossier, and promote it
-   before its 90-day CI retention expires. Record the runner image, commit,
-   workflow run/attempt, artifact identity/digest, and durable location.
-6. After those decisions are recorded, remove `private` from only the three
+4. Commit the v12 hardening, run the pinned Node 22.13.0 and 24.19.0 CI matrix,
+   assemble all nine source-bound fragments, and qualify that exact commit. The
+   existing `0097f28` dossier remains valid for its source but does not certify
+   the new code. Promote the selected qualified dossier before its 90-day CI
+   retention expires and record its durable location.
+5. After those decisions are recorded, remove `private` from only the three
    public packages and set their
    `publishConfig.access` to `public`. Then re-run `pnpm verify:release`; only
    after it passes may the qualified dossier be bound to retained candidate

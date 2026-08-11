@@ -68,7 +68,7 @@ turn the fixture into evidence of unseen-site generalization.
 
 ## Matched comparison contract
 
-Every block has two independent attempts:
+Every block has two separate, freshly provisioned attempts:
 
 | Fixed within a block | Control | Treatment |
 | --- | --- | --- |
@@ -104,9 +104,9 @@ for at least 95% of valid attempts.
 
 | Result | Public wording |
 | --- | --- |
-| 95% paired interval entirely above zero | “BrowserIR improved success on this workflow.” |
-| Interval crosses zero | “Pilot was inconclusive.” No uplift headline. |
-| Interval entirely below zero | “BrowserIR regressed on this workflow.” Publish and start the diagnosis loop. |
+| 95% paired interval entirely above zero | “BrowserIR had higher success across this precommitted workflow/seed schedule.” |
+| Interval crosses zero | “Pilot was inconclusive for this precommitted schedule.” No uplift headline. |
+| Interval entirely below zero | “BrowserIR had lower success across this precommitted workflow/seed schedule.” Publish and start the diagnosis loop. |
 | More than 5% of scheduled blocks invalid | “Operationally inconclusive.” No uplift headline. |
 
 Invalid means the infrastructure could not support a trustworthy score; it is
@@ -151,10 +151,14 @@ The intended first public question is deliberately narrow:
 > Playwright MCP?
 
 The candidate sealed schedule is 30 matched blocks, text-only, with alternating
-arm order from a committed seed. `create-customer` is the development task for
-adapter and reporting work and is excluded from the Drop 01 score. The first
-public result must be labelled a **controlled fixture pilot**, never a general
-browser-agent benchmark.
+arm order from a committed order seed, a precommitted model-seed base, and a
+non-zero frozen sampling temperature. Each task/trial coordinate
+deterministically derives one model seed shared by both arms; temperature-zero
+repetition is rejected because greedy decoding may ignore seeds.
+`create-customer` is the development task for adapter and reporting work
+and is excluded from the Drop 01 score. The first public result must be labelled
+a **controlled fixture pilot**, never a general browser-agent benchmark or an
+independent-samples population estimate.
 
 The control is pinned to official `@playwright/mcp` `0.0.78`. The exact model
 will be frozen only after a development capability check; selecting it after

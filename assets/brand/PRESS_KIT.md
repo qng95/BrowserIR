@@ -40,8 +40,8 @@ score.
 
 ## Current source-bound engineering evidence
 
-These figures were reproduced on commit `e21fb1b` by GitHub Actions run
-`31518078584` and are bound to that complete source tree.
+These figures were reproduced on commit `0097f28` by GitHub Actions run
+`31520630516` and are bound to that complete source tree.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.

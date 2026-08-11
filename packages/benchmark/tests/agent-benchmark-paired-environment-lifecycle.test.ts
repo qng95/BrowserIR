@@ -18,8 +18,22 @@ import { renderPairedExecutionEnvironment } from '../src/agent-benchmark/paired-
 const digest = (character: string): string => character.repeat(64);
 
 const environment = (): PairedExecutionEnvironment => ({
-  schemaVersion: '1.0.0',
-  host: { platform: 'darwin', release: '25.0.0', arch: 'arm64' },
+  schemaVersion: '1.1.0',
+  host: {
+    platform: 'darwin',
+    release: '25.0.0',
+    arch: 'arm64',
+    hardware: {
+      cpuModel: 'Apple M4 Pro',
+      logicalCpuCount: 14,
+      memoryBytes: 51_539_607_552,
+    },
+    resourceLimits: {
+      attemptConcurrency: 1,
+      processBoundary: false,
+      containerOrVmLimits: 'unverified',
+    },
+  },
   harness: {
     nodeVersion: 'v22.19.0',
     pnpmVersion: '10.30.3',
@@ -30,7 +44,7 @@ const environment = (): PairedExecutionEnvironment => ({
     provider: 'ollama',
     modelId: 'browserir-model',
     artifactDigest: `sha256:${digest('2')}`,
-    verification: 'ollama-local-digest',
+    verification: 'ollama-endpoint-reported-digest',
     runtime: { name: 'ollama', version: '0.11.4' },
     configuration: {
       contextWindowTokens: 32_768,

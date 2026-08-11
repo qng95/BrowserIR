@@ -116,6 +116,14 @@ describe('evidence-drop protocol', () => {
       ],
       trialsPerTask: 30,
       freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
+      schedule: {
+        ...developmentProtocol().schedule,
+        modelSeedBase: 8675309,
+      },
+      agent: {
+        ...developmentProtocol().agent,
+        temperature: 0.2,
+      },
       arms: {
         control: {
           ...developmentProtocol().arms.control,
@@ -130,8 +138,88 @@ describe('evidence-drop protocol', () => {
 
     expect(parseEvidenceDropProtocol(protocol).phase).toBe('sealed');
 
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        agent: {
+          ...protocol.agent,
+          baseUrl: 'https://models.example.com/v1?proxy=true',
+        },
+      }),
+    ).toThrow(/loopback|local.*Ollama|endpoint/i);
+
     delete (protocol as { freezeRef?: unknown }).freezeRef;
     expect(() => parseEvidenceDropProtocol(protocol)).toThrow(/freeze.*frozen/i);
+  });
+
+  it('requires a precommitted model seed base only for sealed protocols', () => {
+    expect(parseEvidenceDropProtocol(developmentProtocol()).schedule.modelSeedBase).toBeUndefined();
+
+    const sealed = {
+      ...developmentProtocol(),
+      phase: 'sealed',
+      status: 'frozen',
+      taskIds: ['validation-recovery'],
+      taskContracts: [
+        {
+          ...developmentProtocol().taskContracts[0]!,
+          id: 'validation-recovery',
+        },
+      ],
+      freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
+      agent: {
+        ...developmentProtocol().agent,
+        temperature: 0.2,
+      },
+      arms: {
+        control: {
+          ...developmentProtocol().arms.control,
+          expectedToolCatalogSha256: 'c'.repeat(64),
+        },
+        treatment: {
+          ...developmentProtocol().arms.treatment,
+          expectedToolCatalogSha256: 'd'.repeat(64),
+        },
+      },
+    };
+
+    expect(() => parseEvidenceDropProtocol(sealed)).toThrow(/modelSeedBase/i);
+  });
+
+  it('rejects greedy temperature-zero pseudo-replication for sealed inference', () => {
+    const sealed = {
+      ...developmentProtocol(),
+      phase: 'sealed',
+      status: 'frozen',
+      taskIds: ['validation-recovery'],
+      taskContracts: [
+        {
+          ...developmentProtocol().taskContracts[0]!,
+          id: 'validation-recovery',
+        },
+      ],
+      trialsPerTask: 30,
+      freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
+      schedule: {
+        ...developmentProtocol().schedule,
+        modelSeedBase: 8675309,
+      },
+      arms: {
+        control: {
+          ...developmentProtocol().arms.control,
+          expectedToolCatalogSha256: 'c'.repeat(64),
+        },
+        treatment: {
+          ...developmentProtocol().arms.treatment,
+          expectedToolCatalogSha256: 'd'.repeat(64),
+        },
+      },
+    };
+
+    expect(() => parseEvidenceDropProtocol(sealed)).toThrow(
+      /temperature.*greater than zero|stochastic.*temperature/i,
+    );
+    expect(parseEvidenceDropProtocol(developmentProtocol()).agent.temperature).toBe(0);
   });
 
   it('rejects prompt hash drift, arm coaching, unknown fields, and mutable sealed runs', () => {

@@ -199,9 +199,13 @@ const claim = (report: PairedAgentBenchmarkReport): string => {
     return 'Operationally inconclusive: more than 5% of matched blocks were invalid.';
   }
   const { lower, upper } = report.summary.pairedLift;
-  if (lower !== null && lower > 0) return 'BrowserIR improved success on this workflow.';
-  if (upper !== null && upper < 0) return 'BrowserIR regressed on this workflow.';
-  return 'Pilot was inconclusive; the 95% paired interval crosses zero.';
+  if (lower !== null && lower > 0) {
+    return 'BrowserIR had higher success across this precommitted workflow/seed schedule.';
+  }
+  if (upper !== null && upper < 0) {
+    return 'BrowserIR had lower success across this precommitted workflow/seed schedule.';
+  }
+  return 'Pilot was inconclusive for this precommitted schedule; the 95% paired interval crosses zero.';
 };
 
 export function renderPairedAgentBenchmarkMarkdown(

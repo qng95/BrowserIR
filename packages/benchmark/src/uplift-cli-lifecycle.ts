@@ -2,14 +2,16 @@ import { isAbsolute } from 'node:path';
 
 import type {
   PairedAgentBenchmarkCompletionMarker,
-  ReconstructedDevelopmentRun,
+  PairedBenchmarkPhase,
+  ReconstructedPairedRun,
 } from './agent-benchmark/index.js';
 
 export type PairedUpliftResumeMode = 'continue' | 'finalize_only';
 
 export interface ClassifyPairedUpliftResumeInput {
-  retained: ReconstructedDevelopmentRun;
+  retained: ReconstructedPairedRun;
   completion?: PairedAgentBenchmarkCompletionMarker | undefined;
+  phase: PairedBenchmarkPhase;
   protocolId: string;
   protocolSha256: string;
 }
@@ -34,8 +36,8 @@ export interface PairedUpliftSourceBindingInput {
 /** Pure fail-closed source gate shared by sealed CLI execution and tests. */
 export function assertPairedUpliftSourceBinding(
   input: PairedUpliftSourceBindingInput,
-): void {
-  if (input.phase !== 'sealed') return;
+): 'development' | 'frozen_verified' {
+  if (input.phase !== 'sealed') return 'development';
   if (input.freezeRef === undefined) {
     throw new Error('Sealed protocol is missing its freezeRef.');
   }
@@ -62,6 +64,7 @@ export function assertPairedUpliftSourceBinding(
   if (input.committedManifestSource !== input.manifestSource) {
     throw new Error('Protocol manifest bytes differ from the frozen Git revision.');
   }
+  return 'frozen_verified';
 }
 
 /**
@@ -73,6 +76,9 @@ export function classifyPairedUpliftResume(
   input: ClassifyPairedUpliftResumeInput,
 ): PairedUpliftResumeDisposition {
   const { retained, completion } = input;
+  if (retained.run.phase !== input.phase) {
+    throw new Error('Resume journal phase drifted from the selected manifest.');
+  }
   if (
     retained.run.protocolId !== input.protocolId ||
     retained.run.protocolSha256 !== input.protocolSha256
@@ -81,7 +87,7 @@ export function classifyPairedUpliftResume(
   }
   if (completion !== undefined) {
     if (!retained.complete) {
-      throw new Error('Completion marker is attached to an incomplete development journal.');
+      throw new Error('Completion marker is attached to an incomplete paired journal.');
     }
     const finalEventSha256 = retained.events.at(-1)?.eventSha256;
     if (

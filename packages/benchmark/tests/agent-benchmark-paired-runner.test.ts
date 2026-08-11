@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {
-  createPairedDevelopmentJournal,
-  readPairedDevelopmentJournal,
-  resumePairedDevelopmentJournal,
+  createPairedJournal,
+  readPairedJournal,
+  resumePairedJournal,
   runPairedAgentBenchmark,
   type AgentBenchmarkArm,
   type AgentBenchmarkTask,
@@ -154,6 +154,47 @@ describe('paired agent benchmark runner', () => {
     ]);
   });
 
+  it('records a sealed run only with a frozen verified protocol binding', async () => {
+    const order: string[] = [];
+    const events: PairedBenchmarkLifecycleEvent[] = [];
+    const sealed = {
+      runId: 'paired-sealed',
+      protocolId: 'drop-01-sealed-v1',
+      protocolSha256: 'a'.repeat(64),
+      phase: 'sealed' as const,
+      scheduleSeed: 42,
+      bootstrapSeed: 43,
+      bootstrapResamples: 2_000,
+      intervalMethod: 'paired-hoeffding-bound' as const,
+      tasks: [task],
+      trialsPerTask: 1,
+      expectedTargetVersion: 'fixture-v1',
+      budgets: { maxDurationMs: 1_000, maxToolCalls: 2, maxModelTurns: 2 },
+      arms: [arm('control', 'failed', order), arm('treatment', 'passed', order)] as const,
+    };
+
+    await expect(
+      runPairedAgentBenchmark({ ...sealed, protocolBinding: 'development' }),
+    ).rejects.toThrow(/binding.*phase|phase.*binding/i);
+
+    const report = await runPairedAgentBenchmark({
+      ...sealed,
+      protocolBinding: 'frozen_verified',
+      async eventSink(event) {
+        events.push(event);
+      },
+    });
+    expect(report).toMatchObject({
+      phase: 'sealed',
+      protocolBinding: 'frozen_verified',
+    });
+    expect(events[0]).toMatchObject({
+      type: 'run_started',
+      phase: 'sealed',
+      protocolBinding: 'frozen_verified',
+    });
+  });
+
   it('invalidates a matched block whose arms did not start from identical state', async () => {
     const order: string[] = [];
     const report = await runPairedAgentBenchmark({
@@ -274,7 +315,7 @@ describe('paired agent benchmark runner', () => {
     const root = await mkdtemp(join(tmpdir(), 'browserir-paired-resume-'));
     temporaryDirectories.push(root);
     const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
+    const journal = await createPairedJournal(directory);
     const order: string[] = [];
     let started = 0;
     const options = {
@@ -307,7 +348,7 @@ describe('paired agent benchmark runner', () => {
     ).rejects.toThrow(/simulated process crash/);
     expect(order).toHaveLength(1);
 
-    const recovery = await resumePairedDevelopmentJournal(directory);
+    const recovery = await resumePairedJournal(directory);
     const report = await runPairedAgentBenchmark({
       ...options,
       resume: recovery.state,
@@ -334,7 +375,7 @@ describe('paired agent benchmark runner', () => {
       invalidBlocks: 1,
     });
 
-    const retained = await readPairedDevelopmentJournal(directory);
+    const retained = await readPairedJournal(directory);
     expect(retained.complete).toBe(true);
     expect(retained.events.map(({ event }) => event.type)).toEqual([
       'run_started',
@@ -354,7 +395,7 @@ describe('paired agent benchmark runner', () => {
     const root = await mkdtemp(join(tmpdir(), 'browserir-paired-finalize-only-'));
     temporaryDirectories.push(root);
     const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
+    const journal = await createPairedJournal(directory);
     const order: string[] = [];
     const options = {
       runId: 'paired-finalize-only',
@@ -375,7 +416,7 @@ describe('paired agent benchmark runner', () => {
     const first = await runPairedAgentBenchmark({ ...options, eventSink: journal.append });
     expect(order).toHaveLength(2);
 
-    const recovery = await resumePairedDevelopmentJournal(directory);
+    const recovery = await resumePairedJournal(directory);
     expect(recovery.state.complete).toBe(true);
     const reconstructed = await runPairedAgentBenchmark({
       ...options,
@@ -388,7 +429,7 @@ describe('paired agent benchmark runner', () => {
     expect(reconstructed.blocks[0]!.journalAttempts).toEqual(
       first.blocks[0]!.journalAttempts,
     );
-    expect((await readPairedDevelopmentJournal(directory)).events).toHaveLength(
+    expect((await readPairedJournal(directory)).events).toHaveLength(
       recovery.state.events.length,
     );
   });

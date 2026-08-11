@@ -12,8 +12,8 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current pre-commit workspace verification declares 589 cases:
-570 executed passes and 19 intentional opt-in cases skipped. All five package
+implemented. The current pre-commit workspace verification declares 631 cases:
+612 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
 durable promotion of the qualified dossier remain open; see the
@@ -29,7 +29,7 @@ qualifies BrowserIR representation/action reachability for the declared fixture
 workload; it is not an LLM-generalization test or competitor comparison. The
 workspace had no Git HEAD, so the report correctly records unavailable source
 provenance and a dirty tree. GitHub Actions later reproduced the complete result
-on clean, source-bound commit `e21fb1b` and assembled the qualified dossier.
+on clean, source-bound commit `0097f28` and assembled the qualified dossier.
 
 The same operator-frozen local run series passed the independent representation
 gate: 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3
@@ -37,7 +37,7 @@ stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
-[GitHub Actions run `31518078584`](https://github.com/qng95/BrowserIR/actions/runs/31518078584)
+[GitHub Actions run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516)
 is the source-bound public qualification. Neither is a competitor comparison.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
@@ -273,7 +273,7 @@ Definition of Done for every implementation card:
   task/oracle/model/catalog digests, and a no-scientific-overrides CLI.
 - [x] Add publication-safe trace projection, matched baseline fingerprint
   checks, paired-valid denominators, and a boundary-safe interval.
-- [x] Add a create-only hash-chained development journal, `--resume`, exact
+- [x] Add a create-only hash-chained development/sealed journal, `--resume`, exact
   preflight replay, start/end environment stability checks, idempotent
   finalization, and atomic `COMPLETE.json`.
 - [x] Add delta-first receipts with conservative retained-reference proofs;
@@ -289,6 +289,22 @@ Definition of Done for every implementation card:
   release policy after the latest product and benchmark changes.
 - [x] Remove the explicit sealed-execution hard stop after adding pure
   fail-closed sealed source-binding tests.
+- [x] Require a fresh detached freeze-tag checkout, frozen install, and complete
+  build before a sealed runner can load BrowserIR code.
+- [x] Bind sealed runs to exact start/end Git state and the byte manifest of the
+  executed core, Playwright-driver, and MCP package builds.
+- [x] Precommit a deterministic model-seed base and give both arms the same
+  derived seed for every matched task/trial block; require non-zero sealed
+  sampling and verify the actual provider invocation parameter.
+- [x] Isolate sealed launcher home/config/cache state, exclude ambient loader
+  and secret variables, and restrict endpoint-reported Ollama identity to a
+  literal non-redirecting loopback endpoint.
+- [x] Make `COMPLETE.json` verify the canonical journal tail plus every required
+  protocol, catalog, environment, execution, and sealed build artifact.
+- [x] Record CPU, logical CPU count, RAM, concurrency, process boundary, and
+  container/VM limit status in the start/end environment binding.
+- [x] Strengthen `validation-recovery` grading so wrong city or country fails,
+  with adversarial oracle tests.
 - [x] Configure the canonical GitHub remote plus repository, homepage, and issue
   metadata.
 - [ ] Create and review a clean Git `HEAD`, then create a freeze tag resolving
@@ -313,11 +329,10 @@ those decisions are recorded. After the final metadata, `private`, and
 `publishConfig` changes, `pnpm verify:release` must pass before candidate
 artifacts are retained or published.
 
-The BIR-097 evidence machinery is implemented, but its release acceptance step
-must run in the future canonical repository: all seven gates, nine runtime
-fragments, and the fail-closed dossier assembler must qualify one clean GitHub
-Actions commit. The resulting 90-day CI artifact must then be promoted
-unchanged to approved durable storage before publication.
+The canonical repository has qualified source-bound commit `0097f28`. The new
+v12 hardening must now pass the same seven-gate, nine-fragment GitHub Actions
+matrix on its own clean commit. The selected 90-day CI artifact must then be
+promoted unchanged to approved durable storage before publication.
 
 ### BIR-080–083 — Opt-in unsafe page evaluation
 
@@ -414,7 +429,7 @@ unaffected document loses valid references.
   per-task and pooled 95% Wilson intervals, micro pass rate, macro task pass
   rate, invalid rate, tool metrics, versions, and fingerprints.
 - [x] Pass the deterministic fake-model real-Chromium/MCP vertical slice and the
-  current 150/150 benchmark package gate. Local Ollama development diagnostics
+  current 191/191 benchmark package gate. Local Ollama development diagnostics
   exist, but no sealed or public real-model score has been run.
 
 This completes the local benchmark mechanism, not a hosted scoring service.
@@ -444,9 +459,10 @@ live probes.
   errors; retain and verify all 28 files including JSON, JUnit, logs,
   `evidence.json`, and `SHA256SUMS`.
 
-This completes the evidence mechanism, not release qualification. The first
-qualified dossier still requires the selected clean commit, and it does not
-resolve npm ownership, version/tag, or publish authorization blockers.
+This completed the evidence mechanism. GitHub Actions later produced a qualified
+dossier for clean commit `0097f28`; the new v12 hardening still requires its own
+qualification. Neither dossier resolves npm ownership, version/tag, durable
+promotion, or publish-authorization blockers.
 
 ### BIR-096 — Local alpha source qualification
 

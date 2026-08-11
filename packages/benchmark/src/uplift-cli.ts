@@ -5,26 +5,26 @@ import { promisify } from 'node:util';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { ChatOpenAI } from '@langchain/openai';
 import { BROWSERIR_PROTOCOL_VERSION, BROWSERIR_VERSION } from '@browserir/mcp';
 
 import { stableJson } from './environment.js';
 import {
   capturePairedExecutionEnvironmentEnd,
+  captureSealedExecutionBuildEnd,
   createPairedAgentBenchmarkCompletionMarker,
   createFixtureAgentTargetFactory,
-  createPairedDevelopmentJournal,
-  createLangChainBrowserAgent,
+  createPairedJournal,
   createPlaywrightMcpToolBroker,
   fixtureAgentTargetVersion,
   fixtureAgentTasks,
   inspectModelFacingCatalog,
   PLAYWRIGHT_MCP_VERSION,
   preparePairedExecutionEnvironmentStart,
+  prepareSealedExecutionBuildStart,
   readPairedAgentBenchmarkCompletionMarker,
   readEvidenceDropProtocol,
-  readPairedDevelopmentJournal,
-  resumePairedDevelopmentJournal,
+  readPairedJournal,
+  resumePairedJournal,
   runPairedAgentBenchmark,
   writePairedAgentBenchmarkArtifacts,
   type AgentBenchmarkArm,
@@ -32,12 +32,15 @@ import {
   type FixtureAgentToolBrokerFactoryInput,
   type ModelFacingCatalogSnapshot,
   type PreparedPairedExecutionEnvironmentStart,
+  type PreparedSealedExecutionBuildStart,
 } from './agent-benchmark/index.js';
 import {
   PAIRED_UPLIFT_CLI_USAGE,
   parsePairedUpliftCliOptions,
   resolvePairedUpliftOutputDirectory,
 } from './uplift-cli-options.js';
+import { createPairedUpliftAgentFactory } from './paired-uplift-agent.js';
+import { finalizePairedUpliftEvidence } from './uplift-cli-finalization.js';
 import {
   assertPairedUpliftSourceBinding,
   classifyPairedUpliftResume,
@@ -66,6 +69,7 @@ async function sourceState(input: {
   revision: string | null;
   tree: string | null;
   clean: boolean;
+  protocolBinding: 'development' | 'frozen_verified';
   freezeRef?: string | undefined;
 }> {
   const gitRaw = async (...args: string[]): Promise<string> =>
@@ -84,6 +88,7 @@ async function sourceState(input: {
     if (input.phase === 'sealed') throw error;
   }
   const clean = status.length === 0;
+  let protocolBinding: 'development' | 'frozen_verified' = 'development';
   if (input.phase === 'sealed') {
     if (input.freezeRef === undefined) {
       throw new Error('Sealed protocol is missing its freezeRef.');
@@ -99,7 +104,7 @@ async function sourceState(input: {
       throw new Error('Sealed protocol manifest must be inside the workspace.');
     }
     const committedSource = await gitRaw('show', `HEAD:${manifestRelativePath}`);
-    assertPairedUpliftSourceBinding({
+    protocolBinding = assertPairedUpliftSourceBinding({
       phase: input.phase,
       freezeRef: input.freezeRef,
       clean,
@@ -115,6 +120,7 @@ async function sourceState(input: {
     revision,
     tree,
     clean,
+    protocolBinding,
     ...(input.freezeRef === undefined ? {} : { freezeRef: input.freezeRef }),
   };
 }
@@ -122,7 +128,7 @@ async function sourceState(input: {
 async function verifyOllamaModel(protocol: EvidenceDropProtocol): Promise<void> {
   if (protocol.agent.provider !== 'ollama') return;
   const tagsUrl = new URL('/api/tags', protocol.agent.baseUrl);
-  const response = await fetch(tagsUrl);
+  const response = await fetch(tagsUrl, { redirect: 'error' });
   if (!response.ok) {
     throw new Error(`Ollama model preflight failed with HTTP ${response.status}.`);
   }
@@ -144,6 +150,7 @@ async function verifyOllamaModel(protocol: EvidenceDropProtocol): Promise<void> 
   if (protocol.agent.contextWindowTokens !== undefined) {
     const showResponse = await fetch(new URL('/api/show', protocol.agent.baseUrl), {
       method: 'POST',
+      redirect: 'error',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ model: protocol.agent.modelId }),
     });
@@ -161,28 +168,6 @@ async function verifyOllamaModel(protocol: EvidenceDropProtocol): Promise<void> 
       );
     }
   }
-}
-
-function modelFor(protocol: EvidenceDropProtocol): ChatOpenAI {
-  if (protocol.agent.provider === 'openai') {
-    if (process.env['OPENAI_API_KEY'] === undefined) {
-      throw new Error('OPENAI_API_KEY is required by the selected protocol.');
-    }
-    return new ChatOpenAI({
-      model: protocol.agent.modelId,
-      temperature: protocol.agent.temperature,
-      maxRetries: protocol.agent.maxRetries,
-      useResponsesApi: false,
-    });
-  }
-  return new ChatOpenAI({
-    model: protocol.agent.modelId,
-    temperature: protocol.agent.temperature,
-    maxRetries: protocol.agent.maxRetries,
-    useResponsesApi: false,
-    apiKey: 'ollama-local-no-secret',
-    configuration: { baseURL: protocol.agent.baseUrl },
-  });
 }
 
 function assertRuntimeVersions(protocol: EvidenceDropProtocol): void {
@@ -262,7 +247,7 @@ async function main(): Promise<void> {
   const retainedBeforeResume =
     cli.resumeDirectory === undefined
       ? undefined
-      : await readPairedDevelopmentJournal(join(outputDirectory, 'journal'));
+      : await readPairedJournal(join(outputDirectory, 'journal'));
   const completionBeforeResume =
     retainedBeforeResume === undefined
       ? undefined
@@ -275,13 +260,14 @@ async function main(): Promise<void> {
           ...(completionBeforeResume === undefined
             ? {}
             : { completion: completionBeforeResume }),
+          phase: protocol.phase,
           protocolId: protocol.protocolId,
           protocolSha256,
         });
   const runId = resumeDisposition?.runId ?? generatedRunId;
   assertRuntimeVersions(protocol);
   await verifyOllamaModel(protocol);
-  const source = await sourceState({
+  const { protocolBinding, ...source } = await sourceState({
     phase: protocol.phase,
     freezeRef: protocol.freezeRef,
     manifestPath,
@@ -344,6 +330,7 @@ async function main(): Promise<void> {
   let journal;
   let resume;
   let environmentStart: PreparedPairedExecutionEnvironmentStart;
+  let buildStart: PreparedSealedExecutionBuildStart | undefined;
   const environmentCollectionOptions = { workspaceRoot, protocol } as const;
   if (retainedBeforeResume === undefined) {
     await mkdir(dirname(outputDirectory), { recursive: true });
@@ -354,12 +341,18 @@ async function main(): Promise<void> {
         flag: 'wx',
       });
     }
+    if (protocol.phase === 'sealed') {
+      buildStart = await prepareSealedExecutionBuildStart({
+        outputDirectory,
+        mode: 'create',
+      });
+    }
     environmentStart = await preparePairedExecutionEnvironmentStart({
       outputDirectory,
       mode: 'create',
       collectionOptions: environmentCollectionOptions,
     });
-    journal = await createPairedDevelopmentJournal(journalDirectory);
+    journal = await createPairedJournal(journalDirectory);
   } else {
     for (const [name, content] of Object.entries(preflightArtifacts)) {
       let existing: string;
@@ -374,6 +367,12 @@ async function main(): Promise<void> {
         throw new Error(`Resume preflight differs from retained evidence: ${name}`);
       }
     }
+    if (protocol.phase === 'sealed') {
+      buildStart = await prepareSealedExecutionBuildStart({
+        outputDirectory,
+        mode: 'resume',
+      });
+    }
     // Verify the immutable start snapshot against live runtime metadata before
     // reopening the journal or allowing a benchmark attempt to start.
     environmentStart = await preparePairedExecutionEnvironmentStart({
@@ -381,28 +380,12 @@ async function main(): Promise<void> {
       mode: 'resume',
       collectionOptions: environmentCollectionOptions,
     });
-    const recovery = await resumePairedDevelopmentJournal(journalDirectory);
+    const recovery = await resumePairedJournal(journalDirectory);
     journal = recovery.journal;
     resume = recovery.state;
   }
-  const modelConfiguration = Object.freeze({
-    provider: protocol.agent.provider,
-    modelDigest: protocol.agent.modelDigest,
-    contextWindowTokens: protocol.agent.contextWindowTokens,
-    temperature: protocol.agent.temperature,
-    maxRetries: protocol.agent.maxRetries,
-    useResponsesApi: false,
-    imageMode: protocol.agent.imageMode,
-  });
-  const agentFactory: AgentBenchmarkArm['agentFactory'] = async () =>
-    createLangChainBrowserAgent({
-      model: modelFor(protocol),
-      modelId: protocol.agent.modelId,
-      adapterId: 'shared-langchain-agent',
-      modelConfiguration,
-      systemPrompt: protocol.agent.systemPrompt,
-      imageMode: protocol.agent.imageMode,
-    });
+  const agentFactory: AgentBenchmarkArm['agentFactory'] =
+    createPairedUpliftAgentFactory(protocol);
 
   process.stderr.write(
     `${resumeStatus(resumeDisposition?.mode)} ${protocol.trialsPerTask} matched ${protocol.phase} block(s) for ${tasks.map((task) => task.id).join(', ')}.\n`,
@@ -411,7 +394,7 @@ async function main(): Promise<void> {
     runId,
     protocolId: protocol.protocolId,
     protocolSha256,
-    protocolBinding: 'development',
+    protocolBinding,
     phase: protocol.phase,
     scheduleSeed: protocol.schedule.orderSeed,
     bootstrapSeed: protocol.schedule.bootstrapSeed,
@@ -450,57 +433,96 @@ async function main(): Promise<void> {
       }
     }
   }
-  const retainedJournal = await readPairedDevelopmentJournal(journalDirectory);
+  const retainedJournal = await readPairedJournal(journalDirectory);
   if (!retainedJournal.complete) {
-    throw new Error('Development journal did not retain the completed schedule.');
+    throw new Error('Paired journal did not retain the completed schedule.');
   }
   const finalJournalEventSha256 = retainedJournal.events.at(-1)?.eventSha256;
   if (finalJournalEventSha256 === undefined) {
-    throw new Error('Completed development journal has no final event digest.');
+    throw new Error('Completed paired journal has no final event digest.');
   }
-  // This recapture happens only after the durable run_completed event exists.
-  const environmentEnd = await capturePairedExecutionEnvironmentEnd({
-    start: environmentStart.snapshot,
-    collectionOptions: environmentCollectionOptions,
-    journalFinalEventSha256: finalJournalEventSha256,
-  });
   const journalNdjson = `${retainedJournal.events
     .map((event) => stableJson(event))
     .join('\n')}\n`;
-  const execution = {
-    schemaVersion: '1.0.0',
-    stage: 'completed',
-    runId,
-    protocolId: protocol.protocolId,
-    protocolSha256,
-    source,
-    toolCatalogs: {
-      control: { sha256: controlCatalog.sha256, toolCount: controlCatalog.toolCount },
-      treatment: {
-        sha256: treatmentCatalog.sha256,
-        toolCount: treatmentCatalog.toolCount,
-      },
+  const retainedBuildStart = buildStart;
+  await finalizePairedUpliftEvidence({
+    phase: protocol.phase,
+    protocolBinding,
+    sourceStart: source,
+    ...(buildStart === undefined ? {} : { buildStart: buildStart.snapshot }),
+    captureSourceEnd: () =>
+      sourceState({
+        phase: protocol.phase,
+        freezeRef: protocol.freezeRef,
+        manifestPath,
+        manifestSource: sourceText,
+      }),
+    captureBuildEnd: (start) => captureSealedExecutionBuildEnd({ start }),
+    // This recapture happens only after the durable run_completed event exists.
+    captureEnvironmentEnd: () =>
+      capturePairedExecutionEnvironmentEnd({
+        start: environmentStart.snapshot,
+        collectionOptions: environmentCollectionOptions,
+        journalFinalEventSha256: finalJournalEventSha256,
+      }),
+    async writeArtifacts({ sourceEnd, buildEnd, environmentEnd }) {
+      let buildProvenance:
+        | { startSha256: string; endSha256: string }
+        | undefined;
+      if (buildEnd !== undefined) {
+        if (retainedBuildStart === undefined) {
+          throw new Error('Sealed execution lost its retained build-start provenance.');
+        }
+        buildProvenance = {
+          startSha256: retainedBuildStart.snapshot.sha256,
+          endSha256: buildEnd.end.sha256,
+        };
+      }
+      const execution = {
+        schemaVersion: '1.0.0',
+        stage: 'completed',
+        runId,
+        protocolId: protocol.protocolId,
+        protocolSha256,
+        source,
+        sourceEnd,
+        ...(buildProvenance === undefined ? {} : { buildProvenance }),
+        toolCatalogs: {
+          control: { sha256: controlCatalog.sha256, toolCount: controlCatalog.toolCount },
+          treatment: {
+            sha256: treatmentCatalog.sha256,
+            toolCount: treatmentCatalog.toolCount,
+          },
+        },
+        journal: {
+          schemaVersion: retainedJournal.events[0]?.schemaVersion,
+          events: retainedJournal.events.length,
+          finalEventSha256: finalJournalEventSha256,
+          complete: retainedJournal.complete,
+        },
+        environment: environmentEnd.binding,
+      };
+      await writePairedAgentBenchmarkArtifacts(outputDirectory, report, {
+        ...preflightArtifacts,
+        'environment-start.json': environmentEnd.renderedStart,
+        'environment-end.json': environmentEnd.renderedEnd,
+        ...(buildEnd === undefined
+          ? {}
+          : {
+              'build-provenance-start.json': buildEnd.renderedStart,
+              'build-provenance-end.json': buildEnd.renderedEnd,
+            }),
+        'execution.json': prettyStableJson(execution),
+        'journal.ndjson': journalNdjson,
+      });
     },
-    journal: {
-      schemaVersion: retainedJournal.events[0]?.schemaVersion,
-      events: retainedJournal.events.length,
-      finalEventSha256: finalJournalEventSha256,
-      complete: retainedJournal.complete,
-    },
-    environment: environmentEnd.binding,
-  };
-  await writePairedAgentBenchmarkArtifacts(outputDirectory, report, {
-    ...preflightArtifacts,
-    'environment-start.json': environmentEnd.renderedStart,
-    'environment-end.json': environmentEnd.renderedEnd,
-    'execution.json': prettyStableJson(execution),
-    'journal.ndjson': journalNdjson,
-  });
-  await createPairedAgentBenchmarkCompletionMarker(outputDirectory, {
-    runId,
-    protocolId: protocol.protocolId,
-    protocolSha256,
-    journalFinalEventSha256: finalJournalEventSha256,
+    createCompletion: () =>
+      createPairedAgentBenchmarkCompletionMarker(outputDirectory, {
+        runId,
+        protocolId: protocol.protocolId,
+        protocolSha256,
+        journalFinalEventSha256: finalJournalEventSha256,
+      }).then(() => undefined),
   });
   process.stdout.write(`${outputDirectory}\n`);
 }

@@ -3,7 +3,7 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { createReadStream } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { arch, platform, release } from 'node:os';
+import { arch, cpus, platform, release, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -15,7 +15,7 @@ import { z } from 'zod';
 import { stableJson } from '../environment.js';
 import { FIXTURE_AGENT_BROWSER_PROFILE } from './fixture-target.js';
 
-export const PAIRED_EXECUTION_ENVIRONMENT_SCHEMA_VERSION = '1.0.0' as const;
+export const PAIRED_EXECUTION_ENVIRONMENT_SCHEMA_VERSION = '1.1.0' as const;
 export const PAIRED_EXECUTION_INTEGRITY_BINDING_SCHEMA_VERSION = '1.0.0' as const;
 
 const execFile = promisify(execFileCallback);
@@ -40,6 +40,20 @@ const hostSchema = z
     platform: boundedPrintable,
     release: boundedPrintable,
     arch: boundedPrintable,
+    hardware: z
+      .object({
+        cpuModel: boundedPrintable,
+        logicalCpuCount: z.number().int().positive(),
+        memoryBytes: z.number().int().positive(),
+      })
+      .strict(),
+    resourceLimits: z
+      .object({
+        attemptConcurrency: z.literal(1),
+        processBoundary: z.literal(false),
+        containerOrVmLimits: z.literal('unverified'),
+      })
+      .strict(),
   })
   .strict();
 
@@ -91,7 +105,10 @@ const modelSchema = z
     provider: z.enum(['ollama', 'openai']),
     modelId: boundedPrintable,
     artifactDigest: prefixedDigestSchema,
-    verification: z.enum(['ollama-local-digest', 'protocol-declared-unverified']),
+    verification: z.enum([
+      'ollama-endpoint-reported-digest',
+      'protocol-declared-unverified',
+    ]),
     runtime: z
       .object({
         name: boundedPrintable,
@@ -368,10 +385,11 @@ async function ollamaModel(
     throw new Error('Ollama environment capture requires an explicit endpoint.');
   }
   const [versionResponse, tagsResponse, showResponse] = await Promise.all([
-    fetch(new URL('/api/version', protocol.agent.baseUrl)),
-    fetch(new URL('/api/tags', protocol.agent.baseUrl)),
+    fetch(new URL('/api/version', protocol.agent.baseUrl), { redirect: 'error' }),
+    fetch(new URL('/api/tags', protocol.agent.baseUrl), { redirect: 'error' }),
     fetch(new URL('/api/show', protocol.agent.baseUrl), {
       method: 'POST',
+      redirect: 'error',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ model: protocol.agent.modelId }),
     }),
@@ -414,7 +432,7 @@ async function ollamaModel(
     provider: 'ollama',
     modelId: protocol.agent.modelId,
     artifactDigest,
-    verification: 'ollama-local-digest',
+    verification: 'ollama-endpoint-reported-digest',
     runtime: { name: 'ollama', version: serverVersion },
     configuration: {
       ...(contextWindowTokens === undefined ? {} : { contextWindowTokens }),
@@ -438,11 +456,24 @@ export const createDefaultPairedExecutionEnvironmentProbe =
     return pending;
   };
   return {
-    host: async () => ({
-      platform: platform(),
-      release: release(),
-      arch: arch(),
-    }),
+    host: async () => {
+      const processors = cpus();
+      return {
+        platform: platform(),
+        release: release(),
+        arch: arch(),
+        hardware: {
+          cpuModel: processors[0]?.model ?? 'unknown',
+          logicalCpuCount: processors.length,
+          memoryBytes: totalmem(),
+        },
+        resourceLimits: {
+          attemptConcurrency: 1,
+          processBoundary: false,
+          containerOrVmLimits: 'unverified',
+        },
+      };
+    },
     harness: async (workspaceRoot) => {
       const rootManifest = await manifest(join(workspaceRoot, 'package.json'));
       if (typeof rootManifest.packageManager !== 'string') {

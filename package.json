@@ -21,6 +21,7 @@
     "benchmark": "pnpm --filter @browserir/benchmark benchmark",
     "benchmark:agent": "pnpm --filter @browserir/benchmark benchmark:agent",
     "benchmark:uplift": "pnpm --filter @browserir/benchmark benchmark:uplift",
+    "benchmark:uplift:sealed": "node scripts/run-sealed-uplift.mjs",
     "benchmark:representation": "pnpm --filter @browserir/benchmark benchmark:representation",
     "release:evidence": "node scripts/record-release-evidence.mjs",
     "release:evidence:assemble": "node scripts/assemble-release-evidence.mjs",

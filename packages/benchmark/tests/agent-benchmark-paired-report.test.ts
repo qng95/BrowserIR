@@ -157,7 +157,7 @@ describe('paired agent benchmark artifacts', () => {
     };
 
     expect(renderPairedAgentBenchmarkMarkdown(sufficient)).toContain(
-      'BrowserIR improved success on this workflow',
+      'BrowserIR had higher success across this precommitted workflow/seed schedule',
     );
   });
 
@@ -306,12 +306,16 @@ describe('paired agent benchmark artifacts', () => {
     const paths = await writePairedAgentBenchmarkArtifacts(output, report(), {
       'protocol.json': '{"protocol":true}\n',
       'system-prompt.txt': 'neutral prompt\n',
+      'build-provenance-start.json': '{"build":"start"}\n',
+      'build-provenance-end.json': '{"build":"end"}\n',
       'environment-start.json': '{"snapshot":"start"}\n',
       'environment-end.json': '{"snapshot":"end"}\n',
     });
     expect((await readdir(output)).sort()).toEqual([
       'SHA256SUMS',
       'attempts.ndjson',
+      'build-provenance-end.json',
+      'build-provenance-start.json',
       'comparison.json',
       'environment-end.json',
       'environment-start.json',
@@ -322,12 +326,16 @@ describe('paired agent benchmark artifacts', () => {
     expect(await readFile(paths.summaryMarkdown, 'utf8')).toContain('Evidence Drop comparison');
     const checksums = await readFile(paths.checksums, 'utf8');
     expect(checksums).toContain('protocol.json');
+    expect(checksums).toContain('build-provenance-start.json');
+    expect(checksums).toContain('build-provenance-end.json');
     expect(checksums).toContain('environment-start.json');
     expect(checksums).toContain('environment-end.json');
     await expect(
       writePairedAgentBenchmarkArtifacts(output, report(), {
         'protocol.json': '{"protocol":true}\n',
         'system-prompt.txt': 'neutral prompt\n',
+        'build-provenance-start.json': '{"build":"start"}\n',
+        'build-provenance-end.json': '{"build":"end"}\n',
         'environment-start.json': '{"snapshot":"start"}\n',
         'environment-end.json': '{"snapshot":"end"}\n',
       }),

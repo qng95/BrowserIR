@@ -150,6 +150,7 @@ function insertTaskCustomer(
   creditLimit: number,
   city: string,
   vatId: string | null,
+  country = 'Germany',
 ): number {
   const count = Number((db.prepare('SELECT COUNT(*) AS n FROM customers').get() as Row)['n']);
   const result = db
@@ -163,7 +164,7 @@ function insertTaskCustomer(
       name,
       'Prospect',
       city,
-      'Germany',
+      country,
       'test',
       'Retail',
       creditLimit,
@@ -254,6 +255,32 @@ describe('task oracle contracts', () => {
     recordCustomerCreate(correct, id, 'Nordlicht Spedition');
     expect(task('validation-recovery').verify(correct)).toMatchObject({ outcome: 'passed', passed: true });
     correct.close();
+  });
+
+  it('rejects validation recovery when the customer is created in the wrong city', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    recordRejectedCustomerCreate(db, 'Nordlicht Spedition', 400000);
+    const id = insertTaskCustomer(db, 'Nordlicht Spedition', 250000, 'Hamburg', null);
+    recordCustomerCreate(db, id, 'Nordlicht Spedition');
+
+    const result = task('validation-recovery').verify(db);
+    db.close();
+
+    expect(result).toMatchObject({ outcome: 'failed', passed: false });
+    expect(result.reason).toContain('Bremen');
+  });
+
+  it('rejects validation recovery when the customer is created in the wrong country', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    recordRejectedCustomerCreate(db, 'Nordlicht Spedition', 400000);
+    const id = insertTaskCustomer(db, 'Nordlicht Spedition', 250000, 'Bremen', null, 'Belgium');
+    recordCustomerCreate(db, id, 'Nordlicht Spedition');
+
+    const result = task('validation-recovery').verify(db);
+    db.close();
+
+    expect(result).toMatchObject({ outcome: 'failed', passed: false });
+    expect(result.reason).toContain('Germany');
   });
 
   it('requires one genuine target delivery and rejects near misses or collateral deliveries', () => {

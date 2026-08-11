@@ -85,7 +85,7 @@ Use this exact scoped formulation:
 > fixture tasks through real Chromium and the official MCP client, using 299
 > MCP calls with zero tool errors. A separate checked-in representation corpus
 > matched 31 entities, 44 capabilities, and 28 relationships without errors in
-> that corpus. GitHub Actions reproduced these results on commit `e21fb1b` and
+> that corpus. GitHub Actions reproduced these results on commit `0097f28` and
 > assembled a checksummed release-evidence dossier. They are system qualification,
 > not an LLM or competitor score.
 

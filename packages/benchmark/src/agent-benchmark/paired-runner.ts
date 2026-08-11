@@ -214,6 +214,7 @@ const validateResume = (
     resume.run.protocolId !== options.protocolId ||
     resume.run.protocolSha256 !== options.protocolSha256 ||
     resume.run.phase !== options.phase ||
+    (resume.run.protocolBinding ?? 'development') !== options.protocolBinding ||
     resume.run.scheduledBlocks !== scheduledBlocks
   ) {
     throw new Error('Resume journal does not match the paired benchmark run.');
@@ -238,7 +239,7 @@ const validateResume = (
     }
     if (Object.keys(retained.activeAttempts).length !== 0) {
       throw new Error(
-        `Resume journal still has an active attempt in ${retained.blockId}; reopen it through resumePairedDevelopmentJournal first.`,
+        `Resume journal still has an active attempt in ${retained.blockId}; reopen it through resumePairedJournal first.`,
       );
     }
   }
@@ -340,6 +341,7 @@ export async function runPairedAgentBenchmark(
       protocolId: options.protocolId,
       protocolSha256: options.protocolSha256,
       phase: options.phase,
+      protocolBinding: options.protocolBinding,
       scheduledBlocks,
     });
   }

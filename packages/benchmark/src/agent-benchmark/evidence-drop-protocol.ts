@@ -48,6 +48,7 @@ const protocolSchema = z
       .object({
         orderSeed: unsigned32,
         bootstrapSeed: unsigned32,
+        modelSeedBase: unsigned32.optional(),
         bootstrapResamples: z.number().int().min(1_000),
         stoppingRule: z.literal('run-entire-schedule'),
         invalidReplacementPolicy: z.literal('none'),
@@ -153,6 +154,38 @@ const protocolSchema = z
         );
       }
     } else {
+      if (protocol.schedule.modelSeedBase === undefined) {
+        add(
+          ['schedule', 'modelSeedBase'],
+          'A sealed protocol requires a precommitted modelSeedBase.',
+        );
+      }
+      if (protocol.agent.temperature <= 0) {
+        add(
+          ['agent', 'temperature'],
+          'A sealed protocol requires a stochastic temperature greater than zero so precommitted model seeds can define distinct sampling trials.',
+        );
+      }
+      if (protocol.agent.provider === 'ollama' && protocol.agent.baseUrl !== undefined) {
+        const endpoint = new URL(protocol.agent.baseUrl);
+        const loopbackHost =
+          endpoint.hostname === '127.0.0.1' || endpoint.hostname === '[::1]';
+        if (
+          endpoint.protocol !== 'http:' ||
+          !loopbackHost ||
+          endpoint.port.length === 0 ||
+          endpoint.username.length > 0 ||
+          endpoint.password.length > 0 ||
+          endpoint.search.length > 0 ||
+          endpoint.hash.length > 0 ||
+          (endpoint.pathname !== '/v1' && endpoint.pathname !== '/v1/')
+        ) {
+          add(
+            ['agent', 'baseUrl'],
+            'A sealed Ollama protocol requires an explicit http://127.0.0.1:PORT/v1 or http://[::1]:PORT/v1 loopback endpoint without credentials, query, or fragment.',
+          );
+        }
+      }
       if (protocol.status !== 'frozen') {
         add(['status'], 'A sealed protocol must be frozen.');
       }

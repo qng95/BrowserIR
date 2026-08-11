@@ -10,7 +10,7 @@ import type {
   BinomialInterval,
   BrowserAgentAdapter,
 } from './contracts.js';
-import type { ReconstructedDevelopmentRun } from './paired-journal.js';
+import type { ReconstructedPairedRun } from './paired-journal.js';
 
 export const PAIRED_AGENT_BENCHMARK_SCHEMA_VERSION = '1.0.0' as const;
 
@@ -24,7 +24,7 @@ export type PairedBlockOutcome =
   | 'invalid';
 
 /**
- * Score-bearing attempt evidence safe for an append-only development journal.
+ * Score-bearing attempt evidence safe for an append-only paired journal.
  *
  * This is an explicit allowlist. Model/page text, submitted values, error
  * messages, policy messages, oracle descriptions, and oracle evidence never
@@ -97,6 +97,8 @@ export type PairedBenchmarkLifecycleEvent =
       protocolId: string;
       protocolSha256: string;
       phase: PairedBenchmarkPhase;
+      /** Required for sealed journals; optional only for retained legacy development journals. */
+      protocolBinding?: 'development' | 'frozen_verified' | undefined;
       scheduledBlocks: number;
     }
   | {
@@ -287,5 +289,5 @@ export interface PairedAgentBenchmarkOptions {
   /** Awaited before the next lifecycle step; a persistence failure aborts the run. */
   eventSink?: PairedBenchmarkEventSink | undefined;
   /** Validated journal state from the same run. Completed attempts are reused. */
-  resume?: ReconstructedDevelopmentRun | undefined;
+  resume?: ReconstructedPairedRun | undefined;
 }

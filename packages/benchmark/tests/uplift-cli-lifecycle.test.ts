@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type {
   PairedAgentBenchmarkCompletionMarker,
-  ReconstructedDevelopmentRun,
+  ReconstructedPairedRun,
 } from '../src/agent-benchmark/index.js';
 import {
   assertPairedUpliftSourceBinding,
@@ -11,13 +11,16 @@ import {
 
 const digest = (character: string): string => character.repeat(64);
 
-const retained = (complete: boolean): ReconstructedDevelopmentRun => ({
+const retained = (
+  complete: boolean,
+  phase: 'development' | 'sealed' = 'development',
+): ReconstructedPairedRun => ({
   run: {
     type: 'run_started',
     runId: 'drop-01-development-run',
     protocolId: 'drop-01-development-v5',
     protocolSha256: digest('a'),
-    phase: 'development',
+    phase,
     scheduledBlocks: 1,
   },
   blocks: [],
@@ -45,7 +48,7 @@ const retained = (complete: boolean): ReconstructedDevelopmentRun => ({
         runId: 'drop-01-development-run',
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
-        phase: 'development',
+        phase,
         scheduledBlocks: 1,
       },
       eventSha256: complete ? digest('f') : digest('e'),
@@ -65,7 +68,7 @@ const completion = (): PairedAgentBenchmarkCompletionMarker => ({
 
 describe('paired uplift CLI resume lifecycle', () => {
   it('accepts only a clean frozen source binding for sealed execution', () => {
-    expect(() =>
+    expect(
       assertPairedUpliftSourceBinding({
         phase: 'sealed',
         freezeRef: 'evidence-drop-01-freeze',
@@ -77,8 +80,8 @@ describe('paired uplift CLI resume lifecycle', () => {
         manifestSource: '{"phase":"sealed"}\n',
         committedManifestSource: '{"phase":"sealed"}\n',
       }),
-    ).not.toThrow();
-    expect(() =>
+    ).toBe('frozen_verified');
+    expect(
       assertPairedUpliftSourceBinding({
         phase: 'development',
         clean: false,
@@ -86,7 +89,7 @@ describe('paired uplift CLI resume lifecycle', () => {
         tree: null,
         manifestSource: '{}\n',
       }),
-    ).not.toThrow();
+    ).toBe('development');
   });
 
   it('fails closed for dirty, unfrozen, external, or changed sealed source', () => {
@@ -123,6 +126,7 @@ describe('paired uplift CLI resume lifecycle', () => {
     expect(
       classifyPairedUpliftResume({
         retained: retained(false),
+        phase: 'development',
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
       }),
@@ -130,16 +134,57 @@ describe('paired uplift CLI resume lifecycle', () => {
     expect(
       classifyPairedUpliftResume({
         retained: retained(true),
+        phase: 'development',
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
       }),
     ).toEqual({ mode: 'finalize_only', runId: 'drop-01-development-run' });
   });
 
+  it('fails closed when the retained journal phase differs from the selected manifest', () => {
+    expect(() =>
+      classifyPairedUpliftResume({
+        retained: retained(false, 'sealed'),
+        phase: 'development',
+        protocolId: 'drop-01-development-v5',
+        protocolSha256: digest('a'),
+      }),
+    ).toThrow(/phase/i);
+
+    expect(
+      classifyPairedUpliftResume({
+        retained: retained(false, 'sealed'),
+        phase: 'sealed',
+        protocolId: 'drop-01-development-v5',
+        protocolSha256: digest('a'),
+      }),
+    ).toEqual({ mode: 'continue', runId: 'drop-01-development-run' });
+  });
+
+  it('fails closed when the retained journal protocol identity differs', () => {
+    expect(() =>
+      classifyPairedUpliftResume({
+        retained: retained(false),
+        phase: 'development',
+        protocolId: 'other-protocol',
+        protocolSha256: digest('a'),
+      }),
+    ).toThrow(/identity/i);
+    expect(() =>
+      classifyPairedUpliftResume({
+        retained: retained(false),
+        phase: 'development',
+        protocolId: 'drop-01-development-v5',
+        protocolSha256: digest('9'),
+      }),
+    ).toThrow(/identity/i);
+  });
+
   it('validates a retained completion marker and rejects an already finalized run', () => {
     expect(() =>
       classifyPairedUpliftResume({
         retained: retained(true),
+        phase: 'development',
         completion: completion(),
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
@@ -151,6 +196,7 @@ describe('paired uplift CLI resume lifecycle', () => {
     expect(() =>
       classifyPairedUpliftResume({
         retained: retained(true),
+        phase: 'development',
         completion: { ...completion(), journalFinalEventSha256: digest('9') },
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
@@ -159,6 +205,7 @@ describe('paired uplift CLI resume lifecycle', () => {
     expect(() =>
       classifyPairedUpliftResume({
         retained: retained(true),
+        phase: 'development',
         completion: { ...completion(), protocolId: 'other-protocol' },
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),
@@ -170,6 +217,7 @@ describe('paired uplift CLI resume lifecycle', () => {
     expect(() =>
       classifyPairedUpliftResume({
         retained: retained(false),
+        phase: 'development',
         completion: completion(),
         protocolId: 'drop-01-development-v5',
         protocolSha256: digest('a'),

@@ -5,9 +5,11 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {
-  createPairedDevelopmentJournal,
-  readPairedDevelopmentJournal,
-  resumePairedDevelopmentJournal,
+  createPairedJournal,
+  PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION,
+  PAIRED_JOURNAL_SCHEMA_VERSION,
+  readPairedJournal,
+  resumePairedJournal,
   toJournalSafeAttempt,
 } from '../src/agent-benchmark/paired-journal.js';
 import type {
@@ -78,7 +80,9 @@ const safeAttempt = (
     },
   });
 
-const lifecycle = (): PairedBenchmarkLifecycleEvent[] => {
+const lifecycle = (
+  phase: 'development' | 'sealed' = 'development',
+): PairedBenchmarkLifecycleEvent[] => {
   const control = safeAttempt('control', 'failed');
   const treatment = safeAttempt('treatment', 'passed');
   return [
@@ -87,7 +91,8 @@ const lifecycle = (): PairedBenchmarkLifecycleEvent[] => {
       runId: 'dev-run',
       protocolId: 'drop-01-dev-v1',
       protocolSha256: 'a'.repeat(64),
-      phase: 'development',
+      phase,
+      protocolBinding: phase === 'sealed' ? 'frozen_verified' : 'development',
       scheduledBlocks: 1,
     },
     {
@@ -138,12 +143,12 @@ const lifecycle = (): PairedBenchmarkLifecycleEvent[] => {
   ];
 };
 
-describe('paired development crash journal', () => {
+describe('paired crash journal', () => {
   it('writes atomic create-only hash-chained events and reconstructs a completed run', async () => {
     const root = await mkdtemp(join(tmpdir(), 'browserir-journal-'));
     temporaryDirectories.push(root);
     const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
+    const journal = await createPairedJournal(directory);
     for (const event of lifecycle()) await journal.append(event);
 
     const names = (await readdir(directory)).filter((name) => !name.startsWith('.')).sort();
@@ -161,7 +166,7 @@ describe('paired development crash journal', () => {
     expect(first.previousEventSha256).toBeNull();
     expect(second.previousEventSha256).toBe(first.eventSha256);
 
-    const retained = await readPairedDevelopmentJournal(directory);
+    const retained = await readPairedJournal(directory);
     expect(retained.complete).toBe(true);
     expect(retained.run).toMatchObject({ runId: 'dev-run', scheduledBlocks: 1 });
     expect(retained.blocks).toHaveLength(1);
@@ -174,17 +179,43 @@ describe('paired development crash journal', () => {
       },
     });
 
-    await expect(createPairedDevelopmentJournal(directory)).rejects.toThrow(/exist|create-only/i);
+    await expect(createPairedJournal(directory)).rejects.toThrow(/exist|create-only/i);
+  });
+
+  it('retains a sealed run without changing the journal evidence schema', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'browserir-journal-sealed-'));
+    temporaryDirectories.push(root);
+    const directory = join(root, 'journal');
+    const journal = await createPairedJournal(directory);
+    for (const event of lifecycle('sealed')) await journal.append(event);
+
+    const retained = await readPairedJournal(directory);
+    expect(retained.run).toMatchObject({
+      phase: 'sealed',
+      protocolBinding: 'frozen_verified',
+    });
+    expect(retained.events[0]?.schemaVersion).toBe('1.0.0');
+    expect(PAIRED_JOURNAL_SCHEMA_VERSION).toBe(
+      PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION,
+    );
+
+    const invalidDirectory = join(root, 'invalid-journal');
+    const invalid = await createPairedJournal(invalidDirectory);
+    const runStarted = lifecycle('sealed')[0]!;
+    if (runStarted.type !== 'run_started') throw new Error('Expected run_started fixture.');
+    await expect(
+      invalid.append({ ...runStarted, protocolBinding: undefined }),
+    ).rejects.toThrow(/protocol binding.*phase/i);
   });
 
   it('retains a valid incomplete development run after a crash', async () => {
     const root = await mkdtemp(join(tmpdir(), 'browserir-journal-partial-'));
     temporaryDirectories.push(root);
     const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
+    const journal = await createPairedJournal(directory);
     for (const event of lifecycle().slice(0, 4)) await journal.append(event);
 
-    const retained = await readPairedDevelopmentJournal(directory);
+    const retained = await readPairedJournal(directory);
     expect(retained.complete).toBe(false);
     expect(retained.blocks[0]).toMatchObject({
       blockId: 'dev-run:paired-task:0',
@@ -193,53 +224,58 @@ describe('paired development crash journal', () => {
     expect(retained.blocks[0]?.outcome).toBeUndefined();
   });
 
-  it('resumes the hash chain and records an orphaned start as interrupted', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'browserir-journal-resume-'));
-    temporaryDirectories.push(root);
-    const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
-    for (const event of lifecycle().slice(0, 3)) await journal.append(event);
+  it.each(['development', 'sealed'] as const)(
+    'resumes the %s hash chain and records an orphaned start as interrupted',
+    async (phase) => {
+      const root = await mkdtemp(join(tmpdir(), `browserir-journal-resume-${phase}-`));
+      temporaryDirectories.push(root);
+      const directory = join(root, 'journal');
+      const journal = await createPairedJournal(directory);
+      for (const event of lifecycle(phase).slice(0, 3)) await journal.append(event);
 
-    const resumed = await resumePairedDevelopmentJournal(directory);
+      const resumed = await resumePairedJournal(directory);
 
-    expect(resumed.state.complete).toBe(false);
-    expect(resumed.state.blocks[0]).toMatchObject({
-      interruptions: {
-        control: [
-          {
-            attemptId: 'dev-run:paired-task:0:control',
-            reason: 'process_restart',
-          },
-        ],
-      },
-    });
-    expect(resumed.state.blocks[0]?.activeAttempts).toEqual({});
+      expect(resumed.state.complete).toBe(false);
+      expect(resumed.state.blocks[0]).toMatchObject({
+        interruptions: {
+          control: [
+            {
+              attemptId: 'dev-run:paired-task:0:control',
+              reason: 'process_restart',
+            },
+          ],
+        },
+      });
+      expect(resumed.state.blocks[0]?.activeAttempts).toEqual({});
 
-    await resumed.journal.append({
-      type: 'attempt_started',
-      blockId: 'dev-run:paired-task:0',
-      attemptId: 'dev-run:paired-task:0:control',
-      taskId: 'paired-task',
-      trialIndex: 0,
-      role: 'control',
-    });
+      await resumed.journal.append({
+        type: 'attempt_started',
+        blockId: 'dev-run:paired-task:0',
+        attemptId: 'dev-run:paired-task:0:control',
+        taskId: 'paired-task',
+        trialIndex: 0,
+        role: 'control',
+      });
 
-    const names = (await readdir(directory)).filter((name) => !name.startsWith('.')).sort();
-    expect(names.slice(-2)).toEqual([
-      '000003-attempt_interrupted.json',
-      '000004-attempt_started.json',
-    ]);
-    const retained = await readPairedDevelopmentJournal(directory);
-    expect(retained.blocks[0]?.activeAttempts).toMatchObject({
-      control: { attemptId: 'dev-run:paired-task:0:control' },
-    });
-  });
+      const names = (await readdir(directory))
+        .filter((name) => !name.startsWith('.'))
+        .sort();
+      expect(names.slice(-2)).toEqual([
+        '000003-attempt_interrupted.json',
+        '000004-attempt_started.json',
+      ]);
+      const retained = await readPairedJournal(directory);
+      expect(retained.blocks[0]?.activeAttempts).toMatchObject({
+        control: { attemptId: 'dev-run:paired-task:0:control' },
+      });
+    },
+  );
 
   it('fails closed when a committed event is changed', async () => {
     const root = await mkdtemp(join(tmpdir(), 'browserir-journal-tamper-'));
     temporaryDirectories.push(root);
     const directory = join(root, 'journal');
-    const journal = await createPairedDevelopmentJournal(directory);
+    const journal = await createPairedJournal(directory);
     for (const event of lifecycle().slice(0, 2)) await journal.append(event);
     const names = (await readdir(directory)).filter((name) => !name.startsWith('.')).sort();
     const secondPath = join(directory, names[1]!);
@@ -249,7 +285,7 @@ describe('paired development crash journal', () => {
     second.event.taskId = 'tampered-task';
     await writeFile(secondPath, `${JSON.stringify(second)}\n`, 'utf8');
 
-    await expect(readPairedDevelopmentJournal(directory)).rejects.toThrow(/hash|digest|chain/i);
+    await expect(readPairedJournal(directory)).rejects.toThrow(/hash|digest|chain/i);
   });
 
   it('projects attempts through an explicit public-safe allowlist', () => {

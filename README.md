@@ -30,7 +30,7 @@
 
 <p align="center">
   <sub>14/14 was reproduced by a clean, source-bound GitHub Actions run on
-  <a href="https://github.com/qng95/BrowserIR/actions/runs/31518078584"><code>e21fb1b</code></a>.
+  <a href="https://github.com/qng95/BrowserIR/actions/runs/31520630516"><code>0097f28</code></a>.
   It is deterministic system qualification—not an LLM or competitor score.</sub>
 </p>
 
@@ -176,7 +176,7 @@ invented for the README.
 | **18 / 18 omissions** | Every known item hidden by a bounded scan was reported as omitted. BrowserIR did not turn “not scanned” into “nothing exists.” |
 
 **The scope matters:** these figures were reproduced by clean, source-bound CI
-on commit [`e21fb1b`](https://github.com/qng95/BrowserIR/actions/runs/31518078584),
+on commit [`0097f28`](https://github.com/qng95/BrowserIR/actions/runs/31520630516),
 and the run produced a checksummed release-evidence dossier. The 14/14 result is
 a deterministic BrowserIR system qualification through real Chromium and the
 official MCP client—not an LLM score. The 1.00
@@ -185,6 +185,11 @@ result applies only to the 11-case checked-in ground-truth corpus: 31 entities,
 are retained in the [evidence ledger](docs/EVIDENCE_DROPS.md#development-feedback-ledger),
 but none is included in these headline scores. No sealed real-model or public
 competitor result exists yet.
+
+> **Paired benchmark status:** the BrowserIR/official Playwright MCP harness now
+> fails closed on source, built-package, environment, journal, and precommitted
+> model-seed drift. This is benchmark infrastructure—not an uplift result. No
+> sealed comparison score has been published yet.
 
 The 14 database-judged workflows exercise:
 

@@ -24,7 +24,10 @@ import type {
   PairedBlockOutcome,
 } from './paired-contracts.js';
 
-export const PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION = '1.0.0' as const;
+export const PAIRED_JOURNAL_SCHEMA_VERSION = '1.0.0' as const;
+/** @deprecated Use PAIRED_JOURNAL_SCHEMA_VERSION. Retained for evidence/API compatibility. */
+export const PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION =
+  PAIRED_JOURNAL_SCHEMA_VERSION;
 
 const sha256Pattern = /^[a-f0-9]{64}$/;
 const journalFilePattern = /^(\d{6})-([a-z_]+)\.json$/;
@@ -288,7 +291,8 @@ const lifecycleEventSchema = z.discriminatedUnion('type', [
       runId: boundedText,
       protocolId: boundedText,
       protocolSha256: digestSchema,
-      phase: z.literal('development'),
+      phase: z.enum(['development', 'sealed']),
+      protocolBinding: z.enum(['development', 'frozen_verified']).optional(),
       scheduledBlocks: z.number().int().positive(),
     })
     .strict(),
@@ -353,7 +357,7 @@ const lifecycleEventSchema = z.discriminatedUnion('type', [
 
 const journalEnvelopeSchema = z
   .object({
-    schemaVersion: z.literal(PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION),
+    schemaVersion: z.literal(PAIRED_JOURNAL_SCHEMA_VERSION),
     sequence: nonNegativeInteger,
     recordedAt: z.string().datetime({ offset: true }),
     previousEventSha256: digestSchema.nullable(),
@@ -362,8 +366,8 @@ const journalEnvelopeSchema = z
   })
   .strict();
 
-export interface PairedDevelopmentJournalEnvelope {
-  schemaVersion: typeof PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION;
+export interface PairedJournalEnvelope {
+  schemaVersion: typeof PAIRED_JOURNAL_SCHEMA_VERSION;
   sequence: number;
   recordedAt: string;
   previousEventSha256: string | null;
@@ -371,7 +375,10 @@ export interface PairedDevelopmentJournalEnvelope {
   eventSha256: string;
 }
 
-export interface ReconstructedDevelopmentBlock {
+/** @deprecated Use PairedJournalEnvelope. */
+export type PairedDevelopmentJournalEnvelope = PairedJournalEnvelope;
+
+export interface ReconstructedPairedBlock {
   blockId: string;
   taskId: string;
   taskVersion?: string | undefined;
@@ -394,13 +401,19 @@ export interface ReconstructedDevelopmentBlock {
   integrityFailures?: PairedAgentBenchmarkBlock['integrityFailures'] | undefined;
 }
 
-export interface ReconstructedDevelopmentRun {
+/** @deprecated Use ReconstructedPairedBlock. */
+export type ReconstructedDevelopmentBlock = ReconstructedPairedBlock;
+
+export interface ReconstructedPairedRun {
   run: Extract<PairedBenchmarkLifecycleEvent, { type: 'run_started' }>;
-  blocks: ReconstructedDevelopmentBlock[];
+  blocks: ReconstructedPairedBlock[];
   complete: boolean;
   completed?: Extract<PairedBenchmarkLifecycleEvent, { type: 'run_completed' }> | undefined;
-  events: readonly PairedDevelopmentJournalEnvelope[];
+  events: readonly PairedJournalEnvelope[];
 }
+
+/** @deprecated Use ReconstructedPairedRun. */
+export type ReconstructedDevelopmentRun = ReconstructedPairedRun;
 
 const expectedBlockOutcome = (
   attempts: Record<AgentBenchmarkArmRole, JournalSafeAgentTrialResult>,
@@ -422,24 +435,29 @@ const expectedBlockOutcome = (
   return attempts.treatment.outcome === 'passed' ? 'treatment_win' : 'control_win';
 };
 
-export function reconstructPairedDevelopmentRun(
-  envelopes: readonly PairedDevelopmentJournalEnvelope[],
-): ReconstructedDevelopmentRun {
+export function reconstructPairedRun(
+  envelopes: readonly PairedJournalEnvelope[],
+): ReconstructedPairedRun {
   if (envelopes.length === 0 || envelopes[0]!.event.type !== 'run_started') {
-    throw new Error('Development journal must begin with run_started.');
+    throw new Error('Paired journal must begin with run_started.');
   }
   const run = envelopes[0]!.event;
-  if (run.phase !== 'development') {
-    throw new Error('The development journal cannot retain a sealed run.');
+  if (
+    (run.phase === 'sealed' && run.protocolBinding !== 'frozen_verified') ||
+    (run.phase === 'development' &&
+      run.protocolBinding !== undefined &&
+      run.protocolBinding !== 'development')
+  ) {
+    throw new Error('Paired journal protocol binding does not match its run phase.');
   }
-  const blocks = new Map<string, ReconstructedDevelopmentBlock>();
-  let currentBlock: ReconstructedDevelopmentBlock | undefined;
+  const blocks = new Map<string, ReconstructedPairedBlock>();
+  let currentBlock: ReconstructedPairedBlock | undefined;
   let completed: Extract<PairedBenchmarkLifecycleEvent, { type: 'run_completed' }> | undefined;
 
   for (let index = 1; index < envelopes.length; index += 1) {
     const event = envelopes[index]!.event;
-    if (completed !== undefined) throw new Error('Development journal has events after run_completed.');
-    if (event.type === 'run_started') throw new Error('Development journal contains duplicate run_started.');
+    if (completed !== undefined) throw new Error('Paired journal has events after run_completed.');
+    if (event.type === 'run_started') throw new Error('Paired journal contains duplicate run_started.');
     if (event.type === 'block_started') {
       if (currentBlock !== undefined && currentBlock.outcome === undefined) {
         throw new Error(`Block ${currentBlock.blockId} is incomplete before the next block.`);
@@ -577,8 +595,69 @@ export function reconstructPairedDevelopmentRun(
   };
 }
 
+/**
+ * Parses the canonical public NDJSON projection of a paired journal. This is
+ * the evidence-verification counterpart to readPairedJournal: it validates the
+ * strict envelope/event schemas, hash chain, and full lifecycle state machine.
+ */
+export function parsePairedJournalNdjson(source: string): ReconstructedPairedRun {
+  if (!source.endsWith('\n')) {
+    throw new Error('Paired journal NDJSON is not canonical.');
+  }
+  const lines = source.slice(0, -1).split('\n');
+  if (lines.length === 0 || lines.some((line) => line.length === 0)) {
+    throw new Error('Paired journal NDJSON is empty or malformed.');
+  }
+
+  const envelopes: PairedJournalEnvelope[] = [];
+  let previousEventSha256: string | null = null;
+  for (let sequence = 0; sequence < lines.length; sequence += 1) {
+    const line = lines[sequence]!;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(line) as unknown;
+    } catch (error) {
+      throw new Error(
+        `Paired journal NDJSON event ${sequence} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    if (stableJson(raw) !== line) {
+      throw new Error(`Paired journal NDJSON event ${sequence} is not canonical.`);
+    }
+
+    const parsed = journalEnvelopeSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new Error(
+        `Paired journal NDJSON event ${sequence} is invalid: ${parsed.error.issues
+          .map((issue) => `${issue.path.join('.') || 'root'}: ${issue.message}`)
+          .join('; ')}`,
+      );
+    }
+    const envelope = parsed.data as PairedJournalEnvelope;
+    if (envelope.sequence !== sequence) {
+      throw new Error(`Paired journal NDJSON sequence mismatch at event ${sequence}.`);
+    }
+    if (envelope.previousEventSha256 !== previousEventSha256) {
+      throw new Error(`Paired journal NDJSON hash chain mismatch at event ${sequence}.`);
+    }
+    const { eventSha256, ...unsigned } = envelope;
+    const actual = createHash('sha256')
+      .update(envelopeHashInput(unsigned), 'utf8')
+      .digest('hex');
+    if (eventSha256 !== actual) {
+      throw new Error(`Paired journal NDJSON event digest mismatch at event ${sequence}.`);
+    }
+    envelopes.push(envelope);
+    previousEventSha256 = eventSha256;
+  }
+  return reconstructPairedRun(envelopes);
+}
+
+/** @deprecated Use reconstructPairedRun. */
+export const reconstructPairedDevelopmentRun = reconstructPairedRun;
+
 const envelopeHashInput = (
-  envelope: Omit<PairedDevelopmentJournalEnvelope, 'eventSha256'>,
+  envelope: Omit<PairedJournalEnvelope, 'eventSha256'>,
 ): string => stableJson(envelope);
 
 const fileName = (sequence: number, type: PairedBenchmarkLifecycleEvent['type']): string =>
@@ -593,21 +672,24 @@ async function syncDirectory(path: string): Promise<void> {
   }
 }
 
-export interface PairedDevelopmentJournalWriter {
+export interface PairedJournalWriter {
   append: PairedBenchmarkEventSink;
 }
 
-class DevelopmentJournalWriter implements PairedDevelopmentJournalWriter {
+/** @deprecated Use PairedJournalWriter. */
+export type PairedDevelopmentJournalWriter = PairedJournalWriter;
+
+class JournalWriter implements PairedJournalWriter {
   readonly #directory: string;
   #sequence: number;
   #previousEventSha256: string | null;
-  #events: PairedDevelopmentJournalEnvelope[];
+  #events: PairedJournalEnvelope[];
   #tail: Promise<void> = Promise.resolve();
   #failure: unknown;
 
   constructor(
     directory: string,
-    events: readonly PairedDevelopmentJournalEnvelope[] = [],
+    events: readonly PairedJournalEnvelope[] = [],
   ) {
     this.#directory = directory;
     this.#events = [...events];
@@ -622,7 +704,7 @@ class DevelopmentJournalWriter implements PairedDevelopmentJournalWriter {
         const parsedEvent = lifecycleEventSchema.parse(event) as PairedBenchmarkLifecycleEvent;
         const recordedAt = new Date().toISOString();
         const unsigned = {
-          schemaVersion: PAIRED_DEVELOPMENT_JOURNAL_SCHEMA_VERSION,
+          schemaVersion: PAIRED_JOURNAL_SCHEMA_VERSION,
           sequence: this.#sequence,
           recordedAt,
           previousEventSha256: this.#previousEventSha256,
@@ -631,8 +713,8 @@ class DevelopmentJournalWriter implements PairedDevelopmentJournalWriter {
         const eventSha256 = createHash('sha256')
           .update(envelopeHashInput(unsigned), 'utf8')
           .digest('hex');
-        const envelope: PairedDevelopmentJournalEnvelope = { ...unsigned, eventSha256 };
-        reconstructPairedDevelopmentRun([...this.#events, envelope]);
+        const envelope: PairedJournalEnvelope = { ...unsigned, eventSha256 };
+        reconstructPairedRun([...this.#events, envelope]);
 
         const staging = await mkdtemp(join(this.#directory, '.stage-'));
         const staged = join(staging, 'event.json');
@@ -663,33 +745,36 @@ class DevelopmentJournalWriter implements PairedDevelopmentJournalWriter {
   };
 }
 
-export async function createPairedDevelopmentJournal(
+export async function createPairedJournal(
   directory: string,
-): Promise<PairedDevelopmentJournalWriter> {
+): Promise<PairedJournalWriter> {
   try {
     await mkdir(directory);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Development journal is create-only and could not be created: ${message}`);
+    throw new Error(`Paired journal is create-only and could not be created: ${message}`);
   }
   await syncDirectory(directory);
-  return new DevelopmentJournalWriter(directory);
+  return new JournalWriter(directory);
 }
 
-export async function readPairedDevelopmentJournal(
+/** @deprecated Use createPairedJournal. */
+export const createPairedDevelopmentJournal = createPairedJournal;
+
+export async function readPairedJournal(
   directory: string,
-): Promise<ReconstructedDevelopmentRun> {
+): Promise<ReconstructedPairedRun> {
   const entries = await readdir(directory, { withFileTypes: true });
   const names: string[] = [];
   for (const entry of entries) {
     if (entry.name.startsWith('.stage-')) continue;
     if (!entry.isFile() || !journalFilePattern.test(entry.name)) {
-      throw new Error(`Unexpected development journal entry: ${entry.name}`);
+      throw new Error(`Unexpected paired journal entry: ${entry.name}`);
     }
     names.push(entry.name);
   }
   names.sort();
-  const envelopes: PairedDevelopmentJournalEnvelope[] = [];
+  const envelopes: PairedJournalEnvelope[] = [];
   let previousEventSha256: string | null = null;
   for (let sequence = 0; sequence < names.length; sequence += 1) {
     const name = names[sequence]!;
@@ -697,43 +782,49 @@ export async function readPairedDevelopmentJournal(
     const fileSequence = Number(match[1]);
     const fileType = match[2];
     if (fileSequence !== sequence) {
-      throw new Error(`Development journal sequence gap at ${name}.`);
+      throw new Error(`Paired journal sequence gap at ${name}.`);
     }
     if (!journalEventTypes.has(fileType as PairedBenchmarkLifecycleEvent['type'])) {
-      throw new Error(`Unknown development journal event type in ${name}.`);
+      throw new Error(`Unknown paired journal event type in ${name}.`);
     }
     let parsed: unknown;
     try {
       parsed = JSON.parse(await readFile(join(directory, name), 'utf8')) as unknown;
     } catch (error) {
       throw new Error(
-        `Development journal event ${name} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
+        `Paired journal event ${name} is not valid JSON: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-    const envelope = journalEnvelopeSchema.parse(parsed) as PairedDevelopmentJournalEnvelope;
+    const envelope = journalEnvelopeSchema.parse(parsed) as PairedJournalEnvelope;
     if (envelope.sequence !== sequence || envelope.event.type !== fileType) {
-      throw new Error(`Development journal filename does not match envelope ${name}.`);
+      throw new Error(`Paired journal filename does not match envelope ${name}.`);
     }
     if (envelope.previousEventSha256 !== previousEventSha256) {
-      throw new Error(`Development journal hash chain mismatch at ${name}.`);
+      throw new Error(`Paired journal hash chain mismatch at ${name}.`);
     }
     const { eventSha256, ...unsigned } = envelope;
     const actual = createHash('sha256')
       .update(envelopeHashInput(unsigned), 'utf8')
       .digest('hex');
     if (eventSha256 !== actual) {
-      throw new Error(`Development journal event digest mismatch at ${name}.`);
+      throw new Error(`Paired journal event digest mismatch at ${name}.`);
     }
     envelopes.push(envelope);
     previousEventSha256 = eventSha256;
   }
-  return reconstructPairedDevelopmentRun(envelopes);
+  return reconstructPairedRun(envelopes);
 }
 
-export interface ResumedPairedDevelopmentJournal {
-  journal: PairedDevelopmentJournalWriter;
-  state: ReconstructedDevelopmentRun;
+/** @deprecated Use readPairedJournal. */
+export const readPairedDevelopmentJournal = readPairedJournal;
+
+export interface ResumedPairedJournal {
+  journal: PairedJournalWriter;
+  state: ReconstructedPairedRun;
 }
+
+/** @deprecated Use ResumedPairedJournal. */
+export type ResumedPairedDevelopmentJournal = ResumedPairedJournal;
 
 /**
  * Reopens a validated journal at its hash-chain tail. Any attempt whose start
@@ -741,11 +832,11 @@ export interface ResumedPairedDevelopmentJournal {
  * may continue; the paired runner then excludes that recovered block from the
  * uplift denominator.
  */
-export async function resumePairedDevelopmentJournal(
+export async function resumePairedJournal(
   directory: string,
-): Promise<ResumedPairedDevelopmentJournal> {
-  let state = await readPairedDevelopmentJournal(directory);
-  const journal = new DevelopmentJournalWriter(directory, state.events);
+): Promise<ResumedPairedJournal> {
+  let state = await readPairedJournal(directory);
+  const journal = new JournalWriter(directory, state.events);
   if (state.complete) return { journal, state };
 
   for (const block of state.blocks) {
@@ -763,6 +854,9 @@ export async function resumePairedDevelopmentJournal(
       });
     }
   }
-  state = await readPairedDevelopmentJournal(directory);
+  state = await readPairedJournal(directory);
   return { journal, state };
 }
+
+/** @deprecated Use resumePairedJournal. */
+export const resumePairedDevelopmentJournal = resumePairedJournal;

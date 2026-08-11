@@ -80,7 +80,7 @@ the task oracle directly through a private database reference.
 
 ## Attempt lifecycle
 
-Every `(task, trial index)` is one independent attempt. The runner executes
+Every `(task, trial index)` is one fresh attempt. The runner executes
 attempts sequentially and performs this lifecycle:
 
 1. Create a fresh in-memory database and HTTP fixture instance from the pinned
@@ -227,9 +227,11 @@ are excluded from the Wilson denominator but remain in the artifacts.
 
 One trial is a smoke test, not an agent-quality estimate. Precommit the task
 set, order, trial count, model configuration, budgets, and stopping rule before
-running. A practical development schedule is five independent attempts per
-task. Public characterization should use at least 30 independent attempts per
-task unless a power analysis justifies another number.
+running. A practical development schedule is five fresh attempts per task.
+Public characterization should normally use at least 30 attempts per task
+unless a power analysis justifies another number. Fresh state and distinct
+precommitted model seeds prevent accidental replay, but they do not by
+themselves prove independent sampling from a broader population.
 
 The current report publishes both a micro-average across all valid attempts and
 an equal-weight macro-average across task pass rates, so tasks with more valid
@@ -318,10 +320,33 @@ pnpm benchmark:uplift -- \
 Completed arms are not rerun. An interrupted in-flight arm is recorded and its
 matched block remains invalid for uplift even if the unfinished arm is retried.
 
-The command validates task, oracle, target, model artifact, context window,
+The command validates task, oracle, target, endpoint-reported model digest, context window,
 interface versions, and model-facing tool catalogs before the first agent call.
-A sealed manifest additionally requires a clean worktree and a freeze tag that
-resolves to the current commit.
+A sealed manifest additionally requires a precommitted model-seed base and a
+non-zero stochastic temperature. Both arms in a matched task/trial block
+receive the same derived seed, and a regression test checks the actual
+OpenAI-compatible invocation parameters rather than metadata alone.
+
+Sealed runs use the outer launcher rather than the development command:
+
+```sh
+pnpm benchmark:uplift:sealed -- \
+  --protocol docs/evidence-drops/drop-01/sealed.protocol.json \
+  --output /absolute/external/path/drop-01
+```
+
+The launcher checks out the manifest's freeze tag into a fresh detached
+temporary clone, installs the frozen lockfile, builds before the benchmark CLI
+can import BrowserIR, and keeps the evidence directory outside that checkout.
+Child processes receive an isolated home/config/cache and a small allowlisted
+environment; ambient Node loader/preload variables and API secrets are not
+inherited. Sealed Ollama endpoints must be literal HTTP loopback URLs and
+redirects are rejected. The retained digest is explicitly an endpoint report,
+not an independent proof of model weights.
+The inner runner then requires a clean tagged source tree, exact start/end Git
+identity, and byte-identical start/end manifests for the built core,
+Playwright-driver, and MCP packages. Resume repeats those checks before another
+scored attempt; drift fails closed.
 
 ## Required publication artifacts
 
@@ -345,9 +370,15 @@ arm role and execution order, schedule and bootstrap seeds, both complete tool
 catalogs, all matched outcomes, paired interval policy, failure diagnoses, and
 the exact development-versus-sealed boundary. Their create-only artifact set
 also retains `environment-start.json`, `environment-end.json`,
-`journal.ndjson`, `execution.json`, and an atomic final `COMPLETE.json` marker.
+`build-provenance-start.json`, `build-provenance-end.json`,
+`execution-start.json`, `journal.ndjson`, `execution.json`, and an atomic final
+`COMPLETE.json` marker. Source start/end identity is embedded in the execution
+artifacts; package provenance lists the exact `package.json` and `dist/` bytes
+that ran.
 The completion marker binds finalization to the checksum manifest and journal
-tail; it does not prove source qualification or scientific validity.
+tail, requires the protocol, catalogs, environment, execution endpoints, and
+sealed build-provenance endpoints, and is written last. It does not prove
+artifact authenticity or scientific validity by itself.
 
 Public paired artifacts deliberately omit full page text, entered values,
 structured browser payloads, model final text, and private oracle evidence
