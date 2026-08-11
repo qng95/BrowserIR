@@ -12,8 +12,8 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current pre-commit workspace verification declares 588 cases:
-569 executed passes and 19 intentional opt-in cases skipped. All five package
+implemented. The current pre-commit workspace verification declares 589 cases:
+570 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
 durable promotion of the qualified dossier remain open; see the

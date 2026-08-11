@@ -309,11 +309,62 @@ export function qualificationContinuationNeedsObserve(
   );
 }
 
+export function latestObservationArguments(input: {
+  browserId: string;
+  pageId: string;
+}): JsonRecord {
+  return {
+    browser_id: input.browserId,
+    page_id: input.pageId,
+    max_tokens: MAX_MODEL_TOKENS,
+  };
+}
+
 const resultEnvelope = (result: CallToolResult): ParsedEnvelope =>
   isRecord(result.structuredContent) ? result.structuredContent : {};
 
 const safeError = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
+
+export class QualificationToolError extends Error {
+  readonly tool: string;
+  readonly status: string | undefined;
+  readonly dispatched: boolean | undefined;
+
+  constructor(input: {
+    tool: string;
+    status?: string | undefined;
+    dispatched?: boolean | undefined;
+    summary: string;
+  }) {
+    super(`${input.tool} failed: ${input.summary}`);
+    this.name = 'QualificationToolError';
+    this.tool = input.tool;
+    this.status = input.status;
+    this.dispatched = input.dispatched;
+  }
+}
+
+export async function actWithFreshTargetRetry<T, R>(input: {
+  resolve: () => T;
+  refresh: () => Promise<unknown>;
+  act: (target: T) => Promise<R>;
+}): Promise<R> {
+  try {
+    return await input.act(input.resolve());
+  } catch (error) {
+    if (
+      !(error instanceof QualificationToolError) ||
+      error.tool !== 'browser_act' ||
+      error.status !== 'stale_target' ||
+      error.dispatched !== false
+    ) {
+      throw error;
+    }
+  }
+  await input.refresh();
+  return input.act(input.resolve());
+}
 
 const one = <T>(values: T[], description: string): T => {
   if (values.length !== 1) {
@@ -448,6 +499,7 @@ export class BrowserIrReferenceAgent {
     }
     const data = resultEnvelope(result);
     const status = typeof data.status === 'string' ? data.status : undefined;
+    const dispatched = typeof data.dispatched === 'boolean' ? data.dispatched : undefined;
     const revision =
       typeof data.revision === 'number'
         ? data.revision
@@ -467,7 +519,12 @@ export class BrowserIrReferenceAgent {
       summary: summary.replace(/\s+/g, ' ').slice(0, 500),
     });
     if (result.isError === true) {
-      throw new Error(`${name} failed: ${summary}`);
+      throw new QualificationToolError({
+        tool: name,
+        status,
+        dispatched,
+        summary,
+      });
     }
     return result;
   }
@@ -520,6 +577,12 @@ export class BrowserIrReferenceAgent {
         expected_revision: this.current.revision,
         max_tokens: MAX_MODEL_TOKENS,
       }),
+    );
+  }
+
+  async observeLatest(): Promise<QualificationObservation> {
+    return this.setCurrent(
+      await this.call('browser_observe', latestObservationArguments(this.current)),
     );
   }
 
@@ -962,9 +1025,7 @@ const planners = {
     await agent.click(agent.find({ name: 'Choose vehicle…', role: 'button' }));
     await agent.waitSettled();
     await agent.fill(agent.find({ name: 'Filter by VIN, make or model…' }), inStockVin);
-    let vehicleOptions: QualificationEntity[] = [];
-    for (let attempt = 0; attempt < 4 && vehicleOptions.length === 0; attempt += 1) {
-      await agent.waitRevisionChange();
+    const matchingVehicleOptions = (): QualificationEntity[] => {
       const visibleListboxes = agent.current.entities.filter(
         (entity) => entity.role === 'listbox' && entity.state.visible === true,
       );
@@ -982,8 +1043,7 @@ const planners = {
         (entity) => entity.role === 'option' && pickerOptionIds.has(entity.id),
       );
       const matchingOptions = representedOptions.filter(
-        (entity) =>
-          `${entity.name ?? ''} ${entity.text ?? ''}`.includes(inStockVin),
+        (entity) => `${entity.name ?? ''} ${entity.text ?? ''}`.includes(inStockVin),
       );
       if (
         representedOptions.length === 1 &&
@@ -994,18 +1054,27 @@ const planners = {
           `Filtered VIN ${inStockVin} is visible but not bound to a selectable option entity.`,
         );
       }
-      if (representedOptions.length === 1 && matchingOptions.length === 1) {
-        vehicleOptions = matchingOptions;
-      }
+      return representedOptions.length === 1 && matchingOptions.length === 1
+        ? matchingOptions
+        : [];
+    };
+    let vehicleOptions: QualificationEntity[] = [];
+    for (let attempt = 0; attempt < 4 && vehicleOptions.length === 0; attempt += 1) {
+      await agent.waitRevisionChange();
+      vehicleOptions = matchingVehicleOptions();
     }
     if (vehicleOptions.length === 0) {
       throw new Error(`No picker option was represented for in-stock VIN ${inStockVin}.`);
     }
-    const vehicleOption = one(
-      vehicleOptions,
-      `vehicle picker option for ${inStockVin}`,
-    );
-    await agent.click(vehicleOption);
+    await actWithFreshTargetRetry({
+      resolve: () =>
+        one(matchingVehicleOptions(), `vehicle picker option for ${inStockVin}`),
+      refresh: async () => {
+        await agent.observeLatest();
+        await agent.waitSettled();
+      },
+      act: (vehicleOption) => agent.click(vehicleOption),
+    });
     await agent.click(agent.find({ name: 'Continue', role: 'button' }));
     await agent.fill(agent.find({ name: 'Delivery date' }), '2026-09-30');
     await agent.click(agent.find({ name: 'Continue', role: 'button' }));

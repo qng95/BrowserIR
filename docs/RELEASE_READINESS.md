@@ -14,7 +14,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Current complete workspace verification | 588 declared cases: 569 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 83/83, Playwright driver 107/107, benchmark 151/151, and MCP 168 passed with 19 skipped. All five package type checks passed. |
+| Current complete workspace verification | 589 declared cases: 570 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 83/83, Playwright driver 107/107, benchmark 151/151, and MCP 169 passed with 19 skipped. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
 | Earlier combined workspace run | 324 passed with the same 19 opt-in cases skipped; retained only as a historical pre-release-evidence count |
@@ -54,11 +54,14 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID
-(`2026-08-11-v10`, requiring 588 declared, 569 executed, and 19 skipped cases).
+(`2026-08-11-v11`, requiring 589 declared, 570 executed, and 19 skipped cases).
 The first qualified public dossier is the GitHub artifact
 `release-evidence-dossier-31518078584-1-e21fb1b…`, bound to commit `e21fb1b`.
 GitHub reports the artifact digest as
 `sha256:134d43b50a410a710e06504c43e6d18037c8d7d363b009a55b77d8cd9aaa5dee`.
+That dossier used the immediately preceding `v10` policy (588 declared, 569
+executed, 19 skipped); the additional `v11` case locks the stale-target recovery
+exposed by the next hosted run.
 
 The retained local fragments below were produced before the public Git source
 commit and therefore cannot be assembled into a qualified dossier. The latest

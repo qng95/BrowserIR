@@ -35,7 +35,7 @@ const reviewedWorkspacePackages = [
   ['@think-dom/fixture-app', 83, 0],
   ['@browserir/playwright', 107, 0],
   ['@browserir/benchmark', 151, 0],
-  ['@browserir/mcp', 187, 19],
+  ['@browserir/mcp', 188, 19],
 ] as const;
 const sourceFilePaths = [
   'package.json',
@@ -99,7 +99,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 588, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 589, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {

@@ -2,8 +2,11 @@ import { TASKS } from '@think-dom/fixture-app';
 import { describe, expect, it } from 'vitest';
 
 import {
+  actWithFreshTargetRetry,
   FIXTURE_TASK_PLANNERS,
+  latestObservationArguments,
   parseBrowserIrObservation,
+  QualificationToolError,
   qualificationContinuationNeedsObserve,
 } from './task-qualification-harness.js';
 
@@ -206,5 +209,132 @@ describe('fixture task qualification harness', () => {
         },
       }),
     ).toThrow(/target 2/);
+  });
+
+  it('refreshes and re-resolves once after a stale target but never retries another failure', async () => {
+    let target = 'old-target';
+    const refresh = async (): Promise<void> => {
+      target = 'fresh-target';
+    };
+    const attempts: string[] = [];
+
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => target,
+        refresh,
+        act: async (resolved) => {
+          attempts.push(resolved);
+          if (resolved === 'old-target') {
+            throw new QualificationToolError({
+              tool: 'browser_act',
+              status: 'stale_target',
+              dispatched: false,
+              summary: 'Action stale_target.',
+            });
+          }
+          return 'clicked';
+        },
+      }),
+    ).resolves.toBe('clicked');
+    expect(attempts).toEqual(['old-target', 'fresh-target']);
+    expect(
+      latestObservationArguments({ browserId: 'browser-1', pageId: 'page-1' }),
+    ).toEqual({
+      browser_id: 'browser-1',
+      page_id: 'page-1',
+      max_tokens: 100_000,
+    });
+
+    let nonStaleRefreshes = 0;
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => 'target',
+        refresh: async () => {
+          nonStaleRefreshes += 1;
+        },
+        act: async () => {
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'blocked',
+            dispatched: false,
+            summary: 'Action blocked.',
+          });
+        },
+      }),
+    ).rejects.toThrow(/blocked/);
+    expect(nonStaleRefreshes).toBe(0);
+
+    let dispatchedRefreshes = 0;
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => 'target',
+        refresh: async () => {
+          dispatchedRefreshes += 1;
+        },
+        act: async () => {
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'stale_target',
+            dispatched: true,
+            summary: 'Action state is uncertain.',
+          });
+        },
+      }),
+    ).rejects.toThrow(/uncertain/);
+    expect(dispatchedRefreshes).toBe(0);
+
+    let secondStaleAttempts = 0;
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => `target-${secondStaleAttempts}`,
+        refresh: async () => {},
+        act: async () => {
+          secondStaleAttempts += 1;
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'stale_target',
+            dispatched: false,
+            summary: 'Action stale_target.',
+          });
+        },
+      }),
+    ).rejects.toThrow(/stale_target/);
+    expect(secondStaleAttempts).toBe(2);
+
+    let resolveFresh = false;
+    let missingTargetActions = 0;
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => {
+          if (resolveFresh) throw new Error('Expected exactly one refreshed target; found 0.');
+          return 'old-target';
+        },
+        refresh: async () => {
+          resolveFresh = true;
+        },
+        act: async () => {
+          missingTargetActions += 1;
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'stale_target',
+            dispatched: false,
+            summary: 'Action stale_target.',
+          });
+        },
+      }),
+    ).rejects.toThrow(/found 0/);
+    expect(missingTargetActions).toBe(1);
+
+    await expect(
+      actWithFreshTargetRetry({
+        resolve: () => 'target',
+        refresh: async () => {
+          throw new Error('must not refresh');
+        },
+        act: async () => {
+          throw new Error('browser_act failed: Action stale_target.');
+        },
+      }),
+    ).rejects.toThrow(/stale_target/);
   });
 });
