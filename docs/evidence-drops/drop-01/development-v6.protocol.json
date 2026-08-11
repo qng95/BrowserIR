@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0.0",
+  "dropId": "01",
+  "protocolId": "drop-01-development-qwen3-4b-32k-v6",
+  "phase": "development",
+  "status": "draft",
+  "question": "Can the same neutral LangChain agent complete a controlled enterprise workflow more reliably through BrowserIR than through official Playwright MCP?",
+  "taskIds": [
+    "create-customer"
+  ],
+  "taskContracts": [
+    {
+      "id": "create-customer",
+      "version": "sha256:65a07c42c2eef406d0e2c72d01264d13f211943df838eaeb7bfde5e63b258743",
+      "promptSha256": "451b25da1dab855f03b5bee3034062edd2308aa899aad4e60d2c8841a54ffca2",
+      "oracleVersion": "sha256:9aed9e17dc352aad747918220ad16a592fdbe91a9b7aab45ae3d14b0e8950e6c"
+    }
+  ],
+  "reservedSealedTaskIds": [
+    "validation-recovery"
+  ],
+  "trialsPerTask": 1,
+  "schedule": {
+    "orderSeed": 20260811,
+    "bootstrapSeed": 141421,
+    "bootstrapResamples": 10000,
+    "stoppingRule": "run-entire-schedule",
+    "invalidReplacementPolicy": "none"
+  },
+  "budgets": {
+    "maxDurationMs": 300000,
+    "maxToolCalls": 100,
+    "maxModelTurns": 30
+  },
+  "agent": {
+    "framework": "langchain-create-agent",
+    "provider": "ollama",
+    "baseUrl": "http://127.0.0.1:11434/v1",
+    "modelId": "browserir-qwen3-4b-32k:drop01-dev",
+    "modelDigest": "sha256:ce418b0b29276a109b3fe2d70d9dc7a73bab3b45adeb35ad83a45892f1cc0be8",
+    "contextWindowTokens": 32768,
+    "temperature": 0,
+    "maxRetries": 0,
+    "imageMode": "text-only",
+    "systemPrompt": "You are a browser automation agent operating only through the provided browser tools.\nUse the page representation and exact target references returned by those tools to understand and operate the page.\nObserve or navigate before acting, and inspect the updated result after navigation or meaningful state changes.\nNever invent target references. If a target becomes invalid, inspect the current page again and continue from fresh evidence.\nComplete every requirement in the Task, including work after intermediate steps such as sign-in or navigation. Before finishing, re-read the Task against the current page state.\nPrefer the narrowest supported browser action that accomplishes the requested task. Do not claim success from page text alone; perform the requested action.\nAfter the entire task is complete, call benchmark_submit_result exactly once. A text response does not submit the result.",
+    "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+  },
+  "target": {
+    "expectedVersion": "sha256:b7fb9de856c1a143e7282ae3d2570e67e6bf3f09028549ad6d1f3741ec6da012",
+    "headless": true
+  },
+  "arms": {
+    "control": {
+      "role": "control",
+      "id": "playwright-mcp",
+      "label": "Official Playwright MCP",
+      "interfaceVersion": "0.0.78"
+    },
+    "treatment": {
+      "role": "treatment",
+      "id": "browserir",
+      "label": "BrowserIR MCP",
+      "interfaceVersion": "0.1.0+mcp-2026-07-28"
+    }
+  },
+  "analysis": {
+    "confidence": 0.95,
+    "interval": "paired-hoeffding-bound",
+    "invalidBlockHeadlineThreshold": 0.05,
+    "primaryMetric": "paired-treatment-minus-control-pass-rate"
+  }
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR monochrome Compile Gate mark</title>
+  <desc id="desc">A one-color browser window compiling irregular interface controls into compact structured records.</desc>
+  <g fill="#0B1025" stroke="#0B1025">
+    <rect x="10" y="22" width="140" height="116" rx="25" fill="none" stroke-width="6"/>
+    <path d="M13 53H147" fill="none" stroke-width="4"/>
+    <rect x="27" y="34" width="43" height="9" rx="4.5" stroke="none"/>
+    <path d="M78 38.5H132" fill="none" stroke-width="3" stroke-linecap="round"/>
+    <rect x="26" y="68" width="35" height="12" rx="4" stroke="none"/>
+    <rect x="35" y="88" width="26" height="12" rx="4" stroke="none"/>
+    <rect x="23" y="108" width="38" height="12" rx="4" stroke="none"/>
+    <path d="M68 64 93 82v24l-25 18v-15l12-9V88L68 79V64Z" stroke="none"/>
+    <path d="M106 68h-7v52h7" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="113" y="70" width="25" height="11" rx="3" stroke="none"/>
+    <rect x="113" y="88.5" width="25" height="11" rx="3" stroke="none"/>
+    <rect x="113" y="107" width="25" height="11" rx="3" stroke="none"/>
+  </g>
+</svg>

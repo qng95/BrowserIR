@@ -1,0 +1,13 @@
+{
+  "name": "@think-dom/fixture-app",
+  "version": "0.0.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "vite-node src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}

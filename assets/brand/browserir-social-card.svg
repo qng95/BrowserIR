@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR social preview</title>
+  <desc id="desc">BrowserIR, the semantic browser layer for AI agents, with a fourteen of fourteen dirty and unbound deterministic local system qualification. It is not an LLM or competitor score.</desc>
+  <defs>
+    <linearGradient id="veil" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse"><stop stop-color="#050817" stop-opacity="0.92"/><stop offset="0.48" stop-color="#080C20" stop-opacity="0.54"/><stop offset="1" stop-color="#050817" stop-opacity="0.84"/></linearGradient>
+    <linearGradient id="card-brand" x1="92" y1="82" x2="1070" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#42CAFF"/><stop offset="0.5" stop-color="#6682FF"/><stop offset="1" stop-color="#A86DFF"/></linearGradient>
+    <linearGradient id="shell" x1="17" y1="24" x2="143" y2="138" gradientUnits="userSpaceOnUse"><stop stop-color="#111A3A"/><stop offset="1" stop-color="#070A18"/></linearGradient>
+    <linearGradient id="brand" x1="21" y1="35" x2="140" y2="127" gradientUnits="userSpaceOnUse"><stop stop-color="#38BDF8"/><stop offset="0.52" stop-color="#4F7CFF"/><stop offset="1" stop-color="#9B5CFF"/></linearGradient>
+    <linearGradient id="gate" x1="68" y1="65" x2="96" y2="123" gradientUnits="userSpaceOnUse"><stop stop-color="#46C7FF"/><stop offset="0.48" stop-color="#617DFF"/><stop offset="1" stop-color="#A05EFF"/></linearGradient>
+    <filter id="gate-glow" x="-70%" y="-40%" width="240%" height="180%"><feGaussianBlur stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity="0.35"/></filter>
+  </defs>
+  <image href="browserir-hero.png" width="1280" height="640" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="1280" height="640" fill="url(#veil)"/>
+  <rect x="1.5" y="1.5" width="1277" height="637" rx="30" fill="none" stroke="url(#card-brand)" stroke-opacity="0.5" stroke-width="3"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" filter="url(#shadow)">
+    <g transform="translate(74 72) scale(.575)">
+      <g id="browserir-mark">
+        <rect id="browser-shell" x="10" y="22" width="140" height="116" rx="25" fill="url(#shell)" stroke="url(#brand)" stroke-width="4"/>
+        <g id="browser-chrome">
+          <path d="M12 53H148" fill="none" stroke="#6685E8" stroke-opacity="0.72" stroke-width="3"/>
+          <rect x="27" y="34" width="43" height="9" rx="4.5" fill="#DCE9FF" fill-opacity="0.9"/>
+          <path d="M78 38.5H132" fill="none" stroke="#6D80BE" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+        </g>
+        <g id="source-ui" fill="#38BDF8">
+          <rect x="26" y="68" width="35" height="12" rx="4" opacity="0.96"/>
+          <rect x="35" y="88" width="26" height="12" rx="4" opacity="0.72"/>
+          <rect x="23" y="108" width="38" height="12" rx="4" opacity="0.48"/>
+        </g>
+        <g id="compile-gate">
+          <path d="M68 64 93 82v24l-25 18v-15l12-9V88L68 79V64Z" fill="url(#gate)" filter="url(#gate-glow)"/>
+          <rect x="87" y="84" width="9" height="20" rx="4.5" fill="#F8FAFF"/>
+        </g>
+        <g id="structured-ir">
+          <path d="M106 68h-7v52h7" fill="none" stroke="#A978FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <g fill="#DCE5FF">
+            <rect x="113" y="70" width="25" height="11" rx="3"/>
+            <rect x="113" y="88.5" width="25" height="11" rx="3" opacity="0.82"/>
+            <rect x="113" y="107" width="25" height="11" rx="3" opacity="0.64"/>
+          </g>
+        </g>
+      </g>
+    </g>
+    <text id="social-wordmark" x="190" y="143" fill="#F9FBFF" font-size="72" font-weight="820" letter-spacing="-3">Browser<tspan fill="#8C70FF">IR</tspan></text>
+    <text x="76" y="260" fill="#F5F7FF" font-size="46" font-weight="760" letter-spacing="-1.5">The semantic browser layer</text>
+    <text x="76" y="314" fill="#F5F7FF" font-size="46" font-weight="760" letter-spacing="-1.5">for AI agents.</text>
+    <text x="78" y="368" fill="#BBC7E6" font-size="21">Compact context. Typed actions. Revision-checked execution.</text>
+    <g transform="translate(76 436)">
+      <rect width="230" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#6886FF" stroke-opacity="0.6"/>
+      <text x="22" y="61" fill="url(#card-brand)" font-size="45" font-weight="820">14/14</text><text x="22" y="84" fill="#9DAED4" font-size="13" font-weight="700" letter-spacing="1.4">FIXTURE TASKS</text>
+      <rect x="250" width="230" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#6886FF" stroke-opacity="0.6"/>
+      <text x="272" y="61" fill="#F7F9FF" font-size="40" font-weight="790">290 / 0</text><text x="272" y="84" fill="#9DAED4" font-size="13" font-weight="700" letter-spacing="1.2">MCP CALLS / ERRORS</text>
+      <rect x="500" width="248" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#9666F4" stroke-opacity="0.68"/>
+      <text x="522" y="61" fill="#F7F9FF" font-size="40" font-weight="790">1.00</text><text x="522" y="84" fill="#AFA5D3" font-size="13" font-weight="700" letter-spacing="1.2">CORPUS P / R / F1</text>
+    </g>
+    <text x="76" y="594" fill="#7F90B8" font-size="13" font-weight="680" letter-spacing="1.05">UNRELEASED 0.1 ALPHA · DIRTY/UNBOUND LOCAL SYSTEM RUN · NOT LLM OR COMPETITOR SCORE</text>
+  </g>
+</svg>

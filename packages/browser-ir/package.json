@@ -1,0 +1,47 @@
+{
+  "name": "@browserir/core",
+  "version": "0.1.0",
+  "description": "Browser-independent interaction representation and runtime for AI browser agents.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "browserir",
+    "browser-automation",
+    "ai-agents",
+    "interaction-representation",
+    "accessibility"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qng95/BrowserIR.git",
+    "directory": "packages/browser-ir"
+  },
+  "homepage": "https://github.com/qng95/BrowserIR#readme",
+  "bugs": {
+    "url": "https://github.com/qng95/BrowserIR/issues"
+  },
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "prebuild": "node ../../scripts/clean-package-dist.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}

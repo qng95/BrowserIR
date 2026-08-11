@@ -1,0 +1,2 @@
+export const BROWSERIR_VERSION = '0.1.0';
+export const BROWSERIR_PROTOCOL_VERSION = '2026-07-28';

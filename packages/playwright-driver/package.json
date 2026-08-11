@@ -1,0 +1,51 @@
+{
+  "name": "@browserir/playwright",
+  "version": "0.1.0",
+  "description": "Playwright and Chromium observation and action backend for BrowserIR.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "browserir",
+    "playwright",
+    "chromium",
+    "browser-automation",
+    "ai-agents"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qng95/BrowserIR.git",
+    "directory": "packages/playwright-driver"
+  },
+  "homepage": "https://github.com/qng95/BrowserIR#readme",
+  "bugs": {
+    "url": "https://github.com/qng95/BrowserIR/issues"
+  },
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "prebuild": "node ../../scripts/clean-package-dist.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@browserir/core": "workspace:*",
+    "playwright": "1.62.0"
+  }
+}

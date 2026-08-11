@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR Compile Gate mark</title>
+  <desc id="desc">A browser window compiles irregular interface controls through a central gate into compact structured records.</desc>
+  <defs>
+    <linearGradient id="shell" x1="17" y1="24" x2="143" y2="138" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111A3A"/>
+      <stop offset="1" stop-color="#070A18"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="21" y1="35" x2="140" y2="127" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="0.52" stop-color="#4F7CFF"/>
+      <stop offset="1" stop-color="#9B5CFF"/>
+    </linearGradient>
+    <linearGradient id="gate" x1="68" y1="65" x2="96" y2="123" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#46C7FF"/>
+      <stop offset="0.48" stop-color="#617DFF"/>
+      <stop offset="1" stop-color="#A05EFF"/>
+    </linearGradient>
+    <filter id="gate-glow" x="-70%" y="-40%" width="240%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g id="browserir-mark">
+    <!-- The browser is the silhouette; there is no generic outer app-tile container. -->
+    <rect id="browser-shell" x="10" y="22" width="140" height="116" rx="25" fill="url(#shell)" stroke="url(#brand)" stroke-width="4"/>
+    <g id="browser-chrome">
+      <path d="M12 53H148" fill="none" stroke="#6685E8" stroke-opacity="0.72" stroke-width="3"/>
+      <rect x="27" y="34" width="43" height="9" rx="4.5" fill="#DCE9FF" fill-opacity="0.9"/>
+      <path d="M78 38.5H132" fill="none" stroke="#6D80BE" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+    </g>
+
+    <!-- Irregular rendered controls: the source UI. -->
+    <g id="source-ui" fill="#38BDF8">
+      <rect x="26" y="68" width="35" height="12" rx="4" opacity="0.96"/>
+      <rect x="35" y="88" width="26" height="12" rx="4" opacity="0.72"/>
+      <rect x="23" y="108" width="38" height="12" rx="4" opacity="0.48"/>
+    </g>
+
+    <!-- The memorable compile gate: many UI shapes become a compact IR. -->
+    <g id="compile-gate">
+      <path d="M68 64 93 82v24l-25 18v-15l12-9V88L68 79V64Z" fill="url(#gate)" filter="url(#gate-glow)"/>
+      <rect x="87" y="84" width="9" height="20" rx="4.5" fill="#F8FAFF"/>
+    </g>
+
+    <!-- A bracketed, normalized record stack: the output representation. -->
+    <g id="structured-ir">
+      <path d="M106 68h-7v52h7" fill="none" stroke="#A978FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="#DCE5FF">
+        <rect x="113" y="70" width="25" height="11" rx="3"/>
+        <rect x="113" y="88.5" width="25" height="11" rx="3" opacity="0.82"/>
+        <rect x="113" y="107" width="25" height="11" rx="3" opacity="0.64"/>
+      </g>
+    </g>
+  </g>
+</svg>

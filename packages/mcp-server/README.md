@@ -1,0 +1,139 @@
+# `@browserir/mcp`
+
+Local stdio MCP server and embeddable server APIs for BrowserIR, using the
+official MCP TypeScript SDK and the maintained Playwright backend.
+
+BrowserIR 0.1 is an unreleased alpha line. Public contracts may change between
+0.1 releases.
+
+## Install
+
+```sh
+pnpm add @browserir/mcp "playwright@1.62.0"
+pnpm exec playwright install chromium
+```
+
+The package is ESM-only and requires Node.js 22.13 or newer.
+Playwright is listed explicitly so its browser-installation CLI is available
+under strict package-manager layouts such as pnpm's.
+
+## MCP configuration
+
+```json
+{
+  "mcpServers": {
+    "browserir": {
+      "command": "pnpm",
+      "args": [
+        "--dir",
+        "/absolute/path/to/your/project",
+        "exec",
+        "browserir-mcp"
+      ]
+    }
+  }
+}
+```
+
+Use the project that contains the local `@browserir/mcp` installation. Desktop
+MCP clients commonly start outside that project, so a bare `browserir-mcp`
+command is not reliably on their `PATH`. An absolute path to the project's
+`node_modules/.bin/browserir-mcp` is an equivalent configuration.
+
+The stock executable serves one local stdio connection and starts no HTTP
+listener. Its default catalog contains exactly the nine typed BrowserIR tools;
+arbitrary page-code evaluation is absent. Typed BrowserIR actions are the
+supported path.
+
+Chromium is headless by default. To watch the same fixed-viewport browser while
+developing or diagnosing an agent, pass `--headful` in the MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "browserir": {
+      "command": "pnpm",
+      "args": [
+        "--dir",
+        "/absolute/path/to/your/project",
+        "exec",
+        "browserir-mcp",
+        "--headful"
+      ]
+    }
+  }
+}
+```
+
+Run `browserir-mcp --help` for the complete local CLI surface. Headful mode
+does not reuse the user's normal browser profile or make page content trusted.
+
+## Experimental unsafe evaluation
+
+`browser_evaluate_unsafe` is completely disabled and absent from tool discovery
+by default. The stock CLI exposes this experimental tenth tool only with an
+explicit startup flag:
+
+```json
+{
+  "mcpServers": {
+    "browserir-unsafe": {
+      "command": "pnpm",
+      "args": [
+        "--dir",
+        "/absolute/path/to/your/project",
+        "exec",
+        "browserir-mcp",
+        "--enable-unsafe-evaluate"
+      ]
+    }
+  }
+}
+```
+
+This permits arbitrary JavaScript in the selected Chromium page's main/default
+world. It can exfiltrate page or session data, make authenticated requests,
+mutate browser storage and service workers, navigate, and open popups. Use it
+only for a trusted client in a deliberately isolated browser/network boundary.
+The DevTools path can bypass the page's script Content Security Policy for the
+supplied expression; CSP does not contain this tool.
+
+Each call requires an explicit `page_id` and current `expected_revision`.
+Expression limits are 16,384 characters and 32 KiB UTF-8. Timeout is 2 seconds
+by default with a 5-second hard cap. Bounded JSON output defaults to 8 KiB, has
+a 64 KiB hard cap, and can be reduced further by `max_tokens`. Timeout,
+cancellation, or an unacknowledged evaluation-command failure triggers CDP
+execution termination. BrowserIR never retries. If termination and verified
+target closure both fail, BrowserIR irreversibly invalidates the logical browser
+and makes a bounded best-effort physical shutdown attempt. A usable browser gets
+a full post-dispatch observation, revision advance, and invalidation of all
+earlier entity references. Containment failure skips observation and invalidates
+the browser immediately; failed post-evaluation verification does the same.
+
+The CLI writes intent and completion audit metadata to stderr. The records
+contain the source's SHA-256 digest and byte length, never source text or result
+values. Returned values receive heuristic secret and URL redaction, which is
+not general data-loss prevention.
+
+For an embedded server, enabling MCP registration is intentionally not enough:
+the host must also pass `unsafeEvaluate` to `createBrowserIrRuntimeService` with
+a required redacted `audit` callback. Intent-audit failure blocks dispatch;
+completion-audit failure after dispatch invalidates the browser. The MCP
+server's `enableUnsafeEvaluate` flag is a separate required opt-in.
+
+## Security boundary
+
+The supported stock boundary is one local stdio connection. Do not expose the
+embeddable handler as remote HTTP or share it between tenants without adding
+authentication, authorization, tenant isolation, browser isolation, request
+limits, audit, and network policy. HTTP/HTTPS URL validation is not an SSRF
+defense: Chromium can reach networks available to the host. Page content is
+untrusted and screenshots can contain credentials or customer data.
+
+The stock service limits a connection to four concurrent browsers, rejects
+oversized captures before base64 serialization, leaves arbitrary page-code
+evaluation disabled by default, and closes owned browsers when the connection
+ends. Those controls do not make browsing an untrusted site safe or authorize
+consequential actions.
+Embedders can lower the browser bound with the runtime service's
+`maxBrowsersPerConnection` option.

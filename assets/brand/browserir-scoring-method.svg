@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 740" role="img" aria-labelledby="title desc">
+  <title id="title">How a BrowserIR qualification task earns a pass</title>
+  <desc id="desc">Every task starts in a fresh isolated worker and a known failing database state, runs through BrowserIR and real Chromium, closes browser and MCP access, and is then graded by a hidden database and audit oracle. Agent claims and page success messages do not count.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1400" y2="740" gradientUnits="userSpaceOnUse"><stop stop-color="#0D1633"/><stop offset="0.58" stop-color="#080D20"/><stop offset="1" stop-color="#120B29"/></linearGradient>
+    <linearGradient id="brand" x1="70" y1="90" x2="1320" y2="680" gradientUnits="userSpaceOnUse"><stop stop-color="#38BDF8"/><stop offset="0.52" stop-color="#597CFF"/><stop offset="1" stop-color="#9B5CFF"/></linearGradient>
+    <linearGradient id="pass" x1="720" y1="470" x2="1295" y2="650" gradientUnits="userSpaceOnUse"><stop stop-color="#143B47"/><stop offset="1" stop-color="#18294F"/></linearGradient>
+    <linearGradient id="reject" x1="95" y1="470" x2="665" y2="650" gradientUnits="userSpaceOnUse"><stop stop-color="#351A36"/><stop offset="1" stop-color="#20152E"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.28"/></filter>
+    <filter id="glow" x="-120%" y="-120%" width="340%" height="340%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <rect width="1400" height="740" rx="34" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="1397" height="737" rx="32.5" fill="none" stroke="url(#brand)" stroke-opacity="0.5" stroke-width="3"/>
+  <circle cx="1240" cy="80" r="170" fill="#713CFF" fill-opacity="0.09"/><circle cx="170" cy="700" r="220" fill="#17AFFF" fill-opacity="0.07"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text x="700" y="63" text-anchor="middle" fill="#F8FAFF" font-size="32" font-weight="780" letter-spacing="-1">A pass is earned after browser access is closed.</text>
+    <text x="700" y="98" text-anchor="middle" fill="#9DADD1" font-size="17">One task · one fresh worker · one binary result · zero partial credit</text>
+
+    <path d="M300 275h25M552 275h25M804 275h25M1056 275h25" stroke="url(#brand)" stroke-width="3" stroke-linecap="round"/>
+    <path d="m318 267 8 8-8 8M570 267l8 8-8 8M822 267l8 8-8 8M1074 267l8 8-8 8" fill="none" stroke="#718CFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g transform="translate(70 142)" filter="url(#shadow)">
+      <rect width="230" height="266" rx="22" fill="#111A38" stroke="#3C7BC8" stroke-opacity="0.7"/>
+      <circle cx="34" cy="35" r="17" fill="#14335C" stroke="#38BDF8" stroke-width="2"/><text x="34" y="41" text-anchor="middle" fill="#E9FAFF" font-size="14" font-weight="800">1</text>
+      <text x="62" y="41" fill="#8FD9FA" font-size="13" font-weight="760" letter-spacing="1.3">FRESH WORKER</text>
+      <path d="M24 66h182" stroke="#38527E" stroke-opacity="0.65"/>
+      <text x="24" y="105" fill="#F5F8FF" font-size="20" font-weight="700">Nothing carries over</text>
+      <circle cx="29" cy="141" r="4" fill="#38BDF8"/><text x="42" y="147" fill="#B5C4E2" font-size="15">new process</text>
+      <circle cx="29" cy="177" r="4" fill="#38BDF8"/><text x="42" y="183" fill="#B5C4E2" font-size="15">new SQLite database</text>
+      <circle cx="29" cy="213" r="4" fill="#38BDF8"/><text x="42" y="219" fill="#B5C4E2" font-size="15">new browser + MCP</text>
+    </g>
+
+    <g transform="translate(322 142)" filter="url(#shadow)">
+      <rect width="230" height="266" rx="22" fill="#111834" stroke="#526FD4" stroke-opacity="0.72"/>
+      <circle cx="34" cy="35" r="17" fill="#182C62" stroke="#6886FF" stroke-width="2"/><text x="34" y="41" text-anchor="middle" fill="#EEF1FF" font-size="14" font-weight="800">2</text>
+      <text x="62" y="41" fill="#A9B8FF" font-size="13" font-weight="760" letter-spacing="1.1">FAILING START</text>
+      <path d="M24 66h182" stroke="#3D4D7B" stroke-opacity="0.65"/>
+      <text x="24" y="105" fill="#F5F8FF" font-size="20" font-weight="700">No free points</text>
+      <text x="24" y="145" fill="#B5C4E2" font-size="15">The pinned seed is</text>
+      <text x="24" y="171" fill="#B5C4E2" font-size="15">regression-tested:</text>
+      <text x="24" y="217" fill="#7D9AFF" font-size="30" font-weight="820">0 / 14</text>
+      <text x="117" y="216" fill="#B5C4E2" font-size="14">already pass</text>
+    </g>
+
+    <g transform="translate(574 142)" filter="url(#shadow)">
+      <rect width="230" height="266" rx="22" fill="#111633" stroke="#685AD8" stroke-opacity="0.75"/>
+      <circle cx="34" cy="35" r="17" fill="#24205E" stroke="#8173FF" stroke-width="2"/><text x="34" y="41" text-anchor="middle" fill="#F1EEFF" font-size="14" font-weight="800">3</text>
+      <text x="62" y="41" fill="#C0B6FF" font-size="13" font-weight="760" letter-spacing="1.25">BROWSERIR PATH</text>
+      <path d="M24 66h182" stroke="#4C447A" stroke-opacity="0.65"/>
+      <text x="24" y="105" fill="#F5F8FF" font-size="20" font-weight="700">Use the product</text>
+      <circle cx="29" cy="141" r="4" fill="#7B7CFF"/><text x="42" y="147" fill="#B5C4E2" font-size="15">reference planner</text>
+      <circle cx="29" cy="177" r="4" fill="#7B7CFF"/><text x="42" y="183" fill="#B5C4E2" font-size="15">official MCP client</text>
+      <circle cx="29" cy="213" r="4" fill="#7B7CFF"/><text x="42" y="219" fill="#B5C4E2" font-size="15">real Chromium</text>
+    </g>
+
+    <g transform="translate(826 142)" filter="url(#shadow)">
+      <rect width="230" height="266" rx="22" fill="#151532" stroke="#8558DC" stroke-opacity="0.75"/>
+      <circle cx="34" cy="35" r="17" fill="#301C5B" stroke="#9B5CFF" stroke-width="2"/><text x="34" y="41" text-anchor="middle" fill="#FAF2FF" font-size="14" font-weight="800">4</text>
+      <text x="62" y="41" fill="#D4B7FF" font-size="13" font-weight="760" letter-spacing="1.35">SEAL ACCESS</text>
+      <path d="M24 66h182" stroke="#574072" stroke-opacity="0.65"/>
+      <text x="24" y="105" fill="#F5F8FF" font-size="20" font-weight="700">Stop all activity</text>
+      <circle cx="29" cy="141" r="4" fill="#9B5CFF"/><text x="42" y="147" fill="#B5C4E2" font-size="15">close browser</text>
+      <circle cx="29" cy="177" r="4" fill="#9B5CFF"/><text x="42" y="183" fill="#B5C4E2" font-size="15">close MCP client</text>
+      <circle cx="29" cy="213" r="4" fill="#9B5CFF"/><text x="42" y="219" fill="#B5C4E2" font-size="15">then grade</text>
+    </g>
+
+    <g transform="translate(1078 142)" filter="url(#shadow)">
+      <rect width="252" height="266" rx="22" fill="#17142F" stroke="#A459E4" stroke-opacity="0.78"/>
+      <circle cx="34" cy="35" r="17" fill="#3C1D57" stroke="#B86BFF" stroke-width="2" filter="url(#glow)"/><text x="34" y="41" text-anchor="middle" fill="#FFF5FF" font-size="14" font-weight="800">5</text>
+      <text x="62" y="41" fill="#E0B8FF" font-size="13" font-weight="760" letter-spacing="1.15">HIDDEN ORACLE</text>
+      <path d="M24 66h204" stroke="#61406F" stroke-opacity="0.65"/>
+      <text x="24" y="105" fill="#F5F8FF" font-size="20" font-weight="700">Read actual truth</text>
+      <circle cx="29" cy="141" r="4" fill="#C171FF"/><text x="42" y="147" fill="#B5C4E2" font-size="15">database state</text>
+      <circle cx="29" cy="177" r="4" fill="#C171FF"/><text x="42" y="183" fill="#B5C4E2" font-size="15">audit history</text>
+      <circle cx="29" cy="213" r="4" fill="#C171FF"/><text x="42" y="219" fill="#B5C4E2" font-size="15">task-specific rules</text>
+    </g>
+
+    <g transform="translate(70 448)">
+      <rect width="600" height="218" rx="24" fill="url(#reject)" stroke="#A64F84" stroke-opacity="0.5"/>
+      <text x="28" y="43" fill="#E9A8C8" font-size="14" font-weight="780" letter-spacing="2">THE JUDGE IGNORES</text>
+      <g fill="#C4B4CC" font-size="16">
+        <circle cx="34" cy="82" r="11" fill="#5B263F" stroke="#F078A9"/><path d="m29 77 10 10m0-10-10 10" stroke="#FFD8E8" stroke-width="2" stroke-linecap="round"/><text x="56" y="88">any self-reported success claim</text>
+        <circle cx="34" cy="122" r="11" fill="#5B263F" stroke="#F078A9"/><path d="m29 117 10 10m0-10-10 10" stroke="#FFD8E8" stroke-width="2" stroke-linecap="round"/><text x="56" y="128">success toasts and page text</text>
+        <circle cx="34" cy="162" r="11" fill="#5B263F" stroke="#F078A9"/><path d="m29 157 10 10m0-10-10 10" stroke="#FFD8E8" stroke-width="2" stroke-linecap="round"/><text x="56" y="168">a value that merely existed in the seed</text>
+        <circle cx="34" cy="202" r="11" fill="#5B263F" stroke="#F078A9"/><path d="m29 197 10 10m0-10-10 10" stroke="#FFD8E8" stroke-width="2" stroke-linecap="round"/><text x="56" y="208">partial completion or a near-miss record</text>
+      </g>
+    </g>
+
+    <g transform="translate(700 448)">
+      <rect width="630" height="218" rx="24" fill="url(#pass)" stroke="#42B8D8" stroke-opacity="0.5"/>
+      <text x="28" y="43" fill="#8FE6F1" font-size="14" font-weight="780" letter-spacing="2">A PASS REQUIRES</text>
+      <g fill="#C5D6E8" font-size="16">
+        <circle cx="34" cy="82" r="11" fill="#174957" stroke="#50D8D0"/><path d="m29 82 4 4 7-9" fill="none" stroke="#DFFFFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="56" y="88">the exact task-specific database state</text>
+        <circle cx="34" cy="122" r="11" fill="#174957" stroke="#50D8D0"/><path d="m29 122 4 4 7-9" fill="none" stroke="#DFFFFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="56" y="128">the required audited action and sequence</text>
+        <circle cx="34" cy="162" r="11" fill="#174957" stroke="#50D8D0"/><path d="m29 162 4 4 7-9" fill="none" stroke="#DFFFFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="56" y="168">task-specific collateral and route rules</text>
+        <circle cx="34" cy="202" r="11" fill="#174957" stroke="#50D8D0"/><path d="m29 202 4 4 7-9" fill="none" stroke="#DFFFFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="56" y="208">every criterion—there is no partial credit</text>
+      </g>
+    </g>
+
+    <text x="700" y="708" text-anchor="middle" fill="#8394B9" font-size="14">Deterministic reference-planner qualification · not an LLM or competitor benchmark</text>
+  </g>
+</svg>

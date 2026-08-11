@@ -1,0 +1,45 @@
+{
+  "name": "browserir",
+  "version": "0.1.0",
+  "description": "The semantic browser layer for AI agents.",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qng95/BrowserIR.git"
+  },
+  "homepage": "https://github.com/qng95/BrowserIR#readme",
+  "bugs": {
+    "url": "https://github.com/qng95/BrowserIR/issues"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "benchmark": "pnpm --filter @browserir/benchmark benchmark",
+    "benchmark:agent": "pnpm --filter @browserir/benchmark benchmark:agent",
+    "benchmark:uplift": "pnpm --filter @browserir/benchmark benchmark:uplift",
+    "benchmark:representation": "pnpm --filter @browserir/benchmark benchmark:representation",
+    "release:evidence": "node scripts/record-release-evidence.mjs",
+    "release:evidence:assemble": "node scripts/assemble-release-evidence.mjs",
+    "test": "pnpm build && pnpm -r test",
+    "test:workspace": "pnpm -r test",
+    "test:qualification": "pnpm --filter @browserir/mcp qualification",
+    "test:capabilities": "pnpm --filter @browserir/mcp test:capabilities",
+    "typecheck": "pnpm -r typecheck",
+    "verify:packages": "node scripts/verify-packages.mjs",
+    "verify:packed-consumer": "node scripts/smoke-packed-consumer.mjs",
+    "verify:release": "node scripts/verify-release.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "22.13.0",
+    "playwright": "1.62.0",
+    "spdx-expression-parse": "5.0.0",
+    "typescript": "^5.7.2",
+    "vite-node": "^6.0.0",
+    "vitest": "^3.0.5"
+  },
+  "packageManager": "pnpm@10.30.3"
+}

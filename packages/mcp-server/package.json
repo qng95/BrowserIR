@@ -1,0 +1,65 @@
+{
+  "name": "@browserir/mcp",
+  "version": "0.1.0",
+  "description": "Local stdio Model Context Protocol server for BrowserIR browser automation.",
+  "license": "Apache-2.0",
+  "keywords": [
+    "browserir",
+    "mcp",
+    "model-context-protocol",
+    "browser-automation",
+    "ai-agents"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qng95/BrowserIR.git",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://github.com/qng95/BrowserIR#readme",
+  "bugs": {
+    "url": "https://github.com/qng95/BrowserIR/issues"
+  },
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "browserir-mcp": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "prebuild": "node ../../scripts/clean-package-dist.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "qualification": "pnpm qualification:build && vite-node tests/task-qualification-cli.ts",
+    "qualification:build": "pnpm --filter @browserir/mcp... build",
+    "prepack": "pnpm build",
+    "test": "vitest run",
+    "test:capabilities": "BROWSERIR_RUN_CAPABILITY_QUALIFICATION=1 vitest run tests/capability-qualification.e2e.test.ts",
+    "test:qualification": "pnpm qualification",
+    "test:qualification:e2e": "BROWSERIR_RUN_TASK_QUALIFICATION=1 vitest run tests/task-qualification.e2e.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@browserir/core": "workspace:*",
+    "@browserir/playwright": "workspace:*",
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@think-dom/fixture-app": "workspace:*"
+  }
+}

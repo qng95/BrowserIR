@@ -1,0 +1,407 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/ms-playwright
+
+jobs:
+  verify:
+    name: Verify (Node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.13.0', '24.19.0']
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: playwright-${{ runner.os }}-${{ matrix.node }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build publishable packages
+        run: pnpm build
+
+      - name: Verify workspace and record machine-readable evidence
+        run: >-
+          pnpm release:evidence workspace-verification
+          --output output/ci/verify
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-node-${{ matrix.node }}
+          --skip-build
+
+      - name: Archive workspace verification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: workspace-verification-node-${{ matrix.node }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/verify/
+          if-no-files-found: error
+          retention-days: 90
+
+  capability-qualification:
+    name: Capability qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: playwright-${{ runner.os }}-24.19.0-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build workspace package boundaries
+        run: pnpm build
+
+      - name: Exercise the capability matrix with retained evidence
+        run: >-
+          pnpm release:evidence capability-qualification
+          --output output/ci/capabilities
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-capabilities
+
+      - name: Archive capability evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: capability-qualification-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/capabilities/
+          if-no-files-found: error
+          retention-days: 90
+
+  task-qualification:
+    name: All 14 task oracles
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: playwright-${{ runner.os }}-24.19.0-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Qualify every database-backed task
+        run: >-
+          pnpm release:evidence task-qualification
+          --output output/ci/qualification
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-tasks
+
+      - name: Archive task qualification evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: task-qualification-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/qualification/
+          if-no-files-found: error
+          retention-days: 90
+
+  representation-qualification:
+    name: Representation release gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: playwright-${{ runner.os }}-24.19.0-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build workspace package boundaries
+        run: pnpm build
+
+      - name: Run the checked-in representation corpus
+        run: >-
+          pnpm release:evidence representation-qualification
+          --output output/ci/representation
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-representation
+
+      - name: Archive representation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: representation-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/representation/
+          if-no-files-found: error
+          retention-days: 90
+
+  performance-characterization:
+    name: Performance characterization
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: playwright-${{ runner.os }}-24.19.0-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Chromium and system dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build workspace package boundaries
+        run: pnpm build
+
+      - name: Record the observation performance characterization
+        run: >-
+          pnpm release:evidence performance-characterization
+          --output output/ci/performance
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-performance
+
+      - name: Archive performance evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: performance-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/performance/
+          if-no-files-found: error
+          retention-days: 90
+
+  packed-consumer:
+    name: Packed stdio smoke (Node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22.13.0', '24.19.0']
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium system dependencies
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Pack, install, import, and drive the stdio executable with retained evidence
+        run: >-
+          pnpm release:evidence packed-consumer
+          --output output/ci/packed-consumer
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-node-${{ matrix.node }}
+
+      - name: Archive packed-consumer evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: packed-consumer-node-${{ matrix.node }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/packed-consumer/
+          if-no-files-found: error
+          retention-days: 90
+
+  production-dependency-audit:
+    name: Production dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit the production dependency graph with retained evidence
+        run: >-
+          pnpm release:evidence production-audit
+          --output output/ci/production-audit
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}-production-audit
+
+      - name: Archive production audit evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-audit-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/production-audit/
+          if-no-files-found: error
+          retention-days: 90
+
+  release-evidence-dossier:
+    name: Assemble release evidence dossier
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs:
+      - verify
+      - capability-qualification
+      - task-qualification
+      - representation-qualification
+      - performance-characterization
+      - packed-consumer
+      - production-dependency-audit
+    if: ${{ always() && !cancelled() }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+
+      - name: Download all gate fragments
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: '*-${{ github.run_id }}-${{ github.run_attempt }}*'
+          path: output/ci/downloaded
+          merge-multiple: false
+
+      - name: Assemble and validate the clean-source dossier
+        if: ${{ always() }}
+        run: >-
+          pnpm release:evidence:assemble --
+          --input output/ci/downloaded
+          --output output/ci/release-dossier
+          --release-id ci-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Archive the release evidence dossier
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-evidence-dossier-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: output/ci/release-dossier/
+          if-no-files-found: error
+          retention-days: 90
+
+# verify:release intentionally remains a maintainer-run gate. It must fail until
+# the license, repository identity, package privacy, and npm ownership decisions
+# in docs/RELEASE_CHECKLIST.md have been resolved.

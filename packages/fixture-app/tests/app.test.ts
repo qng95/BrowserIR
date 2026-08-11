@@ -1,0 +1,299 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { startAppServer, type RunningAppServer } from '../src/server.js';
+import { taskById } from '../src/tasks.js';
+
+let app: RunningAppServer;
+let sid = '';
+
+beforeAll(async () => {
+  // Zero latency in tests; the latency knob is exercised separately.
+  app = await startAppServer({
+    apiLatencyMs: 0,
+    pageLatencyMs: 0,
+    customers: 300,
+    enableControlApi: true,
+  });
+});
+afterAll(async () => {
+  await app.close();
+});
+
+const get = (p: string, follow = false) =>
+  fetch(app.origin + p, { headers: sid ? { cookie: `sid=${sid}` } : {}, redirect: follow ? 'follow' : 'manual' });
+
+const post = (p: string, form: Record<string, string>) =>
+  fetch(app.origin + p, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      ...(sid ? { cookie: `sid=${sid}` } : {}),
+    },
+    body: new URLSearchParams(form).toString(),
+    redirect: 'manual',
+  });
+
+describe('fixture network boundary', () => {
+  it('binds the deliberately insecure fixture to IPv4 loopback', () => {
+    expect(app.address).toMatchObject({
+      address: '127.0.0.1',
+      family: 'IPv4',
+    });
+  });
+
+  it('rejects a loopback port collision promptly instead of hanging startup', async () => {
+    const outcome = await Promise.race([
+      startAppServer({
+        port: app.address.port,
+        apiLatencyMs: 0,
+        pageLatencyMs: 0,
+        customers: 1,
+        vehicles: 1,
+      }).then(
+        () => ({ status: 'unexpectedly_started' as const }),
+        (error: unknown) => ({ status: 'rejected' as const, error }),
+      ),
+      new Promise<{ status: 'timed_out' }>((resolve) =>
+        setTimeout(() => resolve({ status: 'timed_out' }), 1_000),
+      ),
+    ]);
+
+    expect(outcome.status).toBe('rejected');
+    if (outcome.status === 'rejected') {
+      expect(outcome.error).toMatchObject({ code: 'EADDRINUSE' });
+    }
+  });
+
+  it('does not expose grading or reset controls by default', async () => {
+    const browserFacingApp = await startAppServer({
+      apiLatencyMs: 0,
+      pageLatencyMs: 0,
+      customers: 1,
+      vehicles: 1,
+    });
+
+    try {
+      const responses = await Promise.all([
+        fetch(`${browserFacingApp.origin}/api/tasks`),
+        fetch(`${browserFacingApp.origin}/api/tasks/verify`),
+        fetch(`${browserFacingApp.origin}/api/tasks/create-customer/verify`),
+        fetch(`${browserFacingApp.origin}/api/reset`, { method: 'POST' }),
+      ]);
+
+      expect(responses.map((response) => response.status)).toEqual([404, 404, 404, 404]);
+      await expect(Promise.all(responses.map((response) => response.json()))).resolves.toEqual([
+        { error: 'not found' },
+        { error: 'not found' },
+        { error: 'not found' },
+        { error: 'not found' },
+      ]);
+    } finally {
+      await browserFacingApp.close();
+    }
+  });
+});
+
+describe('authentication is a real gate', () => {
+  it('bounces an unauthenticated request to the login page', async () => {
+    const r = await get('/app/customers');
+    expect(r.status).toBe(303);
+    expect(r.headers.get('location')).toContain('/app/login');
+  });
+
+  it('rejects wrong credentials', async () => {
+    const r = await post('/app/login', { username: 'test', password: 'wrong' });
+    expect(r.status).toBe(401);
+    expect(await r.text()).toContain('Wrong username or password');
+  });
+
+  it('issues a session cookie on success', async () => {
+    const r = await post('/app/login', { username: 'test', password: 'test' });
+    expect(r.status).toBe(303);
+    const cookie = r.headers.get('set-cookie') ?? '';
+    expect(cookie).toContain('sid=');
+    sid = /sid=([^;]+)/.exec(cookie)![1]!;
+  });
+});
+
+describe('the customer list is server-driven', () => {
+  it('paginates', async () => {
+    const p1 = await (await get('/app/customers?page=1')).text();
+    const p2 = await (await get('/app/customers?page=2')).text();
+    expect(p1).toContain('K-100000');
+    expect(p2).not.toContain('>K-100000<');
+    expect(p2).toContain('page 2 of');
+  });
+
+  it('sorts on the server, not in the browser', async () => {
+    const asc = await (await get('/app/customers?sort=name&dir=asc')).text();
+    const desc = await (await get('/app/customers?sort=name&dir=desc')).text();
+    const first = (h: string) => /<td><a href="\/app\/customers\/\d+">([^<]+)<\/a>/.exec(h)?.[1];
+    expect(first(asc)).not.toBe(first(desc));
+    expect(asc).toContain('aria-sort="ascending"');
+  });
+
+  it('searches', async () => {
+    const r = await (await get('/app/customers?q=Leipzig')).text();
+    // Either matches exist or the empty state renders — both are server work.
+    expect(r).toMatch(/customers · page|No customers match/);
+  });
+
+  it('renders an empty state rather than a blank table', async () => {
+    const r = await (await get('/app/customers?q=zzzznotathing')).text();
+    expect(r).toContain('No customers match that filter');
+  });
+});
+
+describe('mutations go through post-redirect-get and server validation', () => {
+  it('rejects an invalid create and re-renders with field errors', async () => {
+    const r = await post('/app/customers/new', {
+      name: 'X',
+      city: '',
+      country: 'Germany',
+      status: 'Prospect',
+      credit_limit: '400000',
+      vat_id: 'nope',
+    });
+    expect(r.status).toBe(422);
+    const body = await r.text();
+    expect(body).toContain('at least 3 characters');
+    expect(body).toContain('City is required');
+    expect(body).toContain('needs board approval');
+    expect(body).toContain('two letters followed by 9 digits');
+    // The user's input must survive the round trip, or correcting one field
+    // would mean retyping the rest.
+    expect(body).toContain('value="400000"');
+  });
+
+  it('creates on valid input and redirects to the new record', async () => {
+    const r = await post('/app/customers/new', {
+      name: 'Testhaus Berlin GmbH',
+      city: 'Berlin',
+      country: 'Germany',
+      status: 'Prospect',
+      credit_limit: '12000',
+      vat_id: 'DE123456789',
+    });
+    expect(r.status).toBe(303);
+    const loc = r.headers.get('location')!;
+    expect(loc).toMatch(/^\/app\/customers\/\d+$/);
+    const detail = await (await get(loc)).text();
+    expect(detail).toContain('Testhaus Berlin GmbH');
+    expect(detail).toContain('Berlin');
+  });
+
+  it('refuses a duplicate name', async () => {
+    const r = await post('/app/customers/new', {
+      name: 'Testhaus Berlin GmbH',
+      city: 'Berlin',
+      country: 'Germany',
+      status: 'Prospect',
+      credit_limit: '12000',
+    });
+    expect(r.status).toBe(422);
+    expect(await r.text()).toContain('already exists');
+  });
+
+  it('records every mutation in the audit log', async () => {
+    const r = await (await get('/app/reports/audit')).text();
+    expect(r).toContain('customer.create');
+  });
+});
+
+describe('panels load lazily over the API', () => {
+  it('serves the detail page with a skeleton, not the data', async () => {
+    const page = await (await get('/app/customers/1/contacts')).text();
+    expect(page).toContain('data-state="loading"');
+    expect(page).toContain('class="skeleton"');
+    expect(page).toContain("fetch('/api/customers/1/contacts'");
+    // The rows are NOT in the initial document.
+    expect(page).not.toContain('<th>Email</th>');
+  });
+
+  it('returns the rows from the API', async () => {
+    const data = (await (await get('/api/customers/1/contacts')).json()) as { count: number; html: string };
+    expect(data.count).toBeGreaterThan(0);
+    expect(data.html).toContain('<th>Email</th>');
+  });
+
+  it('honours the latency override', async () => {
+    const t0 = Date.now();
+    await get('/api/customers/1/orders?latency=300');
+    expect(Date.now() - t0).toBeGreaterThanOrEqual(280);
+  });
+});
+
+describe('tasks are graded against the database, not the page', () => {
+  it('reports every task as failing on a fresh database', async () => {
+    const { results } = (await (await get('/api/tasks/verify')).json()) as {
+      results: Array<{ id: string; passed: boolean }>;
+    };
+    // A task that passes before anyone does anything is not measuring work.
+    expect(results.filter((r) => r.passed).map((r) => r.id)).toEqual([]);
+  });
+
+  it('passes create-customer only once the record actually exists', async () => {
+    expect(taskById('create-customer')!.verify(app.db).passed).toBe(false);
+    await post('/app/customers/new', {
+      name: 'Steinweg Logistik GmbH',
+      city: 'Leipzig',
+      country: 'Germany',
+      status: 'Prospect',
+      credit_limit: '30000',
+      vat_id: 'DE145879632',
+    });
+    const after = taskById('create-customer')!.verify(app.db);
+    expect(after.passed, after.reason).toBe(true);
+  });
+
+  it('fails a half-done task with a reason naming the wrong field', async () => {
+    await post('/app/customers/new', {
+      name: 'Nordlicht Spedition',
+      city: 'Bremen',
+      country: 'Germany',
+      status: 'Prospect',
+      credit_limit: '100000',
+    });
+    const r = taskById('validation-recovery')!.verify(app.db);
+    expect(r.passed).toBe(false);
+    expect(r.reason).toContain('maximum the server accepts is 250000');
+  });
+
+  it('will not pass an edit task on value alone without a recorded action', async () => {
+    // Force the target value directly in the database, bypassing the app.
+    app.db.prepare("UPDATE customers SET credit_limit = 45000 WHERE number = 'K-100042'").run();
+    const r = taskById('raise-credit-limit')!.verify(app.db);
+    expect(r.passed).toBe(false);
+    expect(r.reason).toContain('no update was ever recorded');
+  });
+
+  it('passes the edit task when the change goes through the app', async () => {
+    const id = (app.db.prepare("SELECT id FROM customers WHERE number = 'K-100042'").get() as { id: number }).id;
+    // The preceding negative test deliberately bypassed the app. Restore the
+    // seeded value so this positive case proves a real 41000 -> 45000 edit.
+    app.db.prepare('UPDATE customers SET credit_limit = 41000 WHERE id = ?').run(id);
+    const existing = app.db.prepare('SELECT * FROM customers WHERE id = ?').get(id) as Record<string, string>;
+    const r = await post(`/app/customers/${id}/edit`, {
+      name: String(existing['name']),
+      city: String(existing['city']),
+      country: String(existing['country']),
+      status: String(existing['status']),
+      credit_limit: '45000',
+      vat_id: String(existing['vat_id'] ?? ''),
+    });
+    expect(r.status).toBe(303);
+    const v = taskById('raise-credit-limit')!.verify(app.db);
+    expect(v.passed, v.reason).toBe(true);
+  });
+});
+
+describe('reset restores a known state', () => {
+  it('clears everything the tests did', async () => {
+    const r = await fetch(app.origin + '/api/reset', { method: 'POST' });
+    expect(r.status).toBe(200);
+    const { results } = (await (await fetch(app.origin + '/api/tasks/verify')).json()) as {
+      results: Array<{ passed: boolean }>;
+    };
+    expect(results.every((x) => !x.passed)).toBe(true);
+  });
+});

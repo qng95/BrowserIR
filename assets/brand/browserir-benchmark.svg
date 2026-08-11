@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR local qualification scorecard</title>
+  <desc id="desc">A dirty and unbound local engineering run: fourteen of fourteen deterministic tasks passed, 290 MCP calls with zero tool errors, perfect checked-corpus representation precision, recall and F1, three of three stable identities, and eighteen of eighteen known omissions accounted for. This is not an LLM or competitor score.</desc>
+  <defs>
+    <linearGradient id="surface" x1="35" y1="20" x2="1360" y2="620" gradientUnits="userSpaceOnUse"><stop stop-color="#101936"/><stop offset="0.55" stop-color="#090D20"/><stop offset="1" stop-color="#060914"/></linearGradient>
+    <linearGradient id="brand" x1="90" y1="70" x2="1230" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#39C2FF"/><stop offset="0.48" stop-color="#557CFF"/><stop offset="1" stop-color="#A05CFF"/></linearGradient>
+    <linearGradient id="score" x1="82" y1="172" x2="480" y2="410" gradientUnits="userSpaceOnUse"><stop stop-color="#75D8FF"/><stop offset="0.5" stop-color="#6686FF"/><stop offset="1" stop-color="#B477FF"/></linearGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M44 0H0V44" fill="none" stroke="#7895FF" stroke-opacity="0.055"/></pattern>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1400" height="620" rx="36" fill="url(#surface)"/>
+  <rect width="1400" height="620" rx="36" fill="url(#grid)"/>
+  <circle cx="1180" cy="130" r="190" fill="#663CFF" fill-opacity="0.12" filter="url(#soft)"/><circle cx="210" cy="520" r="190" fill="#1DAEFF" fill-opacity="0.1" filter="url(#soft)"/>
+  <rect x="1.5" y="1.5" width="1397" height="617" rx="34.5" fill="none" stroke="url(#brand)" stroke-opacity="0.42" stroke-width="3"/>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text x="70" y="76" fill="#8FA5D9" font-size="17" font-weight="700" letter-spacing="4">MEASURED ON CONTROLLED BROWSER WORKFLOWS</text>
+    <text x="70" y="132" fill="#F8FAFF" font-size="38" font-weight="750" letter-spacing="-1.2">Retained local qualification</text>
+    <g transform="translate(70 170)">
+      <rect width="442" height="320" rx="28" fill="#111A38" fill-opacity="0.9" stroke="#5C78DA" stroke-opacity="0.34"/>
+      <text x="32" y="58" fill="#90A6D9" font-size="15" font-weight="700" letter-spacing="2.6">END-TO-END QUALIFICATION</text>
+      <text x="30" y="180" fill="url(#score)" font-size="112" font-weight="820" letter-spacing="-7">14/14</text>
+      <text x="34" y="226" fill="#F4F7FF" font-size="27" font-weight="680">business tasks passed</text>
+      <path d="M34 258h374" stroke="#7894EF" stroke-opacity="0.22"/>
+      <text x="34" y="292" fill="#A9B7D8" font-size="16">Fresh worker · Chromium · sealed DB/audit oracle</text>
+    </g>
+    <g transform="translate(538 170)">
+      <rect width="370" height="150" rx="24" fill="#0E1630" stroke="#4B73D9" stroke-opacity="0.32"/>
+      <circle cx="46" cy="45" r="15" fill="#15366A" stroke="#39C2FF" stroke-width="2"/><path d="M40 45h12M46 39v12" stroke="#DFF7FF" stroke-width="2" stroke-linecap="round"/>
+      <text x="76" y="52" fill="#8FA5D9" font-size="14" font-weight="700" letter-spacing="2">MCP EXECUTION</text>
+      <text x="30" y="112" fill="#F8FAFF" font-size="42" font-weight="780">290</text><text x="125" y="112" fill="#9DAFD4" font-size="20">calls</text>
+      <text x="238" y="112" fill="#66DAFF" font-size="42" font-weight="780">0</text><text x="270" y="112" fill="#9DAFD4" font-size="20">errors</text>
+    </g>
+    <g transform="translate(932 170)">
+      <rect width="398" height="150" rx="24" fill="#12132F" stroke="#875BEB" stroke-opacity="0.4"/>
+      <circle cx="46" cy="45" r="15" fill="#2B1B58" stroke="#A86DFF" stroke-width="2"/><path d="m40 46 5 5 9-12" fill="none" stroke="#F4E9FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="76" y="52" fill="#A79BD2" font-size="14" font-weight="700" letter-spacing="2">REPRESENTATION CORPUS</text>
+      <text x="30" y="112" fill="#F8FAFF" font-size="42" font-weight="780">1.00</text><text x="135" y="111" fill="#B3A8D8" font-size="18">precision · recall · F1</text>
+    </g>
+    <g transform="translate(538 340)">
+      <rect width="370" height="150" rx="24" fill="#0E1630" stroke="#4B73D9" stroke-opacity="0.32"/>
+      <text x="30" y="48" fill="#8FA5D9" font-size="14" font-weight="700" letter-spacing="2">IDENTITY STABILITY</text>
+      <text x="30" y="112" fill="#F8FAFF" font-size="48" font-weight="780">3/3</text><text x="125" y="110" fill="#9DAFD4" font-size="18">checked identities</text>
+    </g>
+    <g transform="translate(932 340)">
+      <rect width="398" height="150" rx="24" fill="#12132F" stroke="#875BEB" stroke-opacity="0.4"/>
+      <text x="30" y="48" fill="#A79BD2" font-size="14" font-weight="700" letter-spacing="2">OMISSION ACCOUNTING</text>
+      <text x="30" y="112" fill="#F8FAFF" font-size="48" font-weight="780">18/18</text><text x="166" y="110" fill="#B3A8D8" font-size="18">known omissions</text>
+    </g>
+    <rect x="70" y="526" width="1260" height="54" rx="27" fill="#0B1229" stroke="#607CE2" stroke-opacity="0.3"/>
+    <circle cx="96" cy="553" r="5" fill="#58CAFF"/><text x="114" y="560" fill="#A9B8D9" font-size="16">Deterministic reference planner</text>
+    <circle cx="390" cy="553" r="5" fill="#6D8BFF"/><text x="408" y="560" fill="#A9B8D9" font-size="16">Local · dirty / unbound</text>
+    <circle cx="650" cy="553" r="5" fill="#9A67FF"/><text x="668" y="560" fill="#A9B8D9" font-size="16">MCP 2026-07-28</text>
+    <text x="1042" y="560" fill="#7E8FB5" font-size="14" font-weight="650">NOT LLM OR COMPETITOR SCORE</text>
+  </g>
+</svg>

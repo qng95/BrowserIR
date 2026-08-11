@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 760" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR implemented alpha runtime architecture</title>
+  <desc id="desc">An external AI agent uses the local typed MCP adapter. The deterministic BrowserIR core compiles normalized browser observations into a semantic graph and budgeted model view, validates revision-bound actions, and communicates through a browser-independent driver port with the Playwright and Chromium backend.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1500" y2="760" gradientUnits="userSpaceOnUse"><stop stop-color="#F8FAFF"/><stop offset="1" stop-color="#EDF2FF"/></linearGradient>
+    <linearGradient id="brand" x1="490" y1="160" x2="1070" y2="540" gradientUnits="userSpaceOnUse"><stop stop-color="#28BDF7"/><stop offset="0.5" stop-color="#5477F5"/><stop offset="1" stop-color="#9859F2"/></linearGradient>
+    <linearGradient id="core" x1="568" y1="165" x2="1128" y2="525" gradientUnits="userSpaceOnUse"><stop stop-color="#101A3A"/><stop offset="1" stop-color="#0A0D22"/></linearGradient>
+    <linearGradient id="receipt" x1="70" y1="565" x2="1430" y2="660" gradientUnits="userSpaceOnUse"><stop stop-color="#0E1733"/><stop offset="1" stop-color="#120E2D"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#20316B" flood-opacity="0.13"/></filter>
+    <marker id="arrow-right" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#745FF3"/></marker>
+    <marker id="arrow-left" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill="#2AADE8"/></marker>
+  </defs>
+
+  <rect width="1500" height="760" rx="34" fill="url(#bg)"/>
+  <rect x="1.5" y="1.5" width="1497" height="757" rx="32.5" fill="none" stroke="url(#brand)" stroke-opacity="0.28" stroke-width="3"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text id="diagram-title" x="750" y="53" text-anchor="middle" fill="#111936" font-size="32" font-weight="780" letter-spacing="-1">BrowserIR runtime architecture</text>
+    <text x="750" y="84" text-anchor="middle" fill="#617091" font-size="16">Deterministic semantic core · local MCP boundary · Playwright/Chromium execution backend</text>
+    <g id="alpha-badge">
+      <rect id="alpha-badge-bg" x="1212" y="29" width="250" height="30" rx="15" fill="#EAE7FF" stroke="#8B73EB" stroke-opacity="0.6"/>
+      <circle cx="1235" cy="44" r="5" fill="#765CFA"/>
+      <text id="alpha-badge-copy" x="1249" y="48.5" fill="#625493" font-size="11" font-weight="760" letter-spacing="1.1">IMPLEMENTED ALPHA PATH</text>
+    </g>
+
+    <!-- Observation flow -->
+    <rect id="observation-flow-band" x="69" y="104" width="1362" height="41" rx="20.5" fill="#E7F6FF" stroke="#A8DDF4"/>
+    <rect x="86" y="112" width="126" height="25" rx="12.5" fill="#D6F1FF"/><text x="149" y="129" text-anchor="middle" fill="#2479A4" font-size="11" font-weight="780" letter-spacing="1.3">OBSERVATION FLOW</text>
+    <text id="observation-flow-copy" x="232" y="130" fill="#47627F" font-size="13.5" font-weight="610">Chromium → Playwright sensors + bounded probes → NormalizedObservation → reconcile identities → canonical graph → budgeted CompiledView → MCP result</text>
+
+    <!-- Bidirectional connectors -->
+    <path data-connector="result" d="M281 294H243" stroke="#2AADE8" stroke-width="2.5" marker-end="url(#arrow-left)"/>
+    <path data-connector="view" d="M555 294H517" stroke="#2AADE8" stroke-width="2.5" marker-end="url(#arrow-left)"/>
+    <path data-connector="observation" d="M1179 294H1141" stroke="#2AADE8" stroke-width="2.5" marker-end="url(#arrow-left)"/>
+    <path data-connector="request" d="M243 354H281" stroke="#745FF3" stroke-width="2.5" marker-end="url(#arrow-right)"/>
+    <path data-connector="call" d="M517 354H555" stroke="#745FF3" stroke-width="2.5" marker-end="url(#arrow-right)"/>
+    <path data-connector="action" d="M1141 354H1179" stroke="#745FF3" stroke-width="2.5" marker-end="url(#arrow-right)"/>
+    <text id="result-connector-label" x="262" y="268" text-anchor="middle" fill="#4285A5" font-size="10" font-weight="730">OUT</text>
+    <text id="request-connector-label" x="262" y="388" text-anchor="middle" fill="#725CA7" font-size="10" font-weight="730">IN</text>
+    <text id="view-connector-label" x="536" y="268" text-anchor="middle" fill="#4285A5" font-size="10" font-weight="730">VIEW</text>
+    <text id="call-connector-label" x="536" y="388" text-anchor="middle" fill="#725CA7" font-size="10" font-weight="730">CALL</text>
+
+    <!-- Agent -->
+    <g filter="url(#shadow)">
+      <rect id="agent-card" x="50" y="165" width="180" height="360" rx="24" fill="#FFFFFF" stroke="#D4DDF2" stroke-width="2"/>
+    </g>
+    <rect x="70" y="184" width="74" height="25" rx="12.5" fill="#EEF2FF"/><text x="107" y="201" text-anchor="middle" fill="#6173A4" font-size="10.5" font-weight="760" letter-spacing="1.1">EXTERNAL</text>
+    <circle cx="140" cy="252" r="27" fill="#EDF2FF" stroke="#8FA5E4"/><path d="M122 270c5-14 31-14 36 0M140 243a11 11 0 1 0 0 .1" fill="none" stroke="#526AAC" stroke-width="3" stroke-linecap="round"/>
+    <text x="140" y="309" text-anchor="middle" fill="#17203D" font-size="23" font-weight="760">AI agent</text>
+    <text x="72" y="351" fill="#7684A1" font-size="10.5" font-weight="750" letter-spacing="1.2">RECEIVES</text>
+    <text x="72" y="378" fill="#33405E" font-size="14">CompiledView</text>
+    <text x="72" y="401" fill="#33405E" font-size="14">ActionReceipt + delta</text>
+    <path d="M72 420h136" stroke="#E1E6F2"/>
+    <text x="72" y="447" fill="#7684A1" font-size="10.5" font-weight="750" letter-spacing="1.2">SENDS</text>
+    <text x="72" y="474" fill="#33405E" font-size="14">typed action</text>
+    <text x="72" y="497" fill="#33405E" font-size="14">expected_revision + ref</text>
+
+    <!-- MCP adapter -->
+    <g id="mcp-section" transform="translate(34 0)">
+    <g filter="url(#shadow)">
+      <rect id="mcp-card" x="260" y="165" width="210" height="360" rx="24" fill="#FFFFFF" stroke="#D4DDF2" stroke-width="2"/>
+    </g>
+    <text x="284" y="199" fill="#64749A" font-size="11" font-weight="750" letter-spacing="1.2">@browserir/mcp</text>
+    <text x="284" y="234" fill="#17203D" font-size="22" font-weight="770">MCP adapter</text>
+    <rect x="284" y="256" width="161" height="34" rx="17" fill="#EEF2FF"/><circle cx="303" cy="273" r="5" fill="#617DF1"/><text x="317" y="278" fill="#58678F" font-size="12" font-weight="690">2026-07-28</text>
+    <text x="284" y="330" fill="#71809F" font-size="10.5" font-weight="750" letter-spacing="1.2">LOCAL TRANSPORT</text>
+    <text x="284" y="356" fill="#33405E" font-size="14">stdio + fetch handler</text>
+    <text x="284" y="391" fill="#71809F" font-size="10.5" font-weight="750" letter-spacing="1.2">PUBLIC CONTRACT</text>
+    <text x="284" y="417" fill="#33405E" font-size="14">9 typed safe tools</text>
+    <text x="284" y="441" fill="#33405E" font-size="14">JSON schemas + budgets</text>
+    <text x="284" y="465" fill="#33405E" font-size="14">opaque IDs + revisions</text>
+    <rect x="284" y="486" width="161" height="22" rx="11" fill="#F0ECFF"/><text x="364.5" y="501" text-anchor="middle" fill="#6B58A0" font-size="10.5" font-weight="700">unsafe evaluate absent</text>
+    </g>
+
+    <!-- Core -->
+    <g id="core-section" transform="translate(68 0)">
+    <g filter="url(#shadow)">
+      <rect id="core-card" x="500" y="165" width="560" height="360" rx="28" fill="url(#core)" stroke="url(#brand)" stroke-width="3"/>
+    </g>
+    <text x="528" y="198" fill="#8BA0D3" font-size="11" font-weight="750" letter-spacing="1.25">@browserir/core</text>
+    <text id="core-title" x="528" y="232" fill="#F7F9FF" font-size="25" font-weight="780">Deterministic runtime</text>
+    <rect x="859" y="187" width="171" height="31" rx="15.5" fill="#172A58" stroke="#5577E8"/><text x="944.5" y="207" text-anchor="middle" fill="#B9C8F5" font-size="10.5" font-weight="750" letter-spacing="1">MODEL-INDEPENDENT</text>
+
+    <rect x="525" y="254" width="510" height="103" rx="17" fill="#102040" stroke="#2D83B3" stroke-opacity="0.7"/>
+    <rect x="541" y="269" width="75" height="23" rx="11.5" fill="#14385A"/><text x="578.5" y="285" text-anchor="middle" fill="#7FD9FF" font-size="10.5" font-weight="770" letter-spacing="1">OBSERVE</text>
+    <text x="634" y="287" fill="#E7F2FF" font-size="13.5" font-weight="680">NormalizedObservation</text>
+    <text x="548" y="318" fill="#AEBFE0" font-size="13.5">normalize → reconcile identity → semantic entities + relations</text>
+    <text x="548" y="342" fill="#AEBFE0" font-size="13.5">canonical graph → revisions + deltas → view budget + explicit omissions</text>
+
+    <rect x="525" y="373" width="510" height="103" rx="17" fill="#171838" stroke="#8055C9" stroke-opacity="0.75"/>
+    <rect x="541" y="388" width="75" height="23" rx="11.5" fill="#302257"/><text x="578.5" y="404" text-anchor="middle" fill="#D4B6FF" font-size="10.5" font-weight="770" letter-spacing="1">ACT</text>
+    <text x="634" y="406" fill="#F2EAFF" font-size="13.5" font-weight="680">typed action + expected revision + entity ref</text>
+    <text x="548" y="437" fill="#C1B8DD" font-size="13.5">revision → target → capability validation → driver dispatch</text>
+    <text x="548" y="461" fill="#C1B8DD" font-size="13.5">bounded settle → re-observe → effect status → ActionReceipt + delta</text>
+
+    <rect x="525" y="490" width="510" height="22" rx="11" fill="#0B132C" stroke="#283966"/>
+    <text x="545" y="505" fill="#8FA1C9" font-size="10.5">public: semantic entity refs</text>
+    <text x="735" y="505" fill="#52658F" font-size="10.5">|</text>
+    <text x="755" y="505" fill="#8FA1C9" font-size="10.5">private: source anchors + driver targets</text>
+    </g>
+
+    <!-- Driver port connector labels -->
+    <text id="observation-connector-label" x="1160" y="226" text-anchor="middle" fill="#4285A5" font-size="8.5" font-weight="760" letter-spacing="0.8" transform="rotate(-90 1160 226)">OBSERVATION</text>
+    <text id="action-connector-label" x="1160" y="422" text-anchor="middle" fill="#725CA7" font-size="8.5" font-weight="760" letter-spacing="0.8" transform="rotate(-90 1160 422)">DRIVER ACTION</text>
+
+    <!-- Playwright backend -->
+    <g id="backend-section" transform="translate(102 0)">
+    <g filter="url(#shadow)">
+      <rect id="backend-card" x="1090" y="165" width="260" height="360" rx="24" fill="#FFFFFF" stroke="#D4DDF2" stroke-width="2"/>
+    </g>
+    <text x="1115" y="199" fill="#64749A" font-size="11" font-weight="750" letter-spacing="1.1">@browserir/playwright</text>
+    <text id="backend-title" x="1115" y="234" fill="#17203D" font-size="22" font-weight="770">Browser backend</text>
+    <text x="1115" y="273" fill="#71809F" font-size="10.5" font-weight="750" letter-spacing="1.2">OBSERVE</text>
+    <text x="1115" y="299" fill="#33405E" font-size="13.5">page / frame / popup lifecycle</text>
+    <text x="1115" y="322" fill="#33405E" font-size="13.5">bounded probes · a11y · geometry</text>
+    <text x="1115" y="345" fill="#33405E" font-size="13.5">open shadow · tables · options</text>
+    <path d="M1115 365h210" stroke="#E0E6F2"/>
+    <text x="1115" y="391" fill="#71809F" font-size="10.5" font-weight="750" letter-spacing="1.2">EXECUTE</text>
+    <text x="1115" y="417" fill="#33405E" font-size="13.5">locators · actionability · input</text>
+    <text x="1115" y="440" fill="#33405E" font-size="13.5">screenshots · page probes · CDP</text>
+    <rect id="chromium-target-pill" x="1115" y="462" width="230" height="43" rx="14" fill="#EEF2FF" stroke="#A7B5E1"/>
+    <circle cx="1140" cy="483.5" r="12" fill="#DFE7FF" stroke="#6B83D2"/><circle cx="1140" cy="483.5" r="4" fill="#617DDB"/><path d="M1140 471.5v8M1150 489l-7-4M1130 489l7-4" stroke="#617DDB" stroke-width="2" stroke-linecap="round"/>
+    <text id="chromium-target-copy" x="1161" y="488" fill="#263451" font-size="13" font-weight="720">Chromium · primary target</text>
+    </g>
+
+    <!-- Drawn last so the port label remains legible above both implementations. -->
+    <g id="driver-port-badge">
+      <rect x="1072" y="151" width="176" height="28" rx="14" fill="#EBE8FF" stroke="#8370DF"/>
+      <text x="1160" y="170" text-anchor="middle" fill="#66579D" font-size="10.5" font-weight="760" letter-spacing="1">BROWSERDRIVER PORT</text>
+    </g>
+
+    <!-- Receipt states -->
+    <rect id="receipt-panel" x="69" y="559" width="1362" height="103" rx="24" fill="url(#receipt)" stroke="#536DDD" stroke-opacity="0.38"/>
+    <text x="94" y="587" fill="#899BCD" font-size="10.5" font-weight="760" letter-spacing="1.3">ACTION RECEIPT STATES</text>
+    <g id="receipt-pills" font-size="11.5" font-weight="690">
+      <rect x="94" y="602" width="104" height="27" rx="13.5" fill="#173B47" stroke="#42BBD1"/><text x="146" y="620" text-anchor="middle" fill="#A8F1F5">verified</text>
+      <rect x="208" y="602" width="181" height="27" rx="13.5" fill="#1B2D4B" stroke="#5C84DE"/><text x="298.5" y="620" text-anchor="middle" fill="#BDD0FF">dispatched_unverified</text>
+      <rect x="399" y="602" width="112" height="27" rx="13.5" fill="#262749" stroke="#7C78D7"/><text x="455" y="620" text-anchor="middle" fill="#D6D3FF">no_effect</text>
+      <rect x="521" y="602" width="126" height="27" rx="13.5" fill="#302047" stroke="#9A67D7"/><text x="584" y="620" text-anchor="middle" fill="#E5C9FF">stale_target</text>
+      <rect x="657" y="602" width="158" height="27" rx="13.5" fill="#352040" stroke="#B562BF"/><text x="736" y="620" text-anchor="middle" fill="#F1C9EA">ambiguous_target</text>
+      <rect x="825" y="602" width="94" height="27" rx="13.5" fill="#3B2238" stroke="#CC668C"/><text x="872" y="620" text-anchor="middle" fill="#FFD0DF">blocked</text>
+    </g>
+    <text id="receipt-summary" x="945" y="620" fill="#AAB6D2" font-size="11.5">Dispatch ≠ success · verified = declared observable effect found</text>
+    <text id="receipt-footnote" x="94" y="646" fill="#7183AB" font-size="11.5">Business correctness is outside the production runtime; the fixture database/audit oracle exists only in the benchmark.</text>
+
+    <!-- Boundary footer -->
+    <circle cx="84" cy="706" r="5" fill="#29B8F2"/><text id="footer-model" x="99" y="711" fill="#536584" font-size="12.5"><tspan font-weight="720">Model boundary:</tspan> compact text + structured content + opaque revision-bound refs</text>
+    <circle cx="795" cy="706" r="5" fill="#925BEF"/><text id="footer-private" x="810" y="711" fill="#536584" font-size="12.5"><tspan font-weight="720">Private below:</tspan> selectors · handles · locators · source anchors · CDP payloads</text>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+FROM qwen3:4b-instruct
+
+# Ollama's OpenAI-compatible endpoint cannot set context size per request.
+# Bind a model variant so every paired arm receives the same explicit window.
+PARAMETER num_ctx 32768
+PARAMETER temperature 0

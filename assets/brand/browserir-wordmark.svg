@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 650 180" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR</title>
+  <desc id="desc">BrowserIR wordmark with the Compile Gate symbol: a browser interface compiled into structured records.</desc>
+  <style>
+    .word { fill: #0B1025; }
+    .sub { fill: #526079; }
+  </style>
+  <defs>
+    <linearGradient id="shell" x1="17" y1="24" x2="143" y2="138" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111A3A"/><stop offset="1" stop-color="#070A18"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="21" y1="35" x2="140" y2="127" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/><stop offset="0.52" stop-color="#4F7CFF"/><stop offset="1" stop-color="#9B5CFF"/>
+    </linearGradient>
+    <linearGradient id="gate" x1="68" y1="65" x2="96" y2="123" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#46C7FF"/><stop offset="0.48" stop-color="#617DFF"/><stop offset="1" stop-color="#A05EFF"/>
+    </linearGradient>
+    <linearGradient id="ir" x1="485" y1="50" x2="620" y2="125" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3BA7FF"/><stop offset="1" stop-color="#925BFF"/>
+    </linearGradient>
+    <filter id="gate-glow" x="-70%" y="-40%" width="240%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g transform="translate(10 10)">
+    <g id="browserir-mark">
+      <rect id="browser-shell" x="10" y="22" width="140" height="116" rx="25" fill="url(#shell)" stroke="url(#brand)" stroke-width="4"/>
+      <g id="browser-chrome">
+        <path d="M12 53H148" fill="none" stroke="#6685E8" stroke-opacity="0.72" stroke-width="3"/>
+        <rect x="27" y="34" width="43" height="9" rx="4.5" fill="#DCE9FF" fill-opacity="0.9"/>
+        <path d="M78 38.5H132" fill="none" stroke="#6D80BE" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+      </g>
+      <g id="source-ui" fill="#38BDF8">
+        <rect x="26" y="68" width="35" height="12" rx="4" opacity="0.96"/>
+        <rect x="35" y="88" width="26" height="12" rx="4" opacity="0.72"/>
+        <rect x="23" y="108" width="38" height="12" rx="4" opacity="0.48"/>
+      </g>
+      <g id="compile-gate">
+        <path d="M68 64 93 82v24l-25 18v-15l12-9V88L68 79V64Z" fill="url(#gate)" filter="url(#gate-glow)"/>
+        <rect x="87" y="84" width="9" height="20" rx="4.5" fill="#F8FAFF"/>
+      </g>
+      <g id="structured-ir">
+        <path d="M106 68h-7v52h7" fill="none" stroke="#A978FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <g fill="#DCE5FF">
+          <rect x="113" y="70" width="25" height="11" rx="3"/>
+          <rect x="113" y="88.5" width="25" height="11" rx="3" opacity="0.82"/>
+          <rect x="113" y="107" width="25" height="11" rx="3" opacity="0.64"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <text id="wordmark-name" x="205" y="108" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="76" font-weight="760" letter-spacing="-3"><tspan class="word">Browser</tspan><tspan fill="url(#ir)" font-weight="820">IR</tspan></text>
+  <text id="wordmark-tagline" x="210" y="145" class="sub" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="560" letter-spacing="3.2">THE SEMANTIC BROWSER LAYER</text>
+</svg>

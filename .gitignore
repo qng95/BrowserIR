@@ -1,0 +1,53 @@
+node_modules/
+.pnpm-store/
+/.cache/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# Local configuration and authentication material
+.env
+.env.*
+!.env.example
+!.env.*.example
+.npmrc.local
+**/.auth/
+**/storage-state*.json
+**/storageState*.json
+**/auth-state*.json
+
+# Test, trace, and coverage output
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+blob-report/
+*.har
+
+# Logs, package archives, and local databases
+*.log
+*.tgz
+*.tar.gz
+*.zip
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+
+# Local agent and captured browser artifacts
+/.claude/
+/output/
+/packages/benchmark/output/
+
+# Reference implementations, vendored for study only. Not part of the build.
+/browser-use/
+/stagehand/
+/treegress-browser-mcp/
+/playwright/
+/playwright-mcp/
+
+# Local index
+.codegraph/
