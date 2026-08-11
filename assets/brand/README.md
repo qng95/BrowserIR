@@ -81,13 +81,13 @@ execution.
 
 Use this exact scoped formulation:
 
-> In a local deterministic qualification, BrowserIR completed 14/14 controlled
+> In a clean, source-bound CI deterministic qualification, BrowserIR completed 14/14 controlled
 > fixture tasks through real Chromium and the official MCP client, using 299
 > MCP calls with zero tool errors. A separate checked-in representation corpus
 > matched 31 entities, 44 capabilities, and 28 relationships without errors in
-> that corpus. These are dirty/unbound local engineering results, not qualified
-> release evidence or an immutable public baseline, and not an LLM or competitor
-> score.
+> that corpus. GitHub Actions reproduced these results on commit `e21fb1b` and
+> assembled a checksummed release-evidence dossier. They are system qualification,
+> not an LLM or competitor score.
 
 Do not use `100% agent success`, `production-ready`, `fastest`, `most compact`,
 or superiority claims until paired, reproducible model and competitor results

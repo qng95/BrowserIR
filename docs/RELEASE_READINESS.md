@@ -2,16 +2,15 @@
 
 Assessment updated: 2026-08-11 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha is public; npm packages and a tagged release
-remain unpublished. No qualified release dossier exists yet.** The first public
-CI run exposed clean-runner and compact-continuation defects; this candidate
-contains locally verified, general fixes and still requires a new clean hosted
-run. Publication gates must not be bypassed by weakening the release verifier
-or by presenting dirty/unbound local evidence as release evidence.
+Status: **the Apache-2.0 source alpha is public and commit `e21fb1b` has a
+qualified, source-bound GitHub Actions dossier; npm packages and a tagged release
+remain unpublished.** Publication gates must not be bypassed by weakening the
+release verifier or by presenting dirty/unbound local evidence as release
+evidence.
 
-## Local source behavior
+## Source and hosted release behavior
 
-The dirty, pre-commit workspace produced the following engineering evidence:
+Local development and clean hosted CI produced the following engineering evidence:
 
 | Gate | Result |
 | --- | --- |
@@ -22,12 +21,13 @@ The dirty, pre-commit workspace produced the following engineering evidence:
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
 | Database-backed task qualification | 14/14 tasks passed through the official MCP client; 299 MCP calls; 0 tool errors |
-| First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. The candidate fixes are covered by focused regressions; hosted requalification is pending. |
+| First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
+| Clean hosted requalification | [Run `31518078584`](https://github.com/qng95/BrowserIR/actions/runs/31518078584) passed every required job on commit `e21fb1b`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Representation release gate | 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3 stable identities, and 18/18 omissions accounted for |
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
-| Production dependency audit | Fresh classified local fragment passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories; it is dirty/unbound and the clean-commit audit remains required |
-| Release evidence dossier | Not qualified: the workspace has no Git `HEAD`, local fragments are dirty/unbound, and the required clean GitHub Actions matrix has not run |
+| Production dependency audit | Clean hosted audit passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories |
+| Release evidence dossier | Qualified for source-bound commit `e21fb1b`; the GitHub artifact is checksummed and retained for 90 days |
 | Public-release verifier | Apache-2.0 and repository checks pass. It now reports only six intentional npm-publication blockers: `private` and missing public `publishConfig` on each of the three product packages. |
 
 The qualification client used MCP protocol `2026-07-28`. Every isolated
@@ -55,6 +55,11 @@ source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID
 (`2026-08-11-v10`, requiring 588 declared, 569 executed, and 19 skipped cases).
+The first qualified public dossier is the GitHub artifact
+`release-evidence-dossier-31518078584-1-e21fb1b…`, bound to commit `e21fb1b`.
+GitHub reports the artifact digest as
+`sha256:134d43b50a410a710e06504c43e6d18037c8d7d363b009a55b77d8cd9aaa5dee`.
+
 The retained local fragments below were produced before the public Git source
 commit and therefore cannot be assembled into a qualified dossier. The latest
 post-hardening local fragments are:
@@ -76,8 +81,8 @@ An earlier workspace attempt, `workspace-local-2026-08-11-v3`, correctly
 retained a failure caused by another local build cleaning `dist` concurrently.
 The retained `v8` run above superseded that earlier failure, but it now predates
 the latest changes; both that fragment and its `v8` exact-count policy are stale.
-The first current-policy, clean-commit total and qualified dossier must still
-come from the selected release commit.
+Run `31518078584` supersedes those local fragments as the first current-policy,
+clean-commit qualification.
 
 CI fragments and the dossier are retained for 90 days. Before publication, the
 qualified dossier must be promoted unchanged to approved durable release

@@ -13,9 +13,10 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml"><img alt="BrowserIR CI" src="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Status: 0.1 source alpha" src="https://img.shields.io/badge/status-0.1_source_alpha-7957FF?style=for-the-badge">
   <img alt="Playwright and MCP" src="https://img.shields.io/badge/backend-Playwright_%2B_MCP-38BDF8?style=for-the-badge&logo=playwright&logoColor=white">
-  <img alt="14 of 14 local deterministic system qualification tasks" src="https://img.shields.io/badge/local_system_qualification-14%2F14-9B5CFF?style=for-the-badge">
+  <img alt="14 of 14 deterministic system qualification tasks" src="https://img.shields.io/badge/system_qualification-14%2F14-9B5CFF?style=for-the-badge">
   <a href="LICENSE"><img alt="Apache-2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-22C55E?style=for-the-badge"></a>
 </p>
 
@@ -28,8 +29,9 @@
 </p>
 
 <p align="center">
-  <sub>14/14 is from the retained 2026-08-11 deterministic qualification
-  run—dirty/unbound, and not LLM, competitor, or qualified release evidence.</sub>
+  <sub>14/14 was reproduced by a clean, source-bound GitHub Actions run on
+  <a href="https://github.com/qng95/BrowserIR/actions/runs/31518078584"><code>e21fb1b</code></a>.
+  It is deterministic system qualification—not an LLM or competitor score.</sub>
 </p>
 
 <p align="center">
@@ -173,11 +175,11 @@ invented for the README.
 | **3 / 3 identities** | Three declared logical records kept the correct identity across rerender or replacement. A recycled virtual row becoming a different record must not inherit the old identity. |
 | **18 / 18 omissions** | Every known item hidden by a bounded scan was reported as omitted. BrowserIR did not turn “not scanned” into “nothing exists.” |
 
-**The scope matters:** these figures are from a retained dirty/unbound local
-qualification run that predates the latest product changes. They are not
-qualified release evidence or an immutable public baseline. The 14/14 result is
-a deterministic BrowserIR system qualification
-through real Chromium and the official MCP client—not an LLM score. The 1.00
+**The scope matters:** these figures were reproduced by clean, source-bound CI
+on commit [`e21fb1b`](https://github.com/qng95/BrowserIR/actions/runs/31518078584),
+and the run produced a checksummed release-evidence dossier. The 14/14 result is
+a deterministic BrowserIR system qualification through real Chromium and the
+official MCP client—not an LLM score. The 1.00
 result applies only to the 11-case checked-in ground-truth corpus: 31 entities,
 44 capabilities, and 28 relationships. Local real-model development diagnostics
 are retained in the [evidence ledger](docs/EVIDENCE_DROPS.md#development-feedback-ledger),

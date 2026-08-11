@@ -16,7 +16,7 @@ implemented. The current pre-commit workspace verification declares 588 cases:
 569 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
-clean-commit dossier qualification remain open; see the
+durable promotion of the qualified dossier remain open; see the
 [release-readiness assessment](RELEASE_READINESS.md) and
 [release-evidence guide](RELEASE_EVIDENCE.md).
 
@@ -28,17 +28,17 @@ hash. That run
 qualifies BrowserIR representation/action reachability for the declared fixture
 workload; it is not an LLM-generalization test or competitor comparison. The
 workspace had no Git HEAD, so the report correctly records unavailable source
-provenance and a dirty tree. The same gates must run again from the selected
-clean release commit before publication.
+provenance and a dirty tree. GitHub Actions later reproduced the complete result
+on clean, source-bound commit `e21fb1b` and assembled the qualified dossier.
 
 The same operator-frozen local run series passed the independent representation
 gate: 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3
 stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
-intervals. Because the workspace has no Git `HEAD`, the fragments cannot prove
-identical complete source content across gates. They are local dirty-tree
-artifacts, not a published baseline or competitor comparison.
+intervals. Those retained local fragments remain dirty-tree history, while
+[GitHub Actions run `31518078584`](https://github.com/qng95/BrowserIR/actions/runs/31518078584)
+is the source-bound public qualification. Neither is a competitor comparison.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
 

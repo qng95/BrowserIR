@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
   <title id="title">BrowserIR social preview</title>
-  <desc id="desc">BrowserIR, the semantic browser layer for AI agents, with a fourteen of fourteen dirty and unbound deterministic local system qualification. It is not an LLM or competitor score.</desc>
+  <desc id="desc">BrowserIR, the semantic browser layer for AI agents, with a fourteen of fourteen clean source-bound CI system qualification. It is not an LLM or competitor score.</desc>
   <defs>
     <linearGradient id="veil" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse"><stop stop-color="#050817" stop-opacity="0.92"/><stop offset="0.48" stop-color="#080C20" stop-opacity="0.54"/><stop offset="1" stop-color="#050817" stop-opacity="0.84"/></linearGradient>
     <linearGradient id="card-brand" x1="92" y1="82" x2="1070" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#42CAFF"/><stop offset="0.5" stop-color="#6682FF"/><stop offset="1" stop-color="#A86DFF"/></linearGradient>
@@ -53,6 +53,6 @@
       <rect x="500" width="248" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#9666F4" stroke-opacity="0.68"/>
       <text x="522" y="61" fill="#F7F9FF" font-size="40" font-weight="790">1.00</text><text x="522" y="84" fill="#AFA5D3" font-size="13" font-weight="700" letter-spacing="1.2">CORPUS P / R / F1</text>
     </g>
-    <text x="76" y="594" fill="#7F90B8" font-size="13" font-weight="680" letter-spacing="1.05">UNRELEASED 0.1 ALPHA · DIRTY/UNBOUND LOCAL SYSTEM RUN · NOT LLM OR COMPETITOR SCORE</text>
+    <text x="76" y="594" fill="#7F90B8" font-size="13" font-weight="680" letter-spacing="1.05">APACHE-2.0 SOURCE ALPHA · SOURCE-BOUND CI SYSTEM RUN · NOT LLM OR COMPETITOR SCORE</text>
   </g>
 </svg>
