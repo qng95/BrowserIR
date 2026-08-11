@@ -2,8 +2,8 @@
 
 Assessment updated: 2026-08-11 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha is public and commit `0097f28` has a
-qualified, source-bound GitHub Actions dossier; npm packages and a tagged release
+Status: **the Apache-2.0 source alpha is public and commit `14f86f6` has a
+qualified, source-bound v13 GitHub Actions dossier; npm packages and a tagged release
 remain unpublished.** Publication gates must not be bypassed by weakening the
 release verifier or by presenting dirty/unbound local evidence as release
 evidence.
@@ -14,20 +14,21 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Current local working-tree verification (v13; not yet hosted) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped. All five package type checks passed. |
+| Qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
 | Earlier combined workspace run | 324 passed with the same 19 opt-in cases skipped; retained only as a historical pre-release-evidence count |
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
-| Database-backed task qualification | 14/14 tasks passed through the official MCP client; 299 MCP calls; 0 tool errors |
+| Database-backed task qualification | 14/14 tasks passed through the official MCP client in 302 MCP calls. BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. |
 | First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
-| Clean hosted requalification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required job on commit `0097f28`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
+| Earlier clean hosted qualification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required v11 job on commit `0097f28`. It remains valid for that source tree. |
+| Qualified v13 source run | [Run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356) passed every required v13 job on commit `14f86f6`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Representation release gate | 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3 stable identities, and 18/18 omissions accounted for |
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
 | Production dependency audit | Clean hosted audit passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories |
-| Release evidence dossier | Qualified for source-bound commit `0097f28`; the GitHub artifact is checksummed and retained for 90 days |
+| Release evidence dossier | Qualified for source-bound commit `14f86f6`; the GitHub artifact is checksummed and retained until 2026-11-09 |
 | Public-release verifier | Apache-2.0 and repository checks pass. It now reports only six intentional npm-publication blockers: `private` and missing public `publishConfig` on each of the three product packages. |
 
 The qualification client used MCP protocol `2026-07-28`. Every isolated
@@ -54,17 +55,21 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current local policy is `2026-08-11-v13`, requiring 632 declared, 613
+The current policy is `2026-08-11-v13`, requiring 632 declared, 613
 executed, and 19 skipped cases. It includes the sealed-benchmark hardening in
-this working tree and is not yet a qualified hosted dossier.
+commit `14f86f6` and has a qualified hosted dossier.
 
-The latest qualified public dossier is
+The qualified public source release-evidence dossier for the hardening commit is
+`release-evidence-dossier-31531657356-1-14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0`,
+bound to commit `14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0` under policy `v13`
+(632 declared, 613 executed, 19 skipped). GitHub reports the artifact digest as
+`sha256:18cdf6cdd13d1ce54110204c76a354af088825293e1fcb465554ed3a996fdfe4`.
+
+The previous v11 dossier,
 `release-evidence-dossier-31520630516-1-0097f28c754e029f5f4f32fb3476a56d3035fc64`,
-bound to commit `0097f28c754e029f5f4f32fb3476a56d3035fc64` under policy `v11`
-(589 declared, 570 executed, 19 skipped). GitHub reports the artifact digest as
+remains valid for commit `0097f28c754e029f5f4f32fb3476a56d3035fc64`
+(589 declared, 570 executed, 19 skipped), with GitHub-reported digest
 `sha256:d995c1d73fb5fb5b3b69c2b121715f634c76e5113ff155bd6dbbb6324a32b83a`.
-The new `v13` hardening must receive its own clean hosted qualification after it
-is committed; the prior dossier does not certify uncommitted code.
 
 The retained local fragments below were produced before the public Git source
 commit and therefore cannot be assembled into a qualified dossier. The latest
@@ -87,7 +92,7 @@ An earlier workspace attempt, `workspace-local-2026-08-11-v3`, correctly
 retained a failure caused by another local build cleaning `dist` concurrently.
 The retained `v8` run above superseded that earlier failure, but it now predates
 the latest changes; both that fragment and its `v8` exact-count policy are stale.
-Run `31520630516` supersedes those local fragments as the latest qualified,
+Run `31531657356` supersedes those local fragments as a qualified,
 clean-commit qualification.
 
 CI fragments and the dossier are retained for 90 days. Before publication, the
@@ -187,11 +192,8 @@ even after a frozen reinstall.
    `@browserir/playwright`, and `@browserir/mcp`.
 3. Select version and dist-tag semantics. The recommended alpha identity is
    `0.1.0-alpha.1` published under the `alpha` tag.
-4. Commit the v13 hardening, run the pinned Node 22.13.0 and 24.19.0 CI matrix,
-   assemble all nine source-bound fragments, and qualify that exact commit. The
-   existing `0097f28` dossier remains valid for its source but does not certify
-   the new code. Promote the selected qualified dossier before its 90-day CI
-   retention expires and record its durable location.
+4. Promote the v13 dossier for commit `14f86f6` unchanged to approved
+   durable storage before its 2026-11-09 CI expiry, and record that location.
 5. After those decisions are recorded, remove `private` from only the three
    public packages and set their
    `publishConfig.access` to `public`. Then re-run `pnpm verify:release`; only

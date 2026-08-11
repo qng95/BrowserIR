@@ -82,10 +82,13 @@ execution.
 Use this exact scoped formulation:
 
 > In a clean, source-bound CI deterministic qualification, BrowserIR completed 14/14 controlled
-> fixture tasks through real Chromium and the official MCP client, using 299
-> MCP calls with zero tool errors. A separate checked-in representation corpus
+> fixture tasks through real Chromium and the official MCP client. In that run,
+> the client made 302 MCP calls. BrowserIR refused one stale action before
+> dispatch; the deterministic reference planner re-observed, re-resolved, and
+> retried successfully.
+> A separate checked-in representation corpus
 > matched 31 entities, 44 capabilities, and 28 relationships without errors in
-> that corpus. GitHub Actions reproduced these results on commit `0097f28` and
+> that corpus. GitHub Actions reproduced these results on commit `14f86f6` and
 > assembled a checksummed release-evidence dossier. They are system qualification,
 > not an LLM or competitor score.
 

@@ -12,7 +12,7 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current pre-commit workspace verification declares 632 cases:
+implemented. The latest qualified v13 workspace verification declares 632 cases:
 613 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
@@ -20,7 +20,7 @@ durable promotion of the qualified dossier remain open; see the
 [release-readiness assessment](RELEASE_READINESS.md) and
 [release-evidence guide](RELEASE_EVIDENCE.md).
 
-In the 2026-08-11 local evidence run, the post-hardening deterministic reference
+In an earlier 2026-08-11 local evidence run, the post-hardening deterministic reference
 planner completed all 14 isolated database-backed tasks through the stock
 nine-tool MCP surface and official MCP client: 14 passed, 0 failed, across 299
 MCP calls with no tool errors. All 14 workers observed the same tool-catalog
@@ -28,8 +28,11 @@ hash. That run
 qualifies BrowserIR representation/action reachability for the declared fixture
 workload; it is not an LLM-generalization test or competitor comparison. The
 workspace had no Git HEAD, so the report correctly records unavailable source
-provenance and a dirty tree. GitHub Actions later reproduced the complete result
-on clean, source-bound commit `0097f28` and assembled the qualified dossier.
+provenance and a dirty tree. The latest GitHub Actions qualification passed all
+14 tasks on clean, source-bound commit `14f86f6` in 302 calls. BrowserIR refused
+one stale action before dispatch; the deterministic reference planner
+re-observed, re-resolved, and retried successfully. The run assembled the
+qualified v13 dossier.
 
 The same operator-frozen local run series passed the independent representation
 gate: 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3
@@ -37,7 +40,7 @@ stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
-[GitHub Actions run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516)
+[GitHub Actions run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356)
 is the source-bound public qualification. Neither is a competitor comparison.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
@@ -321,7 +324,7 @@ Gate: no uplift headline unless the 95% paired interval is entirely above zero
 and at most 5% of scheduled blocks are invalid. A regression or inconclusive
 result is published under its predeclared wording.
 
-Maintainer-owned release identity decisions and clean-commit qualification are
+Maintainer-owned release identity decisions and durable evidence promotion are
 the active release work. License, npm scope ownership, version/tag semantics,
 and publication authority remain external
 blockers. No public-package privacy or publication guard may be removed until
@@ -329,10 +332,9 @@ those decisions are recorded. After the final metadata, `private`, and
 `publishConfig` changes, `pnpm verify:release` must pass before candidate
 artifacts are retained or published.
 
-The canonical repository has qualified source-bound commit `0097f28`. The new
-v13 hardening must now pass the same seven-gate, nine-fragment GitHub Actions
-matrix on its own clean commit. The selected 90-day CI artifact must then be
-promoted unchanged to approved durable storage before publication.
+The canonical repository has qualified source-bound v13 commit `14f86f6` through
+the seven-gate, nine-fragment GitHub Actions matrix. The qualified CI artifact
+must be promoted unchanged to approved durable storage before publication.
 
 ### BIR-080–083 — Opt-in unsafe page evaluation
 
@@ -459,9 +461,9 @@ live probes.
   errors; retain and verify all 28 files including JSON, JUnit, logs,
   `evidence.json`, and `SHA256SUMS`.
 
-This completed the evidence mechanism. GitHub Actions later produced a qualified
-dossier for clean commit `0097f28`; the new v13 hardening still requires its own
-qualification. Neither dossier resolves npm ownership, version/tag, durable
+This completed the evidence mechanism. GitHub Actions later produced qualified
+dossiers for clean v11 commit `0097f28` and v13 commit `14f86f6`.
+Neither dossier resolves npm ownership, version/tag, durable
 promotion, or publish-authorization blockers.
 
 ### BIR-096 — Local alpha source qualification

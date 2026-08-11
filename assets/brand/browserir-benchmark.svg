@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 620" role="img" aria-labelledby="title desc">
   <title id="title">BrowserIR source-bound CI qualification scorecard</title>
-  <desc id="desc">A clean source-bound GitHub Actions run: fourteen of fourteen deterministic tasks passed, 299 MCP calls with zero tool errors, perfect checked-corpus representation precision, recall and F1, three of three stable identities, and eighteen of eighteen known omissions accounted for. This is not an LLM or competitor score.</desc>
+  <desc id="desc">A clean source-bound GitHub Actions run: fourteen of fourteen deterministic tasks passed in 302 MCP calls. BrowserIR refused one stale action before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. Checked-corpus representation precision, recall and F1 were perfect, three of three identities were stable, and eighteen of eighteen known omissions were accounted for. This is not an LLM or competitor score.</desc>
   <defs>
     <linearGradient id="surface" x1="35" y1="20" x2="1360" y2="620" gradientUnits="userSpaceOnUse"><stop stop-color="#101936"/><stop offset="0.55" stop-color="#090D20"/><stop offset="1" stop-color="#060914"/></linearGradient>
     <linearGradient id="brand" x1="90" y1="70" x2="1230" y2="560" gradientUnits="userSpaceOnUse"><stop stop-color="#39C2FF"/><stop offset="0.48" stop-color="#557CFF"/><stop offset="1" stop-color="#A05CFF"/></linearGradient>
@@ -21,14 +21,14 @@
       <text x="30" y="180" fill="url(#score)" font-size="112" font-weight="820" letter-spacing="-7">14/14</text>
       <text x="34" y="226" fill="#F4F7FF" font-size="27" font-weight="680">business tasks passed</text>
       <path d="M34 258h374" stroke="#7894EF" stroke-opacity="0.22"/>
-      <text x="34" y="292" fill="#A9B7D8" font-size="16">Fresh worker · Chromium · sealed DB/audit oracle</text>
+      <text x="34" y="292" fill="#A9B7D8" font-size="16">Fresh worker · browser/MCP closed before oracle</text>
     </g>
     <g transform="translate(538 170)">
       <rect width="370" height="150" rx="24" fill="#0E1630" stroke="#4B73D9" stroke-opacity="0.32"/>
       <circle cx="46" cy="45" r="15" fill="#15366A" stroke="#39C2FF" stroke-width="2"/><path d="M40 45h12M46 39v12" stroke="#DFF7FF" stroke-width="2" stroke-linecap="round"/>
       <text x="76" y="52" fill="#8FA5D9" font-size="14" font-weight="700" letter-spacing="2">MCP EXECUTION</text>
-      <text x="30" y="112" fill="#F8FAFF" font-size="42" font-weight="780">299</text><text x="125" y="112" fill="#9DAFD4" font-size="20">calls</text>
-      <text x="238" y="112" fill="#66DAFF" font-size="42" font-weight="780">0</text><text x="270" y="112" fill="#9DAFD4" font-size="20">errors</text>
+      <text x="30" y="112" fill="#F8FAFF" font-size="42" font-weight="780">302</text><text x="125" y="112" fill="#9DAFD4" font-size="20">calls</text>
+      <text x="238" y="112" fill="#66DAFF" font-size="42" font-weight="780">1</text><text x="270" y="112" fill="#9DAFD4" font-size="16">stale refusal</text>
     </g>
     <g transform="translate(932 170)">
       <rect width="398" height="150" rx="24" fill="#12132F" stroke="#875BEB" stroke-opacity="0.4"/>

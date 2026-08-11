@@ -31,23 +31,25 @@ semantic entities, relationships, state, available actions, and revision-bound
 references, then exposes them through a TypeScript core and MCP.
 
 Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
-execution is absent by default. The deterministic qualification
-passes 14/14 database-judged fixture tasks through real Chromium and the official
-MCP client using 299 tool calls with zero tool errors. A clean, source-bound
-GitHub Actions run reproduced the result and assembled a checksummed release
+execution is absent by default. The latest qualified v13 run passed 14/14
+database-judged fixture tasks through real Chromium and the official MCP client
+in 302 tool calls. BrowserIR refused one stale action before dispatch; the
+deterministic reference planner re-observed, re-resolved, and retried
+successfully. That clean, source-bound GitHub Actions run assembled a checksummed release
 evidence dossier. It remains a system qualification, not an LLM or competitor
 score.
 
 ## Current source-bound engineering evidence
 
-These figures were reproduced on commit `0097f28` by GitHub Actions run
-`31520630516` and are bound to that complete source tree.
+These figures were reproduced on commit `14f86f6` by GitHub Actions run
+`31531657356` and are bound to that complete source tree.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Deterministic qualification: 14/14 tasks, 299 MCP calls, 0 tool errors.
+- Latest v13 qualification run: 14/14 tasks and 302 MCP calls. BrowserIR refused
+  one stale action before dispatch; the reference planner recovered it.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
   31 entities, 44 capabilities, and 28 relationships within that corpus.
 - Status: public Apache-2.0 source alpha; packages are not yet published to npm.
@@ -85,9 +87,11 @@ relationships, available actions, revisions, and explicit omissions. Playwright
 handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
-The clean, source-bound 2026-08-11 deterministic CI run passes all 14 controlled,
-database-judged fixture tasks through real Chromium in 299 MCP calls with zero
-tool errors. That number is deliberately scoped: it is system qualification,
+The clean, source-bound 2026-08-11 v13 CI run passed all 14 controlled,
+database-judged fixture tasks through real Chromium in 302 MCP calls, with one
+stale action refused by BrowserIR before dispatch and recovered by the
+deterministic reference planner. That result is
+deliberately scoped: it is system qualification,
 not a real-model or competitor result.
 
 ## FAQ

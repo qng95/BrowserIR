@@ -23,14 +23,14 @@
 <p align="center">
   <a href="#see-what-the-model-sees"><strong>See the representation</strong></a>
   &nbsp;·&nbsp;
-  <a href="#measured-on-real-browser-workflows"><strong>View the benchmark</strong></a>
+  <a href="#measured-on-real-browser-workflows"><strong>View the evidence</strong></a>
   &nbsp;·&nbsp;
   <a href="#try-it-from-source"><strong>Try the alpha</strong></a>
 </p>
 
 <p align="center">
   <sub>14/14 was reproduced by a clean, source-bound GitHub Actions run on
-  <a href="https://github.com/qng95/BrowserIR/actions/runs/31520630516"><code>0097f28</code></a>.
+  <a href="https://github.com/qng95/BrowserIR/actions/runs/31531657356"><code>14f86f6</code></a>.
   It is deterministic system qualification—not an LLM or competitor score.</sub>
 </p>
 
@@ -115,17 +115,17 @@ observation keeps its revision.
 
 The benchmark is not a page that says “success.” It is a functional SQLite-backed
 dealership fixture with 5,000 customers, 12,000 vehicles, server-side validation,
-and an audit log. After browser access is sealed, a hidden database-and-audit
+and an audit log. After the browser and MCP client are closed, a hidden database-and-audit
 oracle judges the result.
 
 <p align="center">
-  <img src="assets/brand/browserir-benchmark.svg" width="100%" alt="BrowserIR local scorecard: 14 of 14 tasks, 299 MCP calls with zero errors, representation corpus F1 of 1.00, three of three identities, and eighteen of eighteen omissions">
+  <img src="assets/brand/browserir-benchmark.svg" width="100%" alt="BrowserIR source-bound scorecard: 14 of 14 tasks, 302 MCP calls with one non-dispatched stale refusal recovered by the reference planner, representation corpus F1 of 1.00, three of three identities, and eighteen of eighteen omissions">
 </p>
 
 ### Why 14/14 is hard to fake
 
 <p align="center">
-  <img src="assets/brand/browserir-scoring-method.svg" width="100%" alt="Five-stage scoring method: fresh worker, known-failing start, BrowserIR path, sealed access, and hidden database and audit oracle">
+  <img src="assets/brand/browserir-scoring-method.svg" width="100%" alt="Five-stage scoring method: fresh worker, known-failing start, BrowserIR path, access closed, and hidden database and audit oracle">
 </p>
 
 A task does **not** earn its point because the planner says it is finished, a
@@ -170,13 +170,13 @@ invented for the README.
 | Score | Plain-English meaning |
 | --- | --- |
 | **14 / 14 tasks** | All 14 applicable workflows passed their binary database-and-audit oracle in isolated workers. No task was counted as not applicable. |
-| **299 calls / 0 errors** | The official MCP client made 299 BrowserIR tool calls and none returned a tool-level error. This measures execution health; the oracles measure correctness. |
+| **302 calls / 1 stale refusal** | In this qualified run, BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. It is counted openly; the database and audit oracles determine correctness. |
 | **1.00 precision / recall / F1** | In the checked-in 11-case representation corpus, BrowserIR matched all 31 expected entities, 44 capabilities, and 28 relationships with no extras or misses. Precision punishes invented facts; recall punishes missing facts. |
 | **3 / 3 identities** | Three declared logical records kept the correct identity across rerender or replacement. A recycled virtual row becoming a different record must not inherit the old identity. |
 | **18 / 18 omissions** | Every known item hidden by a bounded scan was reported as omitted. BrowserIR did not turn “not scanned” into “nothing exists.” |
 
 **The scope matters:** these figures were reproduced by clean, source-bound CI
-on commit [`0097f28`](https://github.com/qng95/BrowserIR/actions/runs/31520630516),
+on commit [`14f86f6`](https://github.com/qng95/BrowserIR/actions/runs/31531657356),
 and the run produced a checksummed release-evidence dossier. The 14/14 result is
 a deterministic BrowserIR system qualification through real Chromium and the
 official MCP client—not an LLM score. The 1.00
@@ -307,8 +307,8 @@ pnpm benchmark:agent -- \
   --run-id local-model-test
 ```
 
-Every model attempt receives fresh application and browser state. Agent access is
-sealed before judging, collateral audited mutations fail the trial, and results
+Every model attempt receives fresh application and browser state. Agent access
+closes before judging, collateral audited mutations fail the trial, and results
 are emitted as create-only JSON, NDJSON, Markdown, and SHA-256 artifacts.
 
 ## Honest alpha boundaries
