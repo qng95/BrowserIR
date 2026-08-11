@@ -220,7 +220,7 @@ describe('fixture task qualification harness', () => {
 
     await expect(
       actWithFreshTargetRetry({
-        resolve: () => target,
+        resolve: async () => target,
         refresh,
         act: async (resolved) => {
           attempts.push(resolved);
@@ -336,5 +336,83 @@ describe('fixture task qualification harness', () => {
         },
       }),
     ).rejects.toThrow(/stale_target/);
+  });
+
+  it('recovers an inline edit when asynchronous revisions stale its cell or editor before dispatch', async () => {
+    type FakeEntity = { id: string; kind: string; text?: string; name?: string };
+    const row = { id: 'ticket-row', kind: 'row', text: 'T-1005' };
+    let refreshes = 0;
+    const cells = (): FakeEntity[] => [
+      { id: 'priority-cell-r5', kind: 'cell', text: 'Normal' },
+      {
+        id: refreshes === 0 ? 'assignee-cell-r7' : 'assignee-cell-r8',
+        kind: 'cell',
+        text: 'Unassigned',
+      },
+    ];
+    let assigneeOpenAttempts = 0;
+    let assigneeSelectAttempts = 0;
+    const opened: string[] = [];
+    const selected: string[] = [];
+    const fakeAgent = {
+      signIn: async () => {},
+      navigate: async () => {},
+      rowContaining: () => row,
+      inside: async (
+        _container: typeof row,
+        predicate: (entity: FakeEntity) => boolean,
+      ) => cells().filter(predicate),
+      act: async ({ target }: { target: FakeEntity }) => {
+        opened.push(target.id);
+        if (target.id === 'assignee-cell-r7' && assigneeOpenAttempts++ === 0) {
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'stale_target',
+            dispatched: false,
+            summary: 'A transient UI update advanced the page revision.',
+          });
+        }
+      },
+      find: ({ name }: { name?: string }) => ({
+        id:
+          name === 'priority'
+            ? 'priority-editor-r6'
+            : refreshes >= 2
+              ? 'assignee-editor-r9'
+              : 'assignee-editor-r8',
+        kind: 'input',
+        name,
+      }),
+      select: async (editor: { id: string }, value: string) => {
+        selected.push(`${editor.id}:${value}`);
+        if (editor.id === 'assignee-editor-r8' && assigneeSelectAttempts++ === 0) {
+          throw new QualificationToolError({
+            tool: 'browser_act',
+            status: 'stale_target',
+            dispatched: false,
+            summary: 'A transient UI update advanced the page revision.',
+          });
+        }
+      },
+      observeLatest: async () => {
+        refreshes += 1;
+      },
+      waitSettled: async () => {},
+    };
+
+    await expect(
+      FIXTURE_TASK_PLANNERS['triage-ticket']!(fakeAgent as never),
+    ).resolves.toBeUndefined();
+    expect(opened).toEqual([
+      'priority-cell-r5',
+      'assignee-cell-r7',
+      'assignee-cell-r8',
+    ]);
+    expect(selected).toEqual([
+      'priority-editor-r6:Urgent',
+      'assignee-editor-r8:M. Roth',
+      'assignee-editor-r9:M. Roth',
+    ]);
+    expect(refreshes).toBe(2);
   });
 });

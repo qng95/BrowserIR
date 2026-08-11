@@ -12,8 +12,8 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current pre-commit workspace verification declares 631 cases:
-612 executed passes and 19 intentional opt-in cases skipped. All five package
+implemented. The current pre-commit workspace verification declares 632 cases:
+613 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
 durable promotion of the qualified dossier remain open; see the
@@ -330,7 +330,7 @@ those decisions are recorded. After the final metadata, `private`, and
 artifacts are retained or published.
 
 The canonical repository has qualified source-bound commit `0097f28`. The new
-v12 hardening must now pass the same seven-gate, nine-fragment GitHub Actions
+v13 hardening must now pass the same seven-gate, nine-fragment GitHub Actions
 matrix on its own clean commit. The selected 90-day CI artifact must then be
 promoted unchanged to approved durable storage before publication.
 
@@ -460,7 +460,7 @@ live probes.
   `evidence.json`, and `SHA256SUMS`.
 
 This completed the evidence mechanism. GitHub Actions later produced a qualified
-dossier for clean commit `0097f28`; the new v12 hardening still requires its own
+dossier for clean commit `0097f28`; the new v13 hardening still requires its own
 qualification. Neither dossier resolves npm ownership, version/tag, durable
 promotion, or publish-authorization blockers.
 

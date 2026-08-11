@@ -33,7 +33,7 @@ const reviewedWorkspacePackages = [
   ['@think-dom/fixture-app', 85, 0],
   ['@browserir/playwright', 107, 0],
   ['@browserir/benchmark', 191, 0],
-  ['@browserir/mcp', 188, 19],
+  ['@browserir/mcp', 189, 19],
 ] as const;
 const sourceFilePaths = [
   'package.json',
@@ -106,7 +106,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 631, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 632, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {
@@ -218,7 +218,7 @@ describe('release evidence assembly', () => {
       releaseId: 'browserir-0.1.0-alpha.1',
       outcome: 'qualified',
       source: { revision, tree, lockfileSha256 },
-      qualification: { workspaceTestCountPolicyId: '2026-08-11-v12' },
+      qualification: { workspaceTestCountPolicyId: '2026-08-11-v13' },
     });
     expect((report.fragments as unknown[]).length).toBe(releaseEvidenceRequirements().length);
     expect(JSON.parse(readFileSync(join(output, 'release-evidence.json'), 'utf8'))).toEqual(

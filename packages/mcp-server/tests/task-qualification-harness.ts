@@ -346,12 +346,12 @@ export class QualificationToolError extends Error {
 }
 
 export async function actWithFreshTargetRetry<T, R>(input: {
-  resolve: () => T;
+  resolve: () => T | Promise<T>;
   refresh: () => Promise<unknown>;
   act: (target: T) => Promise<R>;
 }): Promise<R> {
   try {
-    return await input.act(input.resolve());
+    return await input.act(await input.resolve());
   } catch (error) {
     if (
       !(error instanceof QualificationToolError) ||
@@ -363,7 +363,7 @@ export async function actWithFreshTargetRetry<T, R>(input: {
     }
   }
   await input.refresh();
-  return input.act(input.resolve());
+  return input.act(await input.resolve());
 }
 
 const one = <T>(values: T[], description: string): T => {
@@ -1232,17 +1232,33 @@ const planners = {
     await agent.signIn();
     await agent.navigate('/app/tickets');
     const editField = async (field: 'priority' | 'assignee', value: string): Promise<void> => {
-      const row = agent.rowContaining('T-1005');
       const values = field === 'priority' ? ['Low', 'Normal', 'High', 'Urgent'] : ['S. Weber', 'A. Klein', 'M. Roth', 'Unassigned'];
-      const cell = one(
-        await agent.inside(
-          row,
-          (entity) => entity.kind === 'cell' && values.includes(`${entity.text ?? entity.name ?? ''}`),
-        ),
-        `${field} cell inside T-1005 row`,
-      );
-      await agent.act({ kind: 'double_click', target: cell });
-      await agent.select(agent.find({ name: field }), value);
+      const resolveCell = async (): Promise<QualificationEntity> => {
+        const row = agent.rowContaining('T-1005');
+        return one(
+          await agent.inside(
+            row,
+            (entity) =>
+              entity.kind === 'cell' &&
+              values.includes(`${entity.text ?? entity.name ?? ''}`),
+          ),
+          `${field} cell inside T-1005 row`,
+        );
+      };
+      const refresh = async (): Promise<void> => {
+        await agent.observeLatest();
+        await agent.waitSettled();
+      };
+      await actWithFreshTargetRetry({
+        resolve: resolveCell,
+        refresh,
+        act: (cell) => agent.act({ kind: 'double_click', target: cell }),
+      });
+      await actWithFreshTargetRetry({
+        resolve: () => agent.find({ name: field }),
+        refresh,
+        act: (editor) => agent.select(editor, value),
+      });
     };
     await editField('priority', 'Urgent');
     await editField('assignee', 'M. Roth');
