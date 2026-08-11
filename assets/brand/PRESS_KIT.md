@@ -33,7 +33,7 @@ references, then exposes them through a TypeScript core and MCP.
 Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
 execution is absent by default. The retained deterministic local qualification
 passes 14/14 database-judged fixture tasks through real Chromium and the official
-MCP client using 290 tool calls with zero tool errors. This dirty/unbound local
+MCP client using 299 tool calls with zero tool errors. This dirty/unbound local
 run is engineering evidence, not qualified release evidence or an immutable
 public baseline, and not an LLM or competitor score.
 
@@ -47,7 +47,7 @@ public baseline.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Retained deterministic qualification: 14/14 tasks, 290 MCP calls, 0 tool errors.
+- Retained deterministic qualification: 14/14 tasks, 299 MCP calls, 0 tool errors.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
   31 entities, 44 capabilities, and 28 relationships within that corpus.
 - Status: unreleased source alpha; packages are not yet published to npm.
@@ -86,7 +86,7 @@ handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
 The retained 2026-08-11 dirty/unbound deterministic local run passes all 14 controlled,
-database-judged fixture tasks through real Chromium in 290 MCP calls with zero
+database-judged fixture tasks through real Chromium in 299 MCP calls with zero
 tool errors. That number is deliberately scoped: it is not qualified release
 evidence and not a real-model or competitor result.
 

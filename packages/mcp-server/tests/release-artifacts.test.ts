@@ -15,6 +15,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import {
+  actionableContextRef,
   finalizeReleaseArtifacts,
   parsePackedConsumerArguments,
   smokePackedConsumer,
@@ -33,8 +34,8 @@ const reviewedWorkspacePackages = [
   ['@browserir/core', 60, 0],
   ['@think-dom/fixture-app', 83, 0],
   ['@browserir/playwright', 107, 0],
-  ['@browserir/benchmark', 150, 0],
-  ['@browserir/mcp', 177, 19],
+  ['@browserir/benchmark', 151, 0],
+  ['@browserir/mcp', 187, 19],
 ] as const;
 const sourceFilePaths = [
   'package.json',
@@ -98,7 +99,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 577, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 588, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {
@@ -230,6 +231,56 @@ afterEach(() => {
 });
 
 describe('release candidate artifact finalization', () => {
+  it('continues from a delta receipt using its fresh actionable-context reference', () => {
+    expect(
+      actionableContextRef(
+        {
+          actionable_context: {
+            page_id: 'page-packed',
+            revision: 17,
+            targets: [
+              {
+                entity_id: 'save-customer',
+                name: 'Save customer',
+                role: 'button',
+                actions: ['click'],
+              },
+            ],
+            omitted: 0,
+          },
+        },
+        'Save customer',
+        'button',
+      ),
+    ).toEqual({
+      page_id: 'page-packed',
+      entity_id: 'save-customer',
+      revision: 17,
+    });
+  });
+
+  it('fails closed when actionable continuation context is malformed or ambiguous', () => {
+    expect(() => actionableContextRef({}, 'Save customer', 'button')).toThrow(
+      /missing actionable_context/,
+    );
+    expect(() =>
+      actionableContextRef(
+        {
+          actionable_context: {
+            page_id: 'page-packed',
+            revision: 17,
+            targets: [
+              { entity_id: 'save-one', name: 'Save customer', role: 'button' },
+              { entity_id: 'save-two', name: 'Save customer', role: 'button' },
+            ],
+          },
+        },
+        'Save customer',
+        'button',
+      ),
+    ).toThrow(/expected one actionable button named Save customer/i);
+  });
+
   it('parses independent create-only report and persistent-candidate destinations', () => {
     const candidate = join(temporaryRoot(), 'candidate');
     expect(parsePackedConsumerArguments([])).toEqual({});

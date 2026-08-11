@@ -82,7 +82,7 @@ execution.
 Use this exact scoped formulation:
 
 > In a local deterministic qualification, BrowserIR completed 14/14 controlled
-> fixture tasks through real Chromium and the official MCP client, using 290
+> fixture tasks through real Chromium and the official MCP client, using 299
 > MCP calls with zero tool errors. A separate checked-in representation corpus
 > matched 31 entities, 44 capabilities, and 28 relationships without errors in
 > that corpus. These are dirty/unbound local engineering results, not qualified

@@ -117,7 +117,7 @@ and an audit log. After browser access is sealed, a hidden database-and-audit
 oracle judges the result.
 
 <p align="center">
-  <img src="assets/brand/browserir-benchmark.svg" width="100%" alt="BrowserIR local scorecard: 14 of 14 tasks, 290 MCP calls with zero errors, representation corpus F1 of 1.00, three of three identities, and eighteen of eighteen omissions">
+  <img src="assets/brand/browserir-benchmark.svg" width="100%" alt="BrowserIR local scorecard: 14 of 14 tasks, 299 MCP calls with zero errors, representation corpus F1 of 1.00, three of three identities, and eighteen of eighteen omissions">
 </p>
 
 ### Why 14/14 is hard to fake
@@ -168,7 +168,7 @@ invented for the README.
 | Score | Plain-English meaning |
 | --- | --- |
 | **14 / 14 tasks** | All 14 applicable workflows passed their binary database-and-audit oracle in isolated workers. No task was counted as not applicable. |
-| **290 calls / 0 errors** | The official MCP client made 290 BrowserIR tool calls and none returned a tool-level error. This measures execution health; the oracles measure correctness. |
+| **299 calls / 0 errors** | The official MCP client made 299 BrowserIR tool calls and none returned a tool-level error. This measures execution health; the oracles measure correctness. |
 | **1.00 precision / recall / F1** | In the checked-in 11-case representation corpus, BrowserIR matched all 31 expected entities, 44 capabilities, and 28 relationships with no extras or misses. Precision punishes invented facts; recall punishes missing facts. |
 | **3 / 3 identities** | Three declared logical records kept the correct identity across rerender or replacement. A recycled virtual row becoming a different record must not inherit the old identity. |
 | **18 / 18 omissions** | Every known item hidden by a bounded scan was reported as omitted. BrowserIR did not turn “not scanned” into “nothing exists.” |

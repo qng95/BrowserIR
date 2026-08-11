@@ -6,13 +6,14 @@ This is the working implementation board. Cards move from **Backlog** to
 **Ready**, then **In Progress**, and finally **Done**. A card is not Done merely
 because code exists; its tests and acceptance gate must also pass.
 
-Current release status: `0.1.0` remains unreleased. The intended public
+Current release status: the Apache-2.0 source alpha is public, while npm package
+publication and a tagged `0.1.0` release remain open. The intended public
 packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current pre-commit workspace verification declares 577 cases:
-558 executed passes and 19 intentional opt-in cases skipped. All five package
+implemented. The current pre-commit workspace verification declares 588 cases:
+569 executed passes and 19 intentional opt-in cases skipped. All five package
 type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
 dirty/unbound history under stale exact-count policies. Publication gates and
 clean-commit dossier qualification remain open; see the
@@ -21,7 +22,7 @@ clean-commit dossier qualification remain open; see the
 
 In the 2026-08-11 local evidence run, the post-hardening deterministic reference
 planner completed all 14 isolated database-backed tasks through the stock
-nine-tool MCP surface and official MCP client: 14 passed, 0 failed, across 290
+nine-tool MCP surface and official MCP client: 14 passed, 0 failed, across 299
 MCP calls with no tool errors. All 14 workers observed the same tool-catalog
 hash. That run
 qualifies BrowserIR representation/action reachability for the declared fixture

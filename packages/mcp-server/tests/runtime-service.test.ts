@@ -900,7 +900,126 @@ describe('BrowserIR runtime MCP service', () => {
     );
   });
 
-  it('bounds actionable continuation context and counts every omitted target', async () => {
+  it('orders a misaligned visual row left to right without fuzzy row chaining', async () => {
+    const runtime = fakeRuntime();
+    const observed = observation();
+    const changedEntity = {
+      id: 'status',
+      pageId: 'page-1',
+      kind: 'input' as const,
+      role: 'combobox',
+      name: 'Status',
+      value: 'In stock',
+      state: { visible: true, enabled: true },
+      geometry: { x: 100, y: 106, width: 120, height: 30 },
+      capabilities: [{ kind: 'select' as const }],
+      evidence: [],
+      confidence: 1,
+    };
+    observed.delta = {
+      fromRevision: 1,
+      toRevision: 2,
+      pageChanged: false,
+      added: [],
+      removed: [],
+      changed: [{ entity: changedEntity, changedFields: ['value'] }],
+      addedRelations: [],
+      removedRelations: [],
+      invalidatedRefs: ['status'],
+      rebindableRefs: ['status'],
+    };
+    observed.view = {
+      ...compiledView(),
+      revision: 2,
+      structured: {
+        ...compiledView().structured,
+        entities: [
+          {
+            ref: {
+              browserId: 'browser-1',
+              pageId: 'page-1',
+              entityId: 'status',
+              revision: 2,
+            },
+            kind: 'input',
+            role: 'combobox',
+            name: 'Status',
+            value: 'In stock',
+            state: { visible: true, enabled: true },
+            geometry: { x: 100, y: 106, width: 120, height: 30 },
+            capabilities: [{ kind: 'select' }],
+            evidence: [],
+            confidence: 1,
+          },
+          {
+            ref: {
+              browserId: 'browser-1',
+              pageId: 'page-1',
+              entityId: 'apply',
+              revision: 2,
+            },
+            kind: 'control',
+            role: 'button',
+            name: 'Apply',
+            state: { visible: true, enabled: true },
+            geometry: { x: 240, y: 100, width: 80, height: 34 },
+            capabilities: [{ kind: 'click' }],
+            evidence: [],
+            confidence: 1,
+          },
+          {
+            ref: {
+              browserId: 'browser-1',
+              pageId: 'page-1',
+              entityId: 'next-row',
+              revision: 2,
+            },
+            kind: 'input',
+            role: 'textbox',
+            name: 'Next visual row',
+            value: '',
+            state: { visible: true, enabled: true },
+            geometry: { x: 20, y: 110, width: 120, height: 30 },
+            capabilities: [{ kind: 'fill' }],
+            evidence: [],
+            confidence: 1,
+          },
+        ],
+      },
+    };
+    runtime.act = vi.fn(async (): Promise<ActionReceipt> => ({
+      status: 'verified',
+      dispatched: true,
+      preRevision: 1,
+      postRevision: 2,
+      effects: [{ kind: 'graph_changed', verified: true }],
+      delta: observed.delta,
+      observation: observed,
+    }));
+    const service = createBrowserIrRuntimeService(runtime);
+
+    const result = await service.act({
+      browser_id: 'browser-1',
+      expected_revision: 1,
+      action: {
+        kind: 'select',
+        target: { page_id: 'page-1', entity_id: 'status', revision: 1 },
+        values: ['In stock'],
+      },
+    });
+
+    expect(result.data).toMatchObject({
+      actionable_context: {
+        targets: [
+          expect.objectContaining({ entity_id: 'apply', name: 'Apply' }),
+          expect.objectContaining({ entity_id: 'next-row', name: 'Next visual row' }),
+        ],
+      },
+    });
+  });
+
+  it('bounds actionable continuation context across a large positioned view', async () => {
+    const actionableTargetCount = 5_000;
     const runtime = fakeRuntime();
     const observed = observation();
     const changedEntity = {
@@ -911,6 +1030,7 @@ describe('BrowserIR runtime MCP service', () => {
       name: 'Current field',
       value: 'done',
       state: { visible: true, enabled: true },
+      geometry: { x: 0, y: 0, width: 120, height: 30 },
       capabilities: [{ kind: 'fill' as const }],
       evidence: [],
       confidence: 1,
@@ -945,11 +1065,12 @@ describe('BrowserIR runtime MCP service', () => {
             name: 'Current field',
             value: 'done',
             state: { visible: true, enabled: true },
+            geometry: { x: 0, y: 0, width: 120, height: 30 },
             capabilities: [{ kind: 'fill' }],
             evidence: [],
             confidence: 1,
           },
-          ...Array.from({ length: 50 }, (_, index) => ({
+          ...Array.from({ length: actionableTargetCount }, (_, index) => ({
             ref: {
               browserId: 'browser-1',
               pageId: 'page-1',
@@ -961,6 +1082,7 @@ describe('BrowserIR runtime MCP service', () => {
             name: `Next field ${index} ${'x'.repeat(80)}`,
             value: '',
             state: { visible: true, enabled: true },
+            geometry: { x: 0, y: (index + 1) * 40, width: 120, height: 30 },
             capabilities: [{ kind: 'fill' as const }],
             evidence: [],
             confidence: 1,
@@ -997,7 +1119,7 @@ describe('BrowserIR runtime MCP service', () => {
       page_id: 'page-1',
       revision: 2,
       targets: [],
-      omitted: 50,
+      omitted: actionableTargetCount,
     });
     expect(JSON.stringify(context).length).toBeLessThanOrEqual(128);
     expect(JSON.stringify({ summary: result.summary, data: result.data }).length).toBeLessThanOrEqual(

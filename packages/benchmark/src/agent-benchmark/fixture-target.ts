@@ -203,9 +203,13 @@ export function canonicalDatabaseFingerprint(db: DatabaseSync): string {
     .all() as Array<{ name: string; sql: string }>;
   for (const table of tables) {
     hash.update(stableJson({ table: table.name, sql: table.sql }), 'utf8');
-    const rows = db
-      .prepare(`SELECT * FROM ${quoteIdentifier(table.name)} ORDER BY rowid`)
-      .iterate() as Iterable<DatabaseRow>;
+    // Node 22.13 can finalize a temporary StatementSync before its iterator is
+    // exhausted. Materialize the bounded fixture table while the statement is
+    // live so the minimum supported runtime produces the same canonical hash.
+    const statement = db.prepare(
+      `SELECT * FROM ${quoteIdentifier(table.name)} ORDER BY rowid`,
+    );
+    const rows = statement.all() as DatabaseRow[];
     for (const row of rows) hash.update(`\n${stableJson(row)}`, 'utf8');
     hash.update('\n', 'utf8');
   }

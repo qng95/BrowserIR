@@ -69,6 +69,38 @@ function run(command, args, options = {}) {
   });
 }
 
+export function actionableContextRef(data, name, role) {
+  if (data === null || typeof data !== 'object') {
+    throw new Error('Delta receipt is missing actionable_context.');
+  }
+  const context = data.actionable_context;
+  if (
+    context === null ||
+    typeof context !== 'object' ||
+    typeof context.page_id !== 'string' ||
+    typeof context.revision !== 'number' ||
+    !Array.isArray(context.targets)
+  ) {
+    throw new Error('Delta receipt is missing actionable_context.');
+  }
+  const matches = context.targets.filter(
+    (target) =>
+      target !== null &&
+      typeof target === 'object' &&
+      typeof target.entity_id === 'string' &&
+      target.name === name &&
+      target.role === role,
+  );
+  if (matches.length !== 1) {
+    throw new Error(`Expected one actionable ${role} named ${name}; found ${matches.length}.`);
+  }
+  return {
+    page_id: context.page_id,
+    entity_id: matches[0].entity_id,
+    revision: context.revision,
+  };
+}
+
 export function writeConsumerSources(
   consumerDirectory,
   executablePath,
@@ -221,6 +253,7 @@ export function writeConsumerSources(
       '    revision: Number(match[2]),',
       '  };',
       '}',
+      actionableContextRef.toString(),
       '',
       'const fixtureServer = createServer((request, response) => {',
       "  if (request.url !== '/') {",
@@ -304,7 +337,7 @@ export function writeConsumerSources(
       "  assert.equal(filled.structuredContent?.status, 'verified');",
       '  current = observationOf(filled);',
       '',
-      "  const refreshedSaveButton = entityNamed(current, 'Save customer', 'button');",
+      "  const refreshedSaveButton = actionableContextRef(filled.structuredContent, 'Save customer', 'button');",
       '  const clicked = await client.callTool({',
       "    name: 'browser_act',",
       '    arguments: {',

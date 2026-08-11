@@ -1,3 +1,5 @@
+import type { DatabaseSync } from 'node:sqlite';
+
 import { createDb } from '@think-dom/fixture-app';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -127,6 +129,31 @@ describe('isolated fixture agent target', () => {
     expect(fixtureAgentTargetVersion(fixture, true)).not.toBe(
       fixtureAgentTargetVersion(fixture, false),
     );
+  });
+
+  it('materializes fingerprint rows without relying on a live StatementSync iterator', () => {
+    const iterate = vi.fn(() => {
+      throw new Error('statement has been finalized');
+    });
+    const rows = vi.fn(() => [{ id: 1, name: 'Alpha' }]);
+    const db = {
+      prepare(sql: string) {
+        return sql.includes('sqlite_schema')
+          ? {
+              all: () => [
+                {
+                  name: 'records',
+                  sql: 'CREATE TABLE records (id INTEGER PRIMARY KEY, name TEXT)',
+                },
+              ],
+            }
+          : { all: rows, iterate };
+      },
+    } as unknown as DatabaseSync;
+
+    expect(canonicalDatabaseFingerprint(db)).toMatch(/^[a-f0-9]{64}$/);
+    expect(rows).toHaveBeenCalledOnce();
+    expect(iterate).not.toHaveBeenCalled();
   });
 
   it('creates a fresh failing baseline for every attempt and seals access before final judging', async () => {

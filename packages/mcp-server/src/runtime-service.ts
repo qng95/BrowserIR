@@ -349,29 +349,124 @@ function narrowActionableContextEntities(
   return view.structured.entities.filter((entity) => scopedEntityIds.has(entity.ref.entityId));
 }
 
+const ACTIONABLE_SAME_ROW_TOLERANCE_PX = 4;
+
 function actionableReadingOrder(entities: readonly CompiledEntity[]): readonly CompiledEntity[] {
   const coordinate = (
     entity: CompiledEntity,
-  ): { x: number; y: number } | undefined => {
-    const y = entity.geometry?.viewportY ?? entity.geometry?.y;
+  ): { x: number; top: number; centerY: number } | undefined => {
+    const top = entity.geometry?.viewportY ?? entity.geometry?.y;
     const x = entity.geometry?.viewportX ?? entity.geometry?.x;
-    return y === undefined || x === undefined ? undefined : { x, y };
+    const height = entity.geometry?.height;
+    return top === undefined || x === undefined || height === undefined
+      ? undefined
+      : { x, top, centerY: top + height / 2 };
   };
-  return entities
-    .map((entity, index) => ({ entity, index, coordinate: coordinate(entity) }))
-    .sort((left, right) => {
-      if (left.coordinate !== undefined && right.coordinate !== undefined) {
-        return (
-          left.coordinate.y - right.coordinate.y ||
+  type PositionedEntry = {
+    entity: CompiledEntity;
+    index: number;
+    coordinate: { x: number; top: number; centerY: number };
+  };
+  type VisualRow = {
+    anchorTop: number;
+    anchorCenterY: number;
+    sourceIndex: number;
+    entries: PositionedEntry[];
+  };
+  const sourceEntries = entities.map((entity, index) => ({
+    entity,
+    index,
+    coordinate: coordinate(entity),
+  }));
+  const entries = sourceEntries
+    .filter(
+      (entry): entry is PositionedEntry => entry.coordinate !== undefined,
+    )
+    .sort(
+      (left, right) =>
+        left.coordinate.top - right.coordinate.top ||
+        left.coordinate.centerY - right.coordinate.centerY ||
+        left.coordinate.x - right.coordinate.x ||
+        left.index - right.index,
+    );
+  const rows: VisualRow[] = [];
+  // Row anchors never move: a later control may join an anchor within the
+  // tolerance, but cannot bridge two rows transitively. Because a new anchor
+  // is created only when both distances exceed the tolerance, adjacent
+  // numeric buckets contain only a bounded set of candidate rows.
+  const topBuckets = new Map<number, VisualRow[]>();
+  const centerBuckets = new Map<number, VisualRow[]>();
+  const bucketKey = (value: number): number =>
+    Math.floor(value / ACTIONABLE_SAME_ROW_TOLERANCE_PX);
+  const register = (index: Map<number, VisualRow[]>, value: number, row: VisualRow): void => {
+    const key = bucketKey(value);
+    const bucket = index.get(key);
+    if (bucket === undefined) index.set(key, [row]);
+    else bucket.push(row);
+  };
+  const addNearby = (
+    candidates: Set<VisualRow>,
+    index: ReadonlyMap<number, readonly VisualRow[]>,
+    value: number,
+  ): void => {
+    const key = bucketKey(value);
+    for (let offset = -1; offset <= 1; offset += 1) {
+      for (const row of index.get(key + offset) ?? []) candidates.add(row);
+    }
+  };
+  for (const entry of entries) {
+    const nearby = new Set<VisualRow>();
+    addNearby(nearby, topBuckets, entry.coordinate.top);
+    addNearby(nearby, centerBuckets, entry.coordinate.centerY);
+    const matches = [...nearby]
+      .map((row) => ({
+        row,
+        distance: Math.min(
+          Math.abs(entry.coordinate.top - row.anchorTop),
+          Math.abs(entry.coordinate.centerY - row.anchorCenterY),
+        ),
+      }))
+      .filter(({ distance }) => distance <= ACTIONABLE_SAME_ROW_TOLERANCE_PX)
+      .sort(
+        (left, right) =>
+          left.distance - right.distance ||
+          left.row.sourceIndex - right.row.sourceIndex,
+      );
+    const row = matches[0]?.row;
+    if (row === undefined) {
+      const created: VisualRow = {
+        anchorTop: entry.coordinate.top,
+        anchorCenterY: entry.coordinate.centerY,
+        sourceIndex: entry.index,
+        entries: [entry],
+      };
+      rows.push(created);
+      register(topBuckets, created.anchorTop, created);
+      register(centerBuckets, created.anchorCenterY, created);
+    } else {
+      row.entries.push(entry);
+    }
+  }
+  rows.sort(
+    (left, right) =>
+      left.anchorTop - right.anchorTop ||
+      left.anchorCenterY - right.anchorCenterY ||
+      left.sourceIndex - right.sourceIndex,
+  );
+  const positioned = rows.flatMap((row) =>
+    row.entries
+      .sort(
+        (left, right) =>
           left.coordinate.x - right.coordinate.x ||
-          left.index - right.index
-        );
-      }
-      if (left.coordinate !== undefined) return -1;
-      if (right.coordinate !== undefined) return 1;
-      return left.index - right.index;
-    })
+          left.coordinate.top - right.coordinate.top ||
+          left.index - right.index,
+      )
+      .map(({ entity }) => entity),
+  );
+  const unpositioned = sourceEntries
+    .filter((entry) => entry.coordinate === undefined)
     .map(({ entity }) => entity);
+  return [...positioned, ...unpositioned];
 }
 
 function serializedActionableContext(

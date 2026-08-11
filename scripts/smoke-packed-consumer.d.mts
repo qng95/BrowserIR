@@ -5,6 +5,16 @@ export interface PackedArtifactRecord {
   sha256: string;
 }
 
+export declare function actionableContextRef(
+  data: unknown,
+  name: string,
+  role: string,
+): {
+  page_id: string;
+  entity_id: string;
+  revision: number;
+};
+
 export declare function parsePackedConsumerArguments(arguments_: string[]): {
   artifactDirectory?: string;
   releaseEvidenceDirectory?: string;

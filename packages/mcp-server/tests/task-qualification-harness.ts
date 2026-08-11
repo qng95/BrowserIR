@@ -50,6 +50,8 @@ export interface QualificationObservation {
   browserId: string;
   pageId: string;
   revision: number;
+  scope: 'full' | 'continuation';
+  continuationOmitted: number;
   title?: string | undefined;
   url?: string | undefined;
   visibleText?: string | undefined;
@@ -154,6 +156,13 @@ export function parseBrowserIrObservation(
 ): QualificationObservation {
   const browserId = typeof envelope.browser_id === 'string' ? envelope.browser_id : '';
   const pageId = typeof envelope.page_id === 'string' ? envelope.page_id : '';
+  if (
+    typeof envelope.revision === 'number' &&
+    typeof envelope.post_revision === 'number' &&
+    envelope.revision !== envelope.post_revision
+  ) {
+    throw new Error('BrowserIR receipt revision and post_revision do not match.');
+  }
   const envelopeRevision =
     typeof envelope.revision === 'number'
       ? envelope.revision
@@ -162,6 +171,8 @@ export function parseBrowserIrObservation(
         : undefined;
   const revisionLine = text.match(/^Revision: (\d+)$/m)?.[1];
   const revision = envelopeRevision ?? Number(revisionLine ?? 0);
+  const scope = envelope.representation === 'delta' ? 'continuation' : 'full';
+  let continuationOmitted = 0;
   const entities: QualificationEntity[] = [];
   const relations: QualificationRelation[] = [];
 
@@ -188,6 +199,81 @@ export function parseBrowserIrObservation(
     });
   }
 
+  if (envelope.representation === 'delta' && envelope.actionable_context !== undefined) {
+    if (!isRecord(envelope.actionable_context)) {
+      throw new Error('Delta-first actionable_context is malformed.');
+    }
+    const context = envelope.actionable_context;
+    if (typeof context.page_id !== 'string' || context.page_id !== pageId) {
+      throw new Error('Delta-first actionable_context page_id does not match the receipt.');
+    }
+    if (typeof context.revision !== 'number' || context.revision !== revision) {
+      throw new Error('Delta-first actionable_context revision does not match the receipt.');
+    }
+    const contextRevision = context.revision;
+    if (
+      !Array.isArray(context.targets) ||
+      typeof context.omitted !== 'number' ||
+      !Number.isInteger(context.omitted) ||
+      context.omitted < 0
+    ) {
+      throw new Error('Delta-first actionable_context targets or omitted count is malformed.');
+    }
+    continuationOmitted = context.omitted;
+    const seenEntityIds = new Set<string>();
+    const contextEntities = context.targets.map((candidate, index): QualificationEntity => {
+      const label = `Delta-first actionable_context target ${index + 1}`;
+      if (
+        !isRecord(candidate) ||
+        typeof candidate.entity_id !== 'string' ||
+        candidate.entity_id.length === 0 ||
+        typeof candidate.kind !== 'string' ||
+        candidate.kind.length === 0 ||
+        !Array.isArray(candidate.actions) ||
+        candidate.actions.length === 0 ||
+        candidate.actions.some((action) => typeof action !== 'string') ||
+        (Object.hasOwn(candidate, 'role') && typeof candidate.role !== 'string') ||
+        (Object.hasOwn(candidate, 'name') && typeof candidate.name !== 'string') ||
+        (Object.hasOwn(candidate, 'value_present') &&
+          typeof candidate.value_present !== 'boolean') ||
+        (Object.hasOwn(candidate, 'checked') &&
+          typeof candidate.checked !== 'boolean' &&
+          candidate.checked !== 'mixed') ||
+        (Object.hasOwn(candidate, 'invalid') && typeof candidate.invalid !== 'boolean')
+      ) {
+        throw new Error(`${label} is malformed.`);
+      }
+      if (seenEntityIds.has(candidate.entity_id)) {
+        throw new Error(`${label} duplicates entity_id ${JSON.stringify(candidate.entity_id)}.`);
+      }
+      seenEntityIds.add(candidate.entity_id);
+      const actions = candidate.actions.filter(
+        (action): action is string => typeof action === 'string',
+      );
+      const state: Record<string, string | boolean> = {};
+      if (typeof candidate.value_present === 'boolean') {
+        state.hasValue = candidate.value_present;
+      }
+      if (typeof candidate.checked === 'boolean' || candidate.checked === 'mixed') {
+        state.checked = candidate.checked;
+      }
+      if (candidate.invalid === true) state.invalid = true;
+      return {
+        id: candidate.entity_id,
+        revision: contextRevision,
+        kind: candidate.kind,
+        ...(typeof candidate.role === 'string' ? { role: candidate.role } : {}),
+        ...(typeof candidate.name === 'string' ? { name: candidate.name } : {}),
+        ...(Object.hasOwn(candidate, 'current_value')
+          ? { value: candidate.current_value }
+          : {}),
+        state,
+        actions,
+      };
+    });
+    entities.push(...contextEntities);
+  }
+
   const title = text.match(/^Page: (.*)$/m)?.[1];
   const url = text.match(/^URL: (.*)$/m)?.[1];
   const encodedVisibleText = text.match(/^Visible text: ("(?:\\.|[^"\\])*")$/m)?.[1];
@@ -203,6 +289,8 @@ export function parseBrowserIrObservation(
     browserId,
     pageId,
     revision,
+    scope,
+    continuationOmitted,
     title,
     url,
     visibleText,
@@ -210,6 +298,15 @@ export function parseBrowserIrObservation(
     relations,
     modelText: text,
   };
+}
+
+export function qualificationContinuationNeedsObserve(
+  observation: QualificationObservation,
+): boolean {
+  return (
+    observation.scope === 'continuation' &&
+    (observation.entities.length === 0 || observation.continuationOmitted > 0)
+  );
 }
 
 const resultEnvelope = (result: CallToolResult): ParsedEnvelope =>
@@ -472,7 +569,13 @@ export class BrowserIrReferenceAgent {
     textIncludes?: string | undefined;
     action?: string | undefined;
   }): QualificationEntity {
-    return one(this.findAll(input), `entity matching ${JSON.stringify(input)}`);
+    const matches = this.findAll(input);
+    if (matches.length === 0 && this.current.scope === 'continuation') {
+      throw new Error(
+        `Entity matching ${JSON.stringify(input)} is absent from the compact actionable continuation; browser_observe is required before treating it as absent from the page.`,
+      );
+    }
+    return one(matches, `entity matching ${JSON.stringify(input)}`);
   }
 
   findAll(input: {
@@ -631,7 +734,11 @@ export class BrowserIrReferenceAgent {
       action: encoded,
       max_tokens: MAX_MODEL_TOKENS,
     });
-    return this.setCurrent(result);
+    const observation = this.setCurrent(result);
+    if (qualificationContinuationNeedsObserve(observation)) {
+      return this.observe();
+    }
+    return observation;
   }
 
   click(entity: QualificationEntity): Promise<QualificationObservation> {

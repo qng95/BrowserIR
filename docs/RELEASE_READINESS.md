@@ -2,11 +2,12 @@
 
 Assessment updated: 2026-08-11 (Europe/Berlin)
 
-Status: **extensively exercised as a local alpha source candidate; no qualified
-release dossier exists, and the project is not ready to publish.** The remaining
-release blockers require maintainer authority and a clean hosted release
-environment. They must not be bypassed by weakening the release verifier or by
-presenting dirty/unbound local evidence as release evidence.
+Status: **the Apache-2.0 source alpha is public; npm packages and a tagged release
+remain unpublished. No qualified release dossier exists yet.** The first public
+CI run exposed clean-runner and compact-continuation defects; this candidate
+contains locally verified, general fixes and still requires a new clean hosted
+run. Publication gates must not be bypassed by weakening the release verifier
+or by presenting dirty/unbound local evidence as release evidence.
 
 ## Local source behavior
 
@@ -14,13 +15,14 @@ The dirty, pre-commit workspace produced the following engineering evidence:
 
 | Gate | Result |
 | --- | --- |
-| Current complete workspace verification | 577 declared cases: 558 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 83/83, Playwright driver 107/107, benchmark 150/150, and MCP 158 passed with 19 skipped. All five package type checks passed. |
+| Current complete workspace verification | 588 declared cases: 569 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 83/83, Playwright driver 107/107, benchmark 151/151, and MCP 168 passed with 19 skipped. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
 | Earlier combined workspace run | 324 passed with the same 19 opt-in cases skipped; retained only as a historical pre-release-evidence count |
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
-| Database-backed task qualification | 14/14 tasks passed through the official MCP client; 290 MCP calls; 0 tool errors |
+| Database-backed task qualification | 14/14 tasks passed through the official MCP client; 299 MCP calls; 0 tool errors |
+| First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. The candidate fixes are covered by focused regressions; hosted requalification is pending. |
 | Representation release gate | 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3 stable identities, and 18/18 omissions accounted for |
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
@@ -52,9 +54,10 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID
-(`2026-08-11-v9`, requiring 577 declared, 558 executed, and 19 skipped cases).
-Therefore the current local results—although useful—cannot be assembled into a
-qualified dossier. The latest post-hardening local fragments are:
+(`2026-08-11-v10`, requiring 588 declared, 569 executed, and 19 skipped cases).
+The retained local fragments below were produced before the public Git source
+commit and therefore cannot be assembled into a qualified dossier. The latest
+post-hardening local fragments are:
 
 | Gate | Local fragment | `evidence.json` SHA-256 |
 | --- | --- | --- |

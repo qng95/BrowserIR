@@ -49,7 +49,7 @@
       <rect width="230" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#6886FF" stroke-opacity="0.6"/>
       <text x="22" y="61" fill="url(#card-brand)" font-size="45" font-weight="820">14/14</text><text x="22" y="84" fill="#9DAED4" font-size="13" font-weight="700" letter-spacing="1.4">FIXTURE TASKS</text>
       <rect x="250" width="230" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#6886FF" stroke-opacity="0.6"/>
-      <text x="272" y="61" fill="#F7F9FF" font-size="40" font-weight="790">290 / 0</text><text x="272" y="84" fill="#9DAED4" font-size="13" font-weight="700" letter-spacing="1.2">MCP CALLS / ERRORS</text>
+      <text x="272" y="61" fill="#F7F9FF" font-size="40" font-weight="790">299 / 0</text><text x="272" y="84" fill="#9DAED4" font-size="13" font-weight="700" letter-spacing="1.2">MCP CALLS / ERRORS</text>
       <rect x="500" width="248" height="102" rx="22" fill="#0A1127" fill-opacity="0.9" stroke="#9666F4" stroke-opacity="0.68"/>
       <text x="522" y="61" fill="#F7F9FF" font-size="40" font-weight="790">1.00</text><text x="522" y="84" fill="#AFA5D3" font-size="13" font-weight="700" letter-spacing="1.2">CORPUS P / R / F1</text>
     </g>

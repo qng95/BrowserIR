@@ -11,7 +11,10 @@ import {
   type BrowserDriverSession,
 } from '@browserir/core';
 import { Client } from '@modelcontextprotocol/client';
-import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
+import {
+  getDefaultEnvironment,
+  StdioClientTransport,
+} from '@modelcontextprotocol/client/stdio';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -31,7 +34,22 @@ type InspectableStdioTransport = {
   _process?: ChildProcess;
 };
 
+const cliChildEnvironment = (
+  playwrightBrowsersPath = process.env.PLAYWRIGHT_BROWSERS_PATH,
+): Record<string, string> => ({
+  ...getDefaultEnvironment(),
+  ...(playwrightBrowsersPath === undefined
+    ? {}
+    : { PLAYWRIGHT_BROWSERS_PATH: playwrightBrowsersPath }),
+});
+
 describe('local stdio delivery', () => {
+  it('forwards the configured Playwright browser installation to the safe child environment', () => {
+    expect(cliChildEnvironment('/workspace/.cache/ms-playwright')).toMatchObject({
+      PLAYWRIGHT_BROWSERS_PATH: '/workspace/.cache/ms-playwright',
+    });
+  });
+
   it('serves the final MCP protocol from the compiled CLI without unsafe evaluation', async () => {
     const captureDirectory = mkdtempSync(join(tmpdir(), 'browserir-stdio-'));
     const capturePrefix = join(captureDirectory, 'stdout');
@@ -39,6 +57,7 @@ describe('local stdio delivery', () => {
       command: process.execPath,
       args: [captureStdioFixture, compiledCli, capturePrefix],
       cwd: workspaceRoot,
+      env: cliChildEnvironment(),
       stderr: 'pipe',
     });
     let stderr = '';
@@ -94,6 +113,7 @@ describe('local stdio delivery', () => {
       command: process.execPath,
       args: [compiledCli, '--enable-unsafe-evaluate'],
       cwd: workspaceRoot,
+      env: cliChildEnvironment(),
       stderr: 'pipe',
     });
     let stderr = '';
@@ -191,6 +211,7 @@ describe('local stdio delivery', () => {
         command: process.execPath,
         args: [compiledCli],
         cwd: workspaceRoot,
+        env: cliChildEnvironment(),
         stderr: 'pipe',
       });
       let stderr = '';
