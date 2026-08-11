@@ -1,7 +1,16 @@
-import { createHash } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 
+import {
+  TASK_ORACLE_CONTRACTS,
+  TASK_ORACLE_CONTRACT_IDS,
+  taskOracleVersion,
+  type TaskOracleContractId,
+} from './task-oracle-contracts.js';
+
 type Row = Record<string, unknown>;
+
+const rescheduleDestinationContract =
+  TASK_ORACLE_CONTRACTS['reschedule-appointment'].audit.destination;
 
 /**
  * Verifiable agent tasks.
@@ -42,7 +51,8 @@ interface TaskDefinitionResult {
   notApplicable?: boolean;
 }
 
-interface TaskDefinition extends Omit<Task, 'verify' | 'oracleVersion'> {
+interface TaskDefinition extends Omit<Task, 'id' | 'verify' | 'oracleVersion'> {
+  id: TaskOracleContractId;
   verify(db: DatabaseSync): TaskDefinitionResult;
 }
 
@@ -106,16 +116,6 @@ function sameNumberSet(left: number[], right: number[]): boolean {
     left.every((value) => right.includes(value))
   );
 }
-
-const ORACLE_HELPER_SOURCE = [
-  classify,
-  auditCount,
-  parseCustomerUpdate,
-  parseJsonObject,
-  sameNumberSet,
-]
-  .map((helper) => helper.toString())
-  .join('\n');
 
 const TASK_DEFINITIONS: TaskDefinition[] = [
   {
@@ -607,24 +607,69 @@ TASK_DEFINITIONS.push(
       if (!bay1 || !bay4) return { passed: false, reason: 'Bay 1 or Bay 4 is missing from this dataset.' };
 
       const move = moves[0]!;
-      const sourcePrefix = `bay ${String(bay1['id'])}/2026-08-03/2 -> bay ${String(bay4['id'])}/`;
-      if (!String(move['detail']).startsWith(sourcePrefix)) {
+      const transition =
+        /^bay (\d+)\/([^/]+)\/(\d+) -> bay (\d+)\/([^/]+)\/(\d+) via (drag|keyboard)$/.exec(
+          String(move['detail']),
+        );
+      const destinationDay = transition?.[5];
+      const destinationSlot = Number(transition?.[6]);
+      if (
+        !transition ||
+        Number(transition[1]) !== Number(bay1['id']) ||
+        transition[2] !== '2026-08-03' ||
+        Number(transition[3]) !== 2 ||
+        Number(transition[4]) !== Number(bay4['id']) ||
+        destinationDay === undefined ||
+        !(rescheduleDestinationContract.allowedDates as readonly string[]).includes(
+          destinationDay,
+        ) ||
+        !Number.isInteger(destinationSlot) ||
+        !rescheduleDestinationContract.allowedSlots.some(
+          ({ index }) => index === destinationSlot,
+        )
+      ) {
         return {
           passed: false,
-          reason: 'An appointment was moved, but it was not the Bay 1 appointment at 13:00 on 2026-08-03.',
+          reason:
+            'The move audit does not prove the requested source, a visible Bay 4 destination, and an accepted input route.',
           evidence: { move: move['detail'] },
         };
       }
 
       const landed = db
-        .prepare('SELECT * FROM appointments WHERE bay_id = ? AND id = ?')
-        .get(Number(bay4['id']), Number(move['entity_id'])) as Row | undefined;
-      if (!landed) {
-        return { passed: false, reason: 'The target appointment did not end up in Bay 4.' };
+        .prepare('SELECT * FROM appointments WHERE id = ?')
+        .get(Number(move['entity_id'])) as Row | undefined;
+      if (
+        !landed ||
+        Number(landed['bay_id']) !== Number(bay4['id']) ||
+        String(landed['day']) !== destinationDay ||
+        Number(landed['slot']) !== destinationSlot
+      ) {
+        return {
+          passed: false,
+          reason: 'The target appointment did not end up in the audited Bay 4 date and slot.',
+          evidence: { move: move['detail'], landed },
+        };
+      }
+      const destinationOccupancy = Number(
+        (
+          db
+            .prepare(
+              'SELECT COUNT(*) AS n FROM appointments WHERE bay_id = ? AND day = ? AND slot = ?',
+            )
+            .get(Number(bay4['id']), destinationDay, destinationSlot) as Row
+        )['n'],
+      );
+      if (destinationOccupancy !== 1) {
+        return {
+          passed: false,
+          reason: 'The audited Bay 4 destination is occupied by another appointment.',
+          evidence: { move: move['detail'], destinationOccupancy },
+        };
       }
       // Which input route was used is recorded, so drag and keyboard can be
       // reported separately even though either satisfies the task.
-      const via = String(move['detail']).includes('via keyboard') ? 'keyboard' : 'drag';
+      const via = transition[7]!;
       return { passed: true, reason: `Appointment moved into Bay 4 via ${via}.`, evidence: { via } };
     },
   },
@@ -645,7 +690,10 @@ TASK_DEFINITIONS.push(
       }
       const part = db.prepare('SELECT * FROM parts WHERE id = ?').get(ids[0]!) as Row | undefined;
       const quantities = restocks.map((row) => /\+(\d+)$/.exec(String(row['detail']))?.[1]).map(Number);
-      if (!part || quantities.some((quantity) => !Number.isFinite(quantity))) {
+      if (
+        !part ||
+        quantities.some((quantity) => !Number.isInteger(quantity) || quantity < 1)
+      ) {
         return { passed: false, reason: 'The restock audit did not contain enough evidence to reconstruct prior stock.' };
       }
       const before = Number(part['stock']) - quantities.reduce((sum, quantity) => sum + quantity, 0);
@@ -785,13 +833,19 @@ TASK_DEFINITIONS.push(
   },
 );
 
+const definitionIds = [...TASK_DEFINITIONS.map(({ id }) => id)].sort();
+if (
+  definitionIds.length !== TASK_ORACLE_CONTRACT_IDS.length ||
+  definitionIds.some((id, index) => id !== TASK_ORACLE_CONTRACT_IDS[index])
+) {
+  throw new Error('Task definitions and explicit oracle contracts must have identical IDs.');
+}
+
 export const TASKS: Task[] = TASK_DEFINITIONS.map((definition) => ({
   id: definition.id,
   prompt: definition.prompt,
   skills: definition.skills,
-  oracleVersion: `sha256:${createHash('sha256')
-    .update(`${ORACLE_HELPER_SOURCE}\n${definition.verify.toString()}`, 'utf8')
-    .digest('hex')}`,
+  oracleVersion: taskOracleVersion(definition.id),
   verify(db) {
     return classify(definition.verify(db));
   },

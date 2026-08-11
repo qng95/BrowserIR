@@ -22,8 +22,12 @@ The repository currently provides:
   the MCP client and passes a sealed database/audit oracle.
 
 Local Ollama real-model development diagnostics have run, including one
-one-block BrowserIR treatment win on the excluded `create-customer` task. No
-sealed real-model result, public competitor comparison, or generalization
+one-block BrowserIR treatment-path win on the already-seen, score-excluded
+`create-customer` task; official Playwright MCP failed that block without
+submitting. That is not an official-control capability pass. A dedicated
+score-excluded control qualification is implemented, but its five-attempt run
+has not started and no provider key or paid model spend has been used for it.
+No sealed real-model result, public competitor comparison, or generalization
 result has been run or published. The deterministic fake-model test validates
 benchmark wiring and grading, not model capability or generalization. The
 current CLI is suitable for local development and characterization; it is not
@@ -256,6 +260,33 @@ changes use declared development tasks. A sealed comparison starts only from a
 committed frozen protocol and is never tuned or stopped after observing its
 score. See [the evidence-drop protocol](EVIDENCE_DROPS.md).
 
+## Score-excluded official-control qualification
+
+Before freezing a paired uplift protocol, BrowserIR has a narrow compatibility
+question to answer: can the selected real-model configuration complete at
+least one deterministically judged workflow through the pinned official
+Playwright MCP control? The dedicated qualification answers only that question.
+It is deliberately outside the Drop 01 score and has these fixed boundaries:
+
+- it runs only official Playwright MCP, with no BrowserIR treatment arm;
+- it uses `create-customer`, an already-seen development task, while the
+  reserved `validation-recovery` task remains untouched;
+- it runs all five precommitted attempts, with no early stop, favorable rerun,
+  or invalid-attempt replacement;
+- `demonstrated` requires five completed attempts, zero invalid attempts, and
+  at least one exact database/audit/submission pass; and
+- publication is limited to raw `x/5` outcome counts. The result is not a
+  score, uplift estimate, pass-rate estimate, or evidence of generalization.
+
+The minimal gate has no resume mode. An interrupted schedule cannot qualify,
+and a later invocation is a separate run rather than a silent continuation or
+replacement. This is intentionally stricter than the resumable paired
+development runner.
+
+The protocol-bound implementation is present, but the real-model schedule has
+not been executed. No provider credential or model spend has been used for this
+qualification yet.
+
 ## Running locally
 
 The real-model CLI is optional and incurs the selected provider's normal usage
@@ -298,6 +329,22 @@ trace through real Chromium and the real MCP transport. Passing proves the
 agent adapter, schema conversion, tool loop, target sealing, structured
 submission, and database/audit judge connect correctly. Because its decisions
 are scripted, it is not an LLM benchmark result.
+
+The score-excluded official-control qualification accepts only a committed
+protocol plus a create-only output directory. Run it from a clean worktree and
+keep its evidence outside the repository so source identity remains stable:
+
+```sh
+pnpm benchmark:control-capability -- \
+  --protocol docs/evidence-drops/drop-01/control-capability-v1.protocol.json \
+  --output /absolute/external/path/drop-01-control-capability
+```
+
+Configure the protocol's provider credential in the environment rather than in
+source. The command checks the committed protocol, clean start/end source,
+model metadata, target, oracle, and official-control catalog; it then retains
+all five outcomes and checksummed artifacts. It does not accept task, model,
+schedule, budget, stopping-rule, or decision-rule overrides.
 
 The matched comparison is driven only by a protocol manifest; scored settings
 cannot be overridden on the command line:

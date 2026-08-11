@@ -1,4 +1,7 @@
 export * from './contracts.js';
+export * from './control-capability-runtime-provenance.js';
+export * from './control-capability-protocol.js';
+export * from './control-capability-report.js';
 export * from './evidence-drop-protocol.js';
 export * from './evidence-drop-runner.js';
 export * from './fixture-target.js';

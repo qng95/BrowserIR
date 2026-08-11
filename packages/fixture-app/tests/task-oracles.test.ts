@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { audit, createDb } from '../src/db.js';
 import { taskById } from '../src/tasks.js';
+import { DAYS, SLOTS } from '../src/workshop.js';
 
 type Row = Record<string, unknown>;
 
@@ -176,6 +177,89 @@ function insertTaskCustomer(
       '2026-08-10',
     );
   return Number(result.lastInsertRowid);
+}
+
+function bayId(db: ReturnType<typeof createDb>, name: string): number {
+  return Number((db.prepare('SELECT id FROM bays WHERE name = ?').get(name) as Row)['id']);
+}
+
+function taskAppointment(db: ReturnType<typeof createDb>): Row {
+  const sourceBayId = bayId(db, 'Bay 1');
+  const existing = db
+    .prepare("SELECT * FROM appointments WHERE bay_id = ? AND day = '2026-08-03' AND slot = 2")
+    .get(sourceBayId) as Row | undefined;
+  if (existing) return existing;
+  const created = db
+    .prepare(
+      "INSERT INTO appointments (bay_id,day,slot,customer_id,description,status) VALUES (?,'2026-08-03',2,1,'Task target','Scheduled')",
+    )
+    .run(sourceBayId);
+  return db.prepare('SELECT * FROM appointments WHERE id = ?').get(Number(created.lastInsertRowid)) as Row;
+}
+
+function freeWorkshopSlot(db: ReturnType<typeof createDb>, destinationBayId: number): {
+  day: string;
+  slot: number;
+} {
+  for (const day of DAYS) {
+    for (let slot = 0; slot < SLOTS.length; slot += 1) {
+      const occupied = db
+        .prepare('SELECT id FROM appointments WHERE bay_id = ? AND day = ? AND slot = ?')
+        .get(destinationBayId, day, slot);
+      if (!occupied) return { day, slot };
+    }
+  }
+  throw new Error('Expected at least one free workshop slot.');
+}
+
+function recordTaskAppointmentMove(
+  db: ReturnType<typeof createDb>,
+  input: {
+    destination: { day: string; slot: number };
+    auditDestination?: { day: string; slot: number };
+    route: string;
+  },
+): number {
+  const source = taskAppointment(db);
+  const destinationBayId = bayId(db, 'Bay 4');
+  db.prepare('UPDATE appointments SET bay_id = ?, day = ?, slot = ? WHERE id = ?').run(
+    destinationBayId,
+    input.destination.day,
+    input.destination.slot,
+    Number(source['id']),
+  );
+  const claimedDestination = input.auditDestination ?? input.destination;
+  audit(db, {
+    actor: 'test',
+    action: 'appointment.move',
+    entity: 'appointment',
+    entityId: Number(source['id']),
+    detail:
+      `bay ${String(source['bay_id'])}/${String(source['day'])}/${String(source['slot'])} -> ` +
+      `bay ${destinationBayId}/${claimedDestination.day}/${claimedDestination.slot} via ${input.route}`,
+  });
+  return Number(source['id']);
+}
+
+function allowDuplicateAppointmentSlots(db: ReturnType<typeof createDb>): void {
+  db.exec(`
+    PRAGMA foreign_keys = OFF;
+    CREATE TABLE appointments_without_occupancy_constraint (
+      id INTEGER PRIMARY KEY,
+      bay_id INTEGER NOT NULL REFERENCES bays(id),
+      day TEXT NOT NULL,
+      slot INTEGER NOT NULL,
+      customer_id INTEGER REFERENCES customers(id),
+      description TEXT NOT NULL,
+      status TEXT NOT NULL
+    );
+    INSERT INTO appointments_without_occupancy_constraint
+      (id,bay_id,day,slot,customer_id,description,status)
+      SELECT id,bay_id,day,slot,customer_id,description,status FROM appointments;
+    DROP TABLE appointments;
+    ALTER TABLE appointments_without_occupancy_constraint RENAME TO appointments;
+    PRAGMA foreign_keys = ON;
+  `);
 }
 
 describe('task oracle contracts', () => {
@@ -360,6 +444,83 @@ describe('task oracle contracts', () => {
     db.close();
   });
 
+  it.each(['drag', 'keyboard'] as const)(
+    'accepts a consistent move to a free visible slot via %s',
+    (route) => {
+      const db = createDb({ customers: 100, vehicles: 100 });
+      const destination = freeWorkshopSlot(db, bayId(db, 'Bay 4'));
+      recordTaskAppointmentMove(db, { destination, route });
+
+      expect(task('reschedule-appointment').verify(db)).toMatchObject({
+        outcome: 'passed',
+        passed: true,
+        evidence: { via: route },
+      });
+      db.close();
+    },
+  );
+
+  it('rejects an appointment audit with an unsupported input route', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    const destination = freeWorkshopSlot(db, bayId(db, 'Bay 4'));
+    recordTaskAppointmentMove(db, { destination, route: 'script' });
+
+    expect(task('reschedule-appointment').verify(db).passed).toBe(false);
+    db.close();
+  });
+
+  it('rejects an appointment whose final destination differs from its audit', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    const destination = freeWorkshopSlot(db, bayId(db, 'Bay 4'));
+    const claimedSlot = (destination.slot + 1) % SLOTS.length;
+    recordTaskAppointmentMove(db, {
+      destination,
+      auditDestination: { day: destination.day, slot: claimedSlot },
+      route: 'drag',
+    });
+
+    expect(task('reschedule-appointment').verify(db).passed).toBe(false);
+    db.close();
+  });
+
+  it('rejects an appointment moved outside the visible schedule', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    recordTaskAppointmentMove(db, {
+      destination: { day: '2099-01-01', slot: SLOTS.length },
+      route: 'drag',
+    });
+
+    expect(task('reschedule-appointment').verify(db).passed).toBe(false);
+    db.close();
+  });
+
+  it('rejects an appointment when another record occupies its final destination', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    allowDuplicateAppointmentSlots(db);
+    const destinationBayId = bayId(db, 'Bay 4');
+    let occupied = db
+      .prepare(
+        `SELECT day, slot FROM appointments
+         WHERE bay_id = ? AND day IN (${DAYS.map(() => '?').join(',')})
+           AND slot >= 0 AND slot < ?
+         ORDER BY day, slot LIMIT 1`,
+      )
+      .get(destinationBayId, ...DAYS, SLOTS.length) as Row | undefined;
+    if (!occupied) {
+      db.prepare(
+        "INSERT INTO appointments (bay_id,day,slot,customer_id,description,status) VALUES (?,'2026-08-03',0,1,'Blocker','Scheduled')",
+      ).run(destinationBayId);
+      occupied = { day: '2026-08-03', slot: 0 };
+    }
+    recordTaskAppointmentMove(db, {
+      destination: { day: String(occupied['day']), slot: Number(occupied['slot']) },
+      route: 'drag',
+    });
+
+    expect(task('reschedule-appointment').verify(db).passed).toBe(false);
+    db.close();
+  });
+
   it('only credits a restock when the chosen part was initially below its reorder level', () => {
     const db = createDb({ customers: 100, vehicles: 100 });
     const part = db
@@ -374,6 +535,27 @@ describe('task oracle contracts', () => {
       entityId: Number(part['id']),
       detail: `${String(part['sku'])} +${qty}`,
     });
+
+    expect(task('restock-low-part').verify(db).passed).toBe(false);
+    db.close();
+  });
+
+  it('rejects a zero-quantity restock audit even when another restock reaches the target', () => {
+    const db = createDb({ customers: 100, vehicles: 100 });
+    const part = db
+      .prepare('SELECT * FROM parts WHERE stock < reorder_level ORDER BY id LIMIT 1')
+      .get() as Row;
+    const quantity = Number(part['reorder_level']) * 2 - Number(part['stock']);
+    db.prepare('UPDATE parts SET stock = stock + ? WHERE id = ?').run(quantity, Number(part['id']));
+    for (const amount of [quantity, 0]) {
+      audit(db, {
+        actor: 'test',
+        action: 'part.restock',
+        entity: 'part',
+        entityId: Number(part['id']),
+        detail: `${String(part['sku'])} +${amount}`,
+      });
+    }
 
     expect(task('restock-low-part').verify(db).passed).toBe(false);
     db.close();

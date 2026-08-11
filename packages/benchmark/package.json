@@ -7,6 +7,7 @@
   "scripts": {
     "benchmark": "vite-node src/cli.ts",
     "benchmark:agent": "vite-node src/agent-cli.ts",
+    "benchmark:control-capability": "vite-node src/control-capability-cli.ts",
     "benchmark:uplift": "vite-node src/uplift-cli.ts",
     "benchmark:representation": "vite-node src/representation-cli.ts",
     "test": "vitest run",

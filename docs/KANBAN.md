@@ -12,11 +12,16 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The latest qualified v13 workspace verification declares 632 cases:
-613 executed passes and 19 intentional opt-in cases skipped. All five package
-type checks pass. Earlier 487/468/19 and 439/420/19 runs remain retained
-dirty/unbound history under stale exact-count policies. Publication gates and
-durable promotion of the qualified dossier remain open; see the
+implemented. The current local working-tree v14 policy declares 689 cases: 670
+executed and 19 intentional opt-in cases skipped. By package, that is core
+60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189
+declared with 170 executed and 19 skipped. This v14 inventory is unhosted and
+does not yet have a qualified dossier. The latest qualified public evidence
+remains v13 [GitHub Actions run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356)
+for commit `14f86f6`, with 632 declared, 613 executed, and 19 skipped. Earlier
+487/468/19 and 439/420/19 runs remain retained dirty/unbound history under stale
+exact-count policies. Publication gates and durable promotion of the qualified
+dossier remain open; see the
 [release-readiness assessment](RELEASE_READINESS.md) and
 [release-evidence guide](RELEASE_EVIDENCE.md).
 
@@ -285,9 +290,26 @@ Definition of Done for every implementation card:
   post-revision refs for visible remaining controls.
 - [x] Run real-model development diagnostics only on the excluded
   `create-customer` task; retain and classify v4–v7, including the negative
-  results and first one-block treatment win, without touching the sealed task.
+  results and first one-block treatment-path win, without touching the sealed
+  task. In v7 BrowserIR passed and official Playwright MCP failed without
+  submitting; this was not a control-capability pass.
 - [x] Prove both interfaces can complete `create-customer` with deterministic
   scripted models through real Chromium and the same oracle.
+- [x] Implement a separate protocol-bound, score-excluded official-control
+  compatibility gate on the already-seen `create-customer` task. It has no
+  BrowserIR arm, schedules exactly five attempts, permits no early stop or
+  invalid replacement, and cannot access reserved `validation-recovery`.
+- [x] Atomically reserve the control-gate output before provider/model/browser
+  work, retain start/end model metadata and installed agent/control/Playwright
+  package plus Chromium executable/version provenance, and fail closed on
+  start/end drift.
+- [ ] Run the entire five-attempt official-control schedule once from clean,
+  committed source, without resume or selective replacement. Mark capability
+  `demonstrated` only for five completed attempts, zero invalid attempts, and at
+  least one exact database/audit/submission pass.
+- [ ] Retain every qualification outcome and publish only raw `x/5` counts,
+  explicitly excluding them from score, uplift, pass-rate, and generalization
+  claims.
 - [x] Run a fresh complete workspace/typecheck gate and update the exact-count
   release policy after the latest product and benchmark changes.
 - [x] Remove the explicit sealed-execution hard stop after adding pure
@@ -310,6 +332,11 @@ Definition of Done for every implementation card:
   with adversarial oracle tests.
 - [x] Configure the canonical GitHub remote plus repository, homepage, and issue
   metadata.
+
+The official-control gate implementation is ready, but its real-model run is
+pending. No qualification attempt, provider-key use, or model spend has
+occurred. The `validation-recovery` candidate remains reserved.
+
 - [ ] Create and review a clean Git `HEAD`, then create a freeze tag resolving
   to the selected release commit.
 - [ ] Freeze the exact real-model manifest before any scored
@@ -431,8 +458,10 @@ unaffected document loses valid references.
   per-task and pooled 95% Wilson intervals, micro pass rate, macro task pass
   rate, invalid rate, tool metrics, versions, and fingerprints.
 - [x] Pass the deterministic fake-model real-Chromium/MCP vertical slice and the
-  current 191/191 benchmark package gate. Local Ollama development diagnostics
-  exist, but no sealed or public real-model score has been run.
+  current 235/235 benchmark package gate. Local Ollama development diagnostics
+  exist, including one BrowserIR treatment-path signal whose official control
+  failed; no official-control qualification, sealed run, or public real-model
+  score has been completed.
 
 This completes the local benchmark mechanism, not a hosted scoring service.
 Canonical public scoring still requires a disposable process/container and

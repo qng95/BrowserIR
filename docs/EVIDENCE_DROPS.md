@@ -141,8 +141,9 @@ are fixed at their own layer.
 
 ## Evidence Drop 01
 
-Status: **development capability signal observed; sealed protocol not frozen
-and no public result exists**.
+Status: **BrowserIR treatment-path signal observed; official-control
+qualification not run; sealed protocol not frozen and no public result
+exists**.
 
 The intended first public question is deliberately narrow:
 
@@ -161,12 +162,37 @@ a **controlled fixture pilot**, never a general browser-agent benchmark or an
 independent-samples population estimate.
 
 The control is pinned to official `@playwright/mcp` `0.0.78`. The exact model
-will be frozen only after a development capability check; selecting it after
-seeing any `validation-recovery` result is forbidden.
+for the sealed paired run will be frozen only after the separate
+official-control compatibility qualification. Selecting it after seeing any
+`validation-recovery` result is forbidden.
 
 Development is manifest-driven through `pnpm benchmark:uplift`. The original
 failed artifacts remain retained; a development failure is an input to the
 engineering loop, not something to hide or rerun favorably.
+
+### Score-excluded official-control qualification
+
+The dedicated compatibility gate is implemented and its protocol-bound run is
+pending. It uses only official Playwright MCP on the already-seen development
+task `create-customer`; it has no BrowserIR arm and cannot produce a score or
+uplift result. The sealed candidate `validation-recovery` remains reserved.
+
+The qualification precommits exactly five attempts and runs the entire
+schedule. It permits no early stop, favorable rerun, or invalid-attempt
+replacement, and caps every model turn at 4,096 output tokens. `demonstrated`
+means all five attempts completed, none was invalid, and at least one passed
+the exact database, audit-log, and structured submission judge. Anything
+incomplete or invalid is operationally inconclusive; five valid failures means
+capability was not demonstrated.
+
+Only the raw passed/failed/invalid counts and raw `x/5` result may be reported.
+They are not a pass-rate estimate, an uplift measurement, or evidence that the
+model or control generalizes. The minimal gate has no resume path: an
+interrupted execution cannot be completed by replacing or selectively rerunning
+an attempt.
+
+No qualification attempt has run yet. No provider key has been used and no
+model spend has been incurred for this gate.
 
 ### Development feedback ledger
 
@@ -175,7 +201,7 @@ engineering loop, not something to hide or rerun favorably.
 | `v4` — Qwen3 4B/32K | Both arms failed. BrowserIR made 12 calls with 0 tool errors but submitted benchmark completion before the application mutation was complete; the database/audit oracle failed. Control made 28 calls with 8 errors and never submitted. | Measured repeated action-result overhead. Added delta-first receipts and bounded, fail-closed reference rebinding; recycled or structurally changed identities remain stale. |
 | `v5` — Qwen3 8B/32K | Both arms failed. BrowserIR stopped without submission after 264.6 seconds; control timed out after 300 seconds. | Rejected the 8B model as too slow for this local 16 GB development environment. Added crash-safe journaling, resume, start/end environment binding, checksums, and a final completion marker. |
 | `v6` — Qwen3 4B/32K | Both arms failed. BrowserIR used 9 calls, 0 errors, and 29,986 response bytes but still stopped without submission; control timed out. | Diagnosed that compact delta receipts preserved freshness but did not expose enough “what can I do next?” context. |
-| `v7` — Qwen3 4B/32K | BrowserIR passed the database/audit oracle and submitted exactly once; control failed without submission. BrowserIR: 1/1, control: 0/1. | The intended build added bounded forward/visual-order `actionable_context` with fresh post-revision refs and a shorter continuation summary. A deterministic real-browser regression passed at 42,471 model-facing bytes, 18.28% below the 51,970-byte legacy flow. |
+| `v7` — Qwen3 4B/32K | BrowserIR passed the database/audit oracle and submitted exactly once; official Playwright MCP failed without submission. BrowserIR: 1/1, control: 0/1. This is a treatment-path signal, not a control-capability pass. | The intended build added bounded forward/visual-order `actionable_context` with fresh post-revision refs and a shorter continuation summary. A deterministic real-browser regression passed at 42,471 model-facing bytes, 18.28% below the 51,970-byte legacy flow. |
 
 > These are adaptive engineering diagnostics, not four samples from one
 > experiment. Every protocol used the already-seen, score-excluded
@@ -186,10 +212,10 @@ engineering loop, not something to hide or rerun favorably.
 > points. It is a signal to proceed to a frozen run, not evidence of uplift or
 > superiority.
 
-These development changes include BrowserIR production inference changes.
-The reserved `validation-recovery` task remains untouched and has never been
-used to select a fix, model, prompt, or budget. Development success does not
-satisfy the public claim rule.
+These development changes include BrowserIR production inference changes. The
+reserved `validation-recovery` task has not been executed, exposed to a model,
+or used to select or tune a fix, model, prompt, or budget. Development success
+does not satisfy the public claim rule.
 
 ## Drop registry
 

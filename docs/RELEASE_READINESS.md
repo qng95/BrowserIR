@@ -14,6 +14,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
+| Current local v14 working-tree inventory (unhosted) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. This reviewed policy has no clean hosted dossier yet. |
 | Qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
@@ -55,9 +56,11 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current policy is `2026-08-11-v13`, requiring 632 declared, 613
-executed, and 19 skipped cases. It includes the sealed-benchmark hardening in
-commit `14f86f6` and has a qualified hosted dossier.
+The current local working-tree policy is `2026-08-11-v14`, requiring 689
+declared, 670 executed, and 19 skipped cases. It is reviewed but unhosted and
+does not yet have a qualified dossier. The latest qualified public policy
+remains v13 from run `31531657356` on commit `14f86f6`, requiring 632 declared,
+613 executed, and 19 skipped cases.
 
 The qualified public source release-evidence dossier for the hardening commit is
 `release-evidence-dossier-31531657356-1-14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0`,
@@ -129,9 +132,10 @@ country, not only the customer name and credit workflow.
 Real-model paired **development diagnostics** have now run on the excluded
 `create-customer` task. Failed v4–v6 protocols remain retained. v7 produced the
 first one-block development treatment win: BrowserIR passed all three trusted
-criteria and official Playwright MCP did not submit. This is a capability
-signal only; its 95% paired bound is still −100 to +100 percentage points. The
-full adaptive history and exact caveats are in the
+criteria and official Playwright MCP did not submit. This is a BrowserIR
+treatment-path signal only, not an official-control capability pass; its 95%
+paired bound is still −100 to +100 percentage points. The full adaptive history
+and exact caveats are in the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
 
 The v6 and v7 bundles have stable start/end environment bindings, hash-chained
@@ -141,10 +145,21 @@ different pnpm runtime than v6. They are not source-bound release evidence and
 cannot prove which code change caused the result.
 
 No sealed score has been run or published. The candidate
-`validation-recovery` schedule remains untouched. One development capability
-check passed, but sealed-entry approval has not been recorded. Therefore there
-is still no BrowserIR uplift, competitor-superiority, or general agent-quality
-claim. See [the evidence-drop protocol](EVIDENCE_DROPS.md).
+`validation-recovery` schedule remains untouched. A separate score-excluded
+official-control qualification is implemented on the already-seen
+`create-customer` task, but it has not run; no provider key or model spend has
+been used for it. It contains no BrowserIR arm and schedules exactly five
+precommitted attempts with no early stop, replacement, or resume. Capability is
+`demonstrated` only if all five complete, none is invalid, and at least one
+passes the exact database/audit/submission judge. Any report is limited to raw
+`x/5` counts, not a score, pass-rate estimate, uplift, or generalization claim.
+The gate atomically reserves its create-only output before provider, model, or
+browser work and retains start/end model metadata plus exact installed
+agent/control/Playwright package and Chromium executable/version provenance;
+drift fails closed.
+Sealed-entry approval has not been recorded. Therefore there is still no
+BrowserIR uplift, competitor-superiority, or general agent-quality claim. See
+[the evidence-drop protocol](EVIDENCE_DROPS.md).
 
 The representation report passed all 11 release tasks in its complete checked
 corpus. Its JSON report has SHA-256

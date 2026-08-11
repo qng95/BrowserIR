@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "control_capability_qualification",
+  "scoreEligible": false,
+  "status": "frozen",
+  "dropId": "01",
+  "protocolId": "drop-01-control-capability-qwen3.8-max-v1",
+  "task": {
+    "id": "create-customer",
+    "version": "sha256:80f005d3ecbde4b91d68902754b58ffdc4d52a7a754a53fa14c736709607137b",
+    "promptSha256": "451b25da1dab855f03b5bee3034062edd2308aa899aad4e60d2c8841a54ffca2",
+    "oracleVersion": "sha256:b1b5dc87df3e7cca351f6b7fca98f90f81b4fa50429b41558a3d5ba005639703"
+  },
+  "reservedSealedTaskIds": [
+    "validation-recovery"
+  ],
+  "schedule": {
+    "attempts": 5,
+    "modelSeedBase": 20260812,
+    "stoppingRule": "run-entire-schedule",
+    "invalidReplacementPolicy": "none"
+  },
+  "decisionRule": {
+    "id": "complete-five-zero-invalid-at-least-one-pass",
+    "requiredCompletedAttempts": 5,
+    "maximumInvalidAttempts": 0,
+    "minimumPasses": 1
+  },
+  "budgets": {
+    "maxDurationMs": 300000,
+    "maxToolCalls": 100,
+    "maxModelTurns": 30
+  },
+  "agent": {
+    "framework": "langchain-create-agent",
+    "frameworkVersion": "1.5.5",
+    "provider": "openrouter",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "modelId": "qwen/qwen3.8-max",
+    "canonicalModelSlug": "qwen/qwen3.8-max-20260803",
+    "modelMetadataSha256": "aa4bc3cb2b4d668c5a67943f524dbb49a0da1bb31eb4b2811f2487959c05b901",
+    "providerRoute": "alibaba",
+    "reasoningEffort": "low",
+    "providerPolicy": {
+      "allowFallbacks": false,
+      "requireParameters": true,
+      "dataCollection": "deny"
+    },
+    "modelCapabilities": {
+      "tools": true,
+      "seed": true,
+      "temperature": true
+    },
+    "temperature": 0.2,
+    "maxOutputTokens": 4096,
+    "maxRetries": 0,
+    "imageMode": "text-only",
+    "systemPrompt": "You are a browser automation agent operating only through the provided browser tools.\nUse the page representation and exact target references returned by those tools to understand and operate the page.\nObserve or navigate before acting, and inspect the updated result after navigation or meaningful state changes.\nNever invent target references. If a target becomes invalid, inspect the current page again and continue from fresh evidence.\nComplete every requirement in the Task, including work after intermediate steps such as sign-in or navigation. Before finishing, re-read the Task against the current page state.\nPrefer the narrowest supported browser action that accomplishes the requested task. Do not claim success from page text alone; perform the requested action.\nAfter the entire task is complete, call benchmark_submit_result exactly once. A text response does not submit the result.",
+    "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+  },
+  "target": {
+    "expectedVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+    "headless": true
+  },
+  "control": {
+    "role": "control",
+    "id": "playwright-mcp",
+    "package": "@playwright/mcp",
+    "label": "Official Playwright MCP",
+    "interfaceVersion": "0.0.78",
+    "expectedToolCatalogSha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75"
+  }
+}

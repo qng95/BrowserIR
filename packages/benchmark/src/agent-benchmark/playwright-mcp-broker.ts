@@ -1,12 +1,9 @@
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 
 import { Client, type CallToolResult } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-import { chromium } from 'playwright';
-
 import type {
   AgentToolBroker,
   AgentToolCallResult,
@@ -14,14 +11,17 @@ import type {
   AgentToolDescriptor,
   AgentToolMetrics,
 } from './contracts.js';
+import {
+  PLAYWRIGHT_MCP_VERSION,
+  playwrightMcpChromiumExecutablePath,
+  resolvePlaywrightMcpRuntimePackageInputs,
+} from './playwright-mcp-runtime-boundary.js';
 
-const require = createRequire(import.meta.url);
-const packageJson = require('@playwright/mcp/package.json') as {
-  version: string;
-};
-const packageDirectory = dirname(require.resolve('@playwright/mcp/package.json'));
+export { PLAYWRIGHT_MCP_VERSION } from './playwright-mcp-runtime-boundary.js';
 
-export const PLAYWRIGHT_MCP_VERSION = packageJson.version;
+const packageDirectory = resolvePlaywrightMcpRuntimePackageInputs().find(
+  ({ name }) => name === '@playwright/mcp',
+)!.packageDirectory;
 
 export const PLAYWRIGHT_MCP_SAFE_TOOL_NAMES = [
   'browser_close',
@@ -242,7 +242,7 @@ export async function createPlaywrightMcpToolBroker(
       '--browser',
       'chromium',
       '--executable-path',
-      chromium.executablePath(),
+      playwrightMcpChromiumExecutablePath(),
       '--isolated',
       '--codegen',
       'none',
