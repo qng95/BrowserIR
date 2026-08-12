@@ -31,27 +31,40 @@ semantic entities, relationships, state, available actions, and revision-bound
 references, then exposes them through a TypeScript core and MCP.
 
 Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
-execution is absent by default. The latest qualified v13 run passed 14/14
-database-judged fixture tasks through real Chromium and the official MCP client
-in 302 tool calls. BrowserIR refused one stale action before dispatch; the
-deterministic reference planner re-observed, re-resolved, and retried
-successfully. That clean, source-bound GitHub Actions run assembled a checksummed release
+execution is absent by default. The latest qualified v14 run passed 14/14
+database-judged fixture tasks through real Chromium and the official MCP client.
+That clean, source-bound GitHub Actions run assembled a checksummed release
 evidence dossier. It remains a system qualification, not an LLM or competitor
-score.
+score. The separate v13 scorecard records its own 302-call/one-stale-refusal
+telemetry and is not silently relabelled as v14 telemetry.
+
+Before the first paired comparison, a separate score-excluded compatibility
+gate established that the selected control was capable of completing the test
+workflow. One precommitted OpenRouter Qwen3.8-Max configuration completed all
+5/5 scheduled attempts of the already-seen `create-customer` workflow through
+the safe browser-tool subset of official Playwright MCP `0.0.78`. All five
+passed the database, audit, no-collateral-mutation, and exactly-once submission
+checks; none was failed or invalid. This contains no BrowserIR arm and is not a
+score, pass-rate estimate, uplift result, or generalization claim.
 
 ## Current source-bound engineering evidence
 
-These figures were reproduced on commit `14f86f6` by GitHub Actions run
-`31531657356` and are bound to that complete source tree.
+The latest source qualification was reproduced on commit `6a122a2` by GitHub
+Actions run `31540028205` and is bound to that complete source tree.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Latest v13 qualification run: 14/14 tasks and 302 MCP calls. BrowserIR refused
-  one stale action before dispatch; the reference planner recovered it.
+- Latest v14 qualification run: 14/14 tasks; all required CI jobs passed and a
+  checksummed dossier was assembled.
+- Previous v13 run-specific telemetry: 302 MCP calls and one stale action
+  refused before dispatch, then recovered by the reference planner.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
   31 entities, 44 capabilities, and 28 relationships within that corpus.
+- Score-excluded control compatibility: 5/5 scheduled attempts passed for one
+  selected model/configuration on one already-seen workflow through official
+  Playwright MCP `0.0.78`; no BrowserIR arm and no comparative claim.
 - Status: public Apache-2.0 source alpha; packages are not yet published to npm.
 
 ## Quote
@@ -87,11 +100,12 @@ relationships, available actions, revisions, and explicit omissions. Playwright
 handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
-The clean, source-bound 2026-08-11 v13 CI run passed all 14 controlled,
-database-judged fixture tasks through real Chromium in 302 MCP calls, with one
-stale action refused by BrowserIR before dispatch and recovered by the
-deterministic reference planner. That result is
-deliberately scoped: it is system qualification,
+The clean, source-bound v14 CI run passed all 14 controlled, database-judged
+fixture tasks through real Chromium and assembled a checksummed dossier. The
+previous v13 scorecard separately records 302 MCP calls and one stale action
+refused by BrowserIR before dispatch, then recovered by the deterministic
+reference planner. These results are
+deliberately scoped: they are system qualification,
 not a real-model or competitor result.
 
 ## FAQ
@@ -105,6 +119,14 @@ identity, capability, revision-safety, and verification layers an AI model needs
 
 No. It is a deterministic reference-planner qualification of BrowserIR and its
 MCP surface. Real-model results require separate, reproducible trials.
+
+### Is the 5/5 control result a BrowserIR benchmark win?
+
+No. It is a deliberately score-excluded compatibility check proving that one
+selected model/configuration can complete one already-seen workflow through
+official Playwright MCP. BrowserIR did not participate. The raw 5/5 is not a
+pass-rate estimate, uplift measurement, generalization result, or evidence of
+superiority.
 
 ### Why should anyone trust the 14/14 score?
 

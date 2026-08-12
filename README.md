@@ -30,7 +30,7 @@
 
 <p align="center">
   <sub>14/14 was reproduced by a clean, source-bound GitHub Actions run on
-  <a href="https://github.com/qng95/BrowserIR/actions/runs/31531657356"><code>14f86f6</code></a>.
+  <a href="https://github.com/qng95/BrowserIR/actions/runs/31540028205"><code>6a122a2</code></a>.
   It is deterministic system qualification—not an LLM or competitor score.</sub>
 </p>
 
@@ -183,8 +183,37 @@ official MCP client—not an LLM score. The 1.00
 result applies only to the 11-case checked-in ground-truth corpus: 31 entities,
 44 capabilities, and 28 relationships. Local real-model development diagnostics
 are retained in the [evidence ledger](docs/EVIDENCE_DROPS.md#development-feedback-ledger),
-but none is included in these headline scores. No sealed real-model or public
-competitor result exists yet.
+but none is included in these headline scores. No sealed paired real-model or
+public competitor score exists yet.
+
+### Can the control complete the workflow? 5/5
+
+<table>
+  <tr>
+    <td width="33%" align="center"><strong>5 / 5</strong><br><sub>scheduled attempts passed</sub></td>
+    <td width="33%" align="center"><strong>0</strong><br><sub>failed or invalid attempts</sub></td>
+    <td width="33%" align="center"><strong>SCORE-EXCLUDED</strong><br><sub>compatibility gate, not a comparison</sub></td>
+  </tr>
+</table>
+
+Before spending a sealed task on a comparison, we ran one narrow compatibility
+check: one selected OpenRouter `qwen/qwen3.8-max` configuration using the safe
+subset of official Playwright MCP `0.0.78` on the already-seen `create-customer`
+workflow.
+All five precommitted attempts completed and passed the exact database, audit,
+and structured-submission judge: **5 passed, 0 failed, 0 invalid**, across 56
+tool calls and 61 model turns, with zero tool errors and five exact submissions.
+Every attempt began from the same known-failing seed; browser access closed
+before grading, and the run retained matching start/end source, model-endpoint,
+runtime-package, tool-catalog, and Chromium fingerprints.
+
+That raw **5/5 is score-excluded**. There was no BrowserIR arm, so it is not a
+pass-rate estimate, uplift result, generalization result, or competitor-
+superiority claim. The reserved `validation-recovery` task remains unexecuted
+and was never exposed to the model. The run is bound to commit
+[`6a122a2`](https://github.com/qng95/BrowserIR/commit/6a122a2bfd0c1f684e1eec350659db3c7d1eadeb).
+
+[Inspect the checksummed control-capability evidence](docs/evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
 
 > **Paired benchmark status:** the BrowserIR/official Playwright MCP harness now
 > fails closed on source, built-package, environment, journal, and precommitted

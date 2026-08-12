@@ -1,9 +1,9 @@
 # BrowserIR 0.1 alpha release readiness
 
-Assessment updated: 2026-08-11 (Europe/Berlin)
+Assessment updated: 2026-08-12 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha is public and commit `14f86f6` has a
-qualified, source-bound v13 GitHub Actions dossier; npm packages and a tagged release
+Status: **the Apache-2.0 source alpha is public and commit `6a122a2` has a
+qualified, source-bound v14 GitHub Actions dossier; npm packages and a tagged release
 remain unpublished.** Publication gates must not be bypassed by weakening the
 release verifier or by presenting dirty/unbound local evidence as release
 evidence.
@@ -14,22 +14,25 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Current local v14 working-tree inventory (unhosted) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. This reviewed policy has no clean hosted dossier yet. |
-| Qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
+| Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
+| Previous qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
 | Earlier retained machine-readable workspace evidence | 439 declared cases and 420 executed passes with 19 intentional skips; this dirty/unbound fragment predates the agent-benchmark expansion and no longer satisfies the current exact test-count policy |
 | Earlier combined workspace run | 324 passed with the same 19 opt-in cases skipped; retained only as a historical pre-release-evidence count |
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
-| Database-backed task qualification | 14/14 tasks passed through the official MCP client in 302 MCP calls. BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. |
+| Score-excluded official-control capability | One selected OpenRouter `qwen/qwen3.8-max` configuration completed the full five-attempt schedule through the safe subset of official Playwright MCP `0.0.78`: 5 passed, 0 failed, 0 invalid; 56 tool calls, 61 model turns, zero tool errors, and five exact database/audit/structured submissions. This raw 5/5 is not a score. |
+| Qualified v14 database-backed task qualification | 14/14 tasks passed through the official MCP client. |
+| Previous v13 task telemetry | 14/14 tasks passed in 302 MCP calls. BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. These exact call/refusal figures belong to v13 and are not silently relabelled as v14 telemetry. |
 | First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
 | Earlier clean hosted qualification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required v11 job on commit `0097f28`. It remains valid for that source tree. |
+| Qualified v14 source run | [Run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205) passed every required v14 job on commit `6a122a2`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Qualified v13 source run | [Run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356) passed every required v13 job on commit `14f86f6`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Representation release gate | 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3 stable identities, and 18/18 omissions accounted for |
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
 | Production dependency audit | Clean hosted audit passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories |
-| Release evidence dossier | Qualified for source-bound commit `14f86f6`; the GitHub artifact is checksummed and retained until 2026-11-09 |
+| Release evidence dossier | Qualified for source-bound commit `6a122a2`; the GitHub artifact is checksummed and retained until 2026-11-09 |
 | Public-release verifier | Apache-2.0 and repository checks pass. It now reports only six intentional npm-publication blockers: `private` and missing public `publishConfig` on each of the three product packages. |
 
 The qualification client used MCP protocol `2026-07-28`. Every isolated
@@ -56,16 +59,20 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current local working-tree policy is `2026-08-11-v14`, requiring 689
-declared, 670 executed, and 19 skipped cases. It is reviewed but unhosted and
-does not yet have a qualified dossier. The latest qualified public policy
-remains v13 from run `31531657356` on commit `14f86f6`, requiring 632 declared,
-613 executed, and 19 skipped cases.
+The current policy is `2026-08-11-v14`, requiring 689 declared, 670 executed,
+and 19 skipped cases. GitHub Actions run `31540028205` qualified that policy on
+commit `6a122a2`.
 
 The qualified public source release-evidence dossier for the hardening commit is
+`release-evidence-dossier-31540028205-1-6a122a2bfd0c1f684e1eec350659db3c7d1eadeb`,
+bound to commit `6a122a2bfd0c1f684e1eec350659db3c7d1eadeb` under policy `v14`
+(689 declared, 670 executed, 19 skipped). GitHub reports the artifact digest as
+`sha256:230290448362e79464a59eeda808308b2f4d88ede3b8dec4372cdaca4240d899`.
+
+The previous v13 dossier,
 `release-evidence-dossier-31531657356-1-14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0`,
-bound to commit `14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0` under policy `v13`
-(632 declared, 613 executed, 19 skipped). GitHub reports the artifact digest as
+remains valid for commit `14f86f6380f164fffb9fcdb3aa74352ca4c7a8f0`
+(632 declared, 613 executed, 19 skipped), with GitHub-reported digest
 `sha256:18cdf6cdd13d1ce54110204c76a354af088825293e1fcb465554ed3a996fdfe4`.
 
 The previous v11 dossier,
@@ -95,7 +102,7 @@ An earlier workspace attempt, `workspace-local-2026-08-11-v3`, correctly
 retained a failure caused by another local build cleaning `dist` concurrently.
 The retained `v8` run above superseded that earlier failure, but it now predates
 the latest changes; both that fragment and its `v8` exact-count policy are stale.
-Run `31531657356` supersedes those local fragments as a qualified,
+Run `31540028205` supersedes those local fragments as a qualified,
 clean-commit qualification.
 
 CI fragments and the dossier are retained for 90 days. Before publication, the
@@ -145,18 +152,26 @@ different pnpm runtime than v6. They are not source-bound release evidence and
 cannot prove which code change caused the result.
 
 No sealed score has been run or published. The candidate
-`validation-recovery` schedule remains untouched. A separate score-excluded
-official-control qualification is implemented on the already-seen
-`create-customer` task, but it has not run; no provider key or model spend has
-been used for it. It contains no BrowserIR arm and schedules exactly five
-precommitted attempts with no early stop, replacement, or resume. Capability is
-`demonstrated` only if all five complete, none is invalid, and at least one
-passes the exact database/audit/submission judge. Any report is limited to raw
-`x/5` counts, not a score, pass-rate estimate, uplift, or generalization claim.
-The gate atomically reserves its create-only output before provider, model, or
-browser work and retains start/end model metadata plus exact installed
-agent/control/Playwright package and Chromium executable/version provenance;
-drift fails closed.
+`validation-recovery` schedule remains unexecuted and unexposed. The separate
+score-excluded official-control qualification completed from clean source at
+commit `6a122a2` on the already-seen `create-customer` task. One selected
+OpenRouter `qwen/qwen3.8-max` configuration ran the full five-attempt schedule
+through the safe browser-tool subset exposed by official Playwright MCP
+`0.0.78`, with no early stop, replacement, or resume: **5 passed, 0 failed, 0
+invalid**. The run recorded 56 tool calls, 61 model turns, zero tool errors, and
+five exact database/audit/structured submissions.
+
+The gate contained no BrowserIR arm. Its raw 5/5 is therefore not a score,
+pass-rate estimate, uplift result, generalization result, or competitor-
+superiority claim. It atomically reserved its create-only output before
+provider, model, or browser work and retained start/end model metadata plus
+exact installed agent/control/Playwright package and Chromium
+executable/version provenance; drift failed closed.
+[Inspect the checksummed qualification summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md).
+The retained bundle's `SHA256SUMS` file has SHA-256
+`35457e6cc2846c4b57e1392df0bcd68982d4369ad017058b9c7eef35653561f6`;
+this is a content-integrity identifier, not standalone authentication without
+trusted Git source context.
 Sealed-entry approval has not been recorded. Therefore there is still no
 BrowserIR uplift, competitor-superiority, or general agent-quality claim. See
 [the evidence-drop protocol](EVIDENCE_DROPS.md).
@@ -207,7 +222,7 @@ even after a frozen reinstall.
    `@browserir/playwright`, and `@browserir/mcp`.
 3. Select version and dist-tag semantics. The recommended alpha identity is
    `0.1.0-alpha.1` published under the `alpha` tag.
-4. Promote the v13 dossier for commit `14f86f6` unchanged to approved
+4. Promote the v14 dossier for commit `6a122a2` unchanged to approved
    durable storage before its 2026-11-09 CI expiry, and record that location.
 5. After those decisions are recorded, remove `private` from only the three
    public packages and set their

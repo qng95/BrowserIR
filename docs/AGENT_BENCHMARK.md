@@ -25,13 +25,15 @@ Local Ollama real-model development diagnostics have run, including one
 one-block BrowserIR treatment-path win on the already-seen, score-excluded
 `create-customer` task; official Playwright MCP failed that block without
 submitting. That is not an official-control capability pass. A dedicated
-score-excluded control qualification is implemented, but its five-attempt run
-has not started and no provider key or paid model spend has been used for it.
-No sealed real-model result, public competitor comparison, or generalization
-result has been run or published. The deterministic fake-model test validates
-benchmark wiring and grading, not model capability or generalization. The
-current CLI is suitable for local development and characterization; it is not
-yet a hardened public scoring service. See the
+score-excluded control qualification has now completed: one selected OpenRouter
+`qwen/qwen3.8-max` configuration ran all five attempts through the safe subset
+of official Playwright MCP `0.0.78` and produced 5 passed, 0 failed, and 0
+invalid outcomes. This is a compatibility result, not a score. No sealed paired
+real-model result, public competitor score, or generalization result has been
+run or published. The deterministic fake-model test validates benchmark wiring
+and grading, not model capability or generalization. The current CLI is
+suitable for local development and characterization; it is not yet a hardened
+public scoring service. See the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
 
 ## What is a scored target?
@@ -283,9 +285,21 @@ and a later invocation is a separate run rather than a silent continuation or
 replacement. This is intentionally stricter than the resumable paired
 development runner.
 
-The protocol-bound implementation is present, but the real-model schedule has
-not been executed. No provider credential or model spend has been used for this
-qualification yet.
+The protocol-bound run completed from clean source at commit `6a122a2`. One
+selected OpenRouter `qwen/qwen3.8-max` configuration completed all five
+precommitted attempts through the safe browser-tool subset exposed by official
+Playwright MCP `0.0.78`: **5 passed, 0 failed, 0 invalid**. In aggregate the run
+used 56 tool calls and 61 model turns, returned zero tool errors, and made five
+structured submissions. Every submission matched the exact database and audit
+judge, with no collateral audited mutation.
+
+This establishes only that the selected control configuration demonstrated the
+predeclared capability on one already-seen workflow. There was no BrowserIR arm,
+so raw 5/5 is not a score, pass-rate estimate, uplift measurement,
+generalization result, or competitor-superiority claim. The reserved
+`validation-recovery` task remains unexecuted and unexposed.
+
+[Inspect the checksummed qualification summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
 
 ## Running locally
 
@@ -345,6 +359,9 @@ source. The command checks the committed protocol, clean start/end source,
 model metadata, target, oracle, and official-control catalog; it then retains
 all five outcomes and checksummed artifacts. It does not accept task, model,
 schedule, budget, stopping-rule, or decision-rule overrides.
+
+The published control-capability artifact is the completed run described above,
+not a template score: [read its summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md).
 
 The matched comparison is driven only by a protocol manifest; scored settings
 cannot be overridden on the command line:

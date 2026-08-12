@@ -141,9 +141,9 @@ are fixed at their own layer.
 
 ## Evidence Drop 01
 
-Status: **BrowserIR treatment-path signal observed; official-control
-qualification not run; sealed protocol not frozen and no public result
-exists**.
+Status: **BrowserIR treatment-path signal observed; score-excluded official-
+control capability demonstrated; sealed paired protocol not frozen and no Drop
+01 comparison result exists**.
 
 The intended first public question is deliberately narrow:
 
@@ -172,10 +172,12 @@ engineering loop, not something to hide or rerun favorably.
 
 ### Score-excluded official-control qualification
 
-The dedicated compatibility gate is implemented and its protocol-bound run is
-pending. It uses only official Playwright MCP on the already-seen development
-task `create-customer`; it has no BrowserIR arm and cannot produce a score or
-uplift result. The sealed candidate `validation-recovery` remains reserved.
+The dedicated compatibility gate completed from clean source at commit
+`6a122a2`. One selected OpenRouter `qwen/qwen3.8-max` configuration used the
+safe browser-tool subset exposed by official Playwright MCP `0.0.78` on the
+already-seen development task `create-customer`. It had no BrowserIR arm and
+cannot produce a score or uplift result. The sealed candidate
+`validation-recovery` remains unexecuted and was not exposed to the model.
 
 The qualification precommits exactly five attempts and runs the entire
 schedule. It permits no early stop, favorable rerun, or invalid-attempt
@@ -185,14 +187,23 @@ the exact database, audit-log, and structured submission judge. Anything
 incomplete or invalid is operationally inconclusive; five valid failures means
 capability was not demonstrated.
 
-Only the raw passed/failed/invalid counts and raw `x/5` result may be reported.
-They are not a pass-rate estimate, an uplift measurement, or evidence that the
-model or control generalizes. The minimal gate has no resume path: an
-interrupted execution cannot be completed by replacing or selectively rerunning
-an attempt.
+The entire schedule completed: **5 passed, 0 failed, 0 invalid**. Across the
+five attempts, the agent made 56 tool calls and 61 model turns, received zero
+tool errors, and made five exact structured submissions. Each attempt passed
+the deterministic database and audit judge with no collateral audited mutation.
 
-No qualification attempt has run yet. No provider key has been used and no
-model spend has been incurred for this gate.
+Only these raw passed/failed/invalid counts and raw `5/5` result are reported.
+They are not a pass-rate estimate, an uplift measurement, a generalization
+result, or a competitor-superiority claim. The minimal gate has no resume path:
+an interrupted execution could not have been completed by replacing or
+selectively rerunning an attempt.
+
+[Inspect the checksummed control-capability run](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
+
+The retained bundle's `SHA256SUMS` file has SHA-256
+`35457e6cc2846c4b57e1392df0bcd68982d4369ad017058b9c7eef35653561f6`.
+That is a content-integrity identifier, not standalone authentication; trusted
+Git publication provides the source context.
 
 ### Development feedback ledger
 
@@ -221,7 +232,7 @@ does not satisfy the public claim rule.
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
-| 01 | Playwright MCP vs BrowserIR on one database-judged validation-recovery workflow | Pre-seal development; protocol not frozen | Not run |
+| 01 | Playwright MCP vs BrowserIR on one database-judged validation-recovery workflow | Pre-seal development; score-excluded control capability demonstrated; paired protocol not frozen | Paired result not run |
 | 02 | External representation slice | Planned | Not run |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |

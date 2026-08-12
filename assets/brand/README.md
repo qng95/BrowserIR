@@ -79,7 +79,15 @@ execution.
 
 ## Benchmark language
 
-Use this exact scoped formulation:
+Use this formulation for the latest source qualification:
+
+> GitHub Actions reproduced BrowserIR's 14/14 deterministic fixture
+> qualification on clean, source-bound v14 commit `6a122a2` and assembled a
+> checksummed release-evidence dossier. This is system qualification, not an
+> LLM or competitor score.
+
+For the v13 scorecard's run-specific telemetry, use this exact scoped
+formulation:
 
 > In a clean, source-bound CI deterministic qualification, BrowserIR completed 14/14 controlled
 > fixture tasks through real Chromium and the official MCP client. In that run,
@@ -95,6 +103,14 @@ Use this exact scoped formulation:
 Do not use `100% agent success`, `production-ready`, `fastest`, `most compact`,
 or superiority claims until paired, reproducible model and competitor results
 exist.
+
+The separate official-control compatibility result may be described only as:
+
+> In one precommitted, score-excluded run, a selected OpenRouter Qwen3.8-Max
+> configuration completed 5/5 scheduled attempts of the already-seen
+> `create-customer` workflow through the safe browser-tool subset of official
+> Playwright MCP `0.0.78`. There was no BrowserIR arm; this is not an uplift,
+> pass-rate, generalization, or superiority result.
 
 ## Logo usage
 

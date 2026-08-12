@@ -1,6 +1,6 @@
 # BrowserIR Kanban
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 This is the working implementation board. Cards move from **Backlog** to
 **Ready**, then **In Progress**, and finally **Done**. A card is not Done merely
@@ -12,16 +12,17 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current local working-tree v14 policy declares 689 cases: 670
+implemented. The current v14 policy declares 689 cases: 670
 executed and 19 intentional opt-in cases skipped. By package, that is core
 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189
-declared with 170 executed and 19 skipped. This v14 inventory is unhosted and
-does not yet have a qualified dossier. The latest qualified public evidence
-remains v13 [GitHub Actions run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356)
-for commit `14f86f6`, with 632 declared, 613 executed, and 19 skipped. Earlier
-487/468/19 and 439/420/19 runs remain retained dirty/unbound history under stale
-exact-count policies. Publication gates and durable promotion of the qualified
-dossier remain open; see the
+declared with 170 executed and 19 skipped. The latest qualified public evidence
+is v14 [GitHub Actions run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205)
+for commit `6a122a2`; every required job passed and the run assembled a
+checksummed dossier. Earlier v13 and
+v11 dossiers remain valid for their own source trees; 487/468/19 and 439/420/19
+runs remain retained dirty/unbound history under stale exact-count policies.
+Publication gates and durable promotion of the qualified dossier remain open;
+see the
 [release-readiness assessment](RELEASE_READINESS.md) and
 [release-evidence guide](RELEASE_EVIDENCE.md).
 
@@ -33,11 +34,13 @@ hash. That run
 qualifies BrowserIR representation/action reachability for the declared fixture
 workload; it is not an LLM-generalization test or competitor comparison. The
 workspace had no Git HEAD, so the report correctly records unavailable source
-provenance and a dirty tree. The latest GitHub Actions qualification passed all
+provenance and a dirty tree. The v13 GitHub Actions qualification passed all
 14 tasks on clean, source-bound commit `14f86f6` in 302 calls. BrowserIR refused
 one stale action before dispatch; the deterministic reference planner
 re-observed, re-resolved, and retried successfully. The run assembled the
-qualified v13 dossier.
+qualified v13 dossier. The later v14 qualification on commit `6a122a2` also
+passed 14/14; its run-specific call telemetry is not substituted for the v13
+figures above.
 
 The same operator-frozen local run series passed the independent representation
 gate: 31/31 entities, 44/44 capabilities, 28/28 relations, 1/1 abstention, 3/3
@@ -45,8 +48,9 @@ stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
-[GitHub Actions run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356)
-is the source-bound public qualification. Neither is a competitor comparison.
+[GitHub Actions run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205)
+is the latest source-bound public qualification. Neither is a competitor
+comparison.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
 
@@ -303,11 +307,11 @@ Definition of Done for every implementation card:
   work, retain start/end model metadata and installed agent/control/Playwright
   package plus Chromium executable/version provenance, and fail closed on
   start/end drift.
-- [ ] Run the entire five-attempt official-control schedule once from clean,
+- [x] Run the entire five-attempt official-control schedule once from clean,
   committed source, without resume or selective replacement. Mark capability
   `demonstrated` only for five completed attempts, zero invalid attempts, and at
   least one exact database/audit/submission pass.
-- [ ] Retain every qualification outcome and publish only raw `x/5` counts,
+- [x] Retain every qualification outcome and publish only raw `x/5` counts,
   explicitly excluding them from score, uplift, pass-rate, and generalization
   claims.
 - [x] Run a fresh complete workspace/typecheck gate and update the exact-count
@@ -333,9 +337,16 @@ Definition of Done for every implementation card:
 - [x] Configure the canonical GitHub remote plus repository, homepage, and issue
   metadata.
 
-The official-control gate implementation is ready, but its real-model run is
-pending. No qualification attempt, provider-key use, or model spend has
-occurred. The `validation-recovery` candidate remains reserved.
+The score-excluded official-control gate completed from clean source at commit
+`6a122a2`. One selected OpenRouter `qwen/qwen3.8-max` configuration used the
+safe browser-tool subset exposed by official Playwright MCP `0.0.78` on the
+already-seen `create-customer` workflow. The full precommitted schedule produced
+5 passed, 0 failed, and 0 invalid outcomes across 56 tool calls and 61 model
+turns, with zero tool errors and five exact database/audit/structured
+submissions. There was no BrowserIR arm, so raw 5/5 is not a score, pass-rate
+estimate, uplift result, generalization result, or competitor-superiority
+claim. The `validation-recovery` candidate remains unexecuted and unexposed.
+[Inspect the retained summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md).
 
 - [ ] Create and review a clean Git `HEAD`, then create a freeze tag resolving
   to the selected release commit.
@@ -359,7 +370,7 @@ those decisions are recorded. After the final metadata, `private`, and
 `publishConfig` changes, `pnpm verify:release` must pass before candidate
 artifacts are retained or published.
 
-The canonical repository has qualified source-bound v13 commit `14f86f6` through
+The canonical repository has qualified source-bound v14 commit `6a122a2` through
 the seven-gate, nine-fragment GitHub Actions matrix. The qualified CI artifact
 must be promoted unchanged to approved durable storage before publication.
 
@@ -491,8 +502,8 @@ live probes.
   `evidence.json`, and `SHA256SUMS`.
 
 This completed the evidence mechanism. GitHub Actions later produced qualified
-dossiers for clean v11 commit `0097f28` and v13 commit `14f86f6`.
-Neither dossier resolves npm ownership, version/tag, durable
+dossiers for clean v11 commit `0097f28`, v13 commit `14f86f6`, and v14 commit
+`6a122a2`. None of these dossiers resolves npm ownership, version/tag, durable
 promotion, or publish-authorization blockers.
 
 ### BIR-096 — Local alpha source qualification

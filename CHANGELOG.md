@@ -2,7 +2,7 @@
 
 All notable changes to BrowserIR will be documented here. The project intends to follow Semantic Versioning after its public contracts stabilize.
 
-Last updated: 2026-08-11
+Last updated: 2026-08-12
 
 ## Unreleased
 
@@ -79,6 +79,13 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Ninety-day CI retention for individual fragments and the assembled dossier,
   with documented durable-promotion, integrity-versus-authenticity, and
   dirty/unbound local-evidence policies.
+- A frozen, score-excluded official-control compatibility gate with five
+  precommitted attempts, exact database/audit/submission grading, create-only
+  checksummed artifacts, and start/end source, model-endpoint, runtime-package,
+  MCP-client, Playwright, and Chromium binding. The first retained run completed
+  5/5 attempts on the already-seen `create-customer` workflow with zero failed
+  or invalid attempts. It contains no BrowserIR arm and is not an uplift,
+  pass-rate, generalization, or competitor-superiority result.
 
 ### Security
 
