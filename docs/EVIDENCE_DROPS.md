@@ -171,7 +171,8 @@ interface is the intervention, so this is not a pure representation ablation.
 
 The schedule and decision rule are retained in
 [`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
-to `refs/tags/evidence-drop-01-protocol-v1`. All 30 blocks must run, with no
+to `refs/tags/evidence-drop-01-protocol-v1`; the published annotated tag peels
+to hosted-CI-qualified commit `89c82ff`. All 30 blocks must run, with no
 replacement. At most one invalid block is allowed for a headline; the result
 is positive only when the conservative 95% lower bound is above zero, negative
 only when the upper bound is below zero, and otherwise inconclusive. It will be

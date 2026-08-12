@@ -12,14 +12,14 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current local v15 policy declares 735 cases: 716
+implemented. The current qualified v15 policy declares 735 cases: 716
 executed and 19 intentional opt-in cases skipped. By package, that is core
 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189
-declared with 170 executed and 19 skipped. This v15 working-tree policy is not
-hosted evidence. The latest qualified public evidence
-is v14 [GitHub Actions run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205)
-for commit `6a122a2`; every required job passed and the run assembled a
-checksummed dossier. Earlier v13 and
+declared with 170 executed and 19 skipped. The latest qualified public evidence
+is v15 [GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
+for commit `89c82ff`; every required job passed, the run assembled a checksummed
+dossier, and annotated tag `evidence-drop-01-protocol-v1` resolves to that exact
+commit. Earlier v14, v13, and
 v11 dossiers remain valid for their own source trees; 487/468/19 and 439/420/19
 runs remain retained dirty/unbound history under stale exact-count policies.
 Publication gates and durable promotion of the qualified dossier remain open;
@@ -49,7 +49,7 @@ stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
-[GitHub Actions run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205)
+[GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
 is the latest source-bound public qualification. Neither is a competitor
 comparison.
 
@@ -375,9 +375,9 @@ scored paired attempt.
 - [x] Freeze the exact 30-pair real-model manifest and decision rule before any
   scored `validation-recovery` call; bind it to
   `refs/tags/evidence-drop-01-protocol-v1`.
-- [ ] Create and review a clean Git `HEAD`, then create the freeze tag resolving
-  to that exact protocol commit. This is the final step of the current freeze
-  milestone and remains unchecked until the remote tag exists.
+- [x] Create and review a clean Git `HEAD`, then create the freeze tag resolving
+  to that exact protocol commit. Hosted CI run `31590339246` passed all ten
+  jobs before the annotated remote tag was created.
 - [ ] Run 30 complete sealed blocks without early stopping or favorable rerun.
 - [ ] Classify discordant failures from retained evidence; add test-first,
   technology-neutral BrowserIR fixes only when a general defect is proven.
@@ -396,7 +396,7 @@ those decisions are recorded. After the final metadata, `private`, and
 `publishConfig` changes, `pnpm verify:release` must pass before candidate
 artifacts are retained or published.
 
-The canonical repository has qualified source-bound v14 commit `6a122a2` through
+The canonical repository has qualified source-bound v15 commit `89c82ff` through
 the seven-gate, nine-fragment GitHub Actions matrix. The qualified CI artifact
 must be promoted unchanged to approved durable storage before publication.
 
@@ -528,9 +528,9 @@ live probes.
   `evidence.json`, and `SHA256SUMS`.
 
 This completed the evidence mechanism. GitHub Actions later produced qualified
-dossiers for clean v11 commit `0097f28`, v13 commit `14f86f6`, and v14 commit
-`6a122a2`. None of these dossiers resolves npm ownership, version/tag, durable
-promotion, or publish-authorization blockers.
+dossiers for clean v11 commit `0097f28`, v13 commit `14f86f6`, v14 commit
+`6a122a2`, and v15 commit `89c82ff`. None of these dossiers resolves npm
+ownership, version/tag, durable promotion, or publish-authorization blockers.
 
 ### BIR-096 — Local alpha source qualification
 
