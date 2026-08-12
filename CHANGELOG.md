@@ -91,8 +91,11 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   `0.0.78` in accessibility-snapshot mode. Sealed execution now binds the
   qualified OpenRouter model route/configuration, precommitted shared seeds,
   sign-independent decision rule, start/end endpoint metadata, exact runtime
-  package and Chromium provenance, and final-child-only credential access. No
-  scored paired run or uplift result is included in this change.
+  package and Chromium provenance, and final-child-only credential access. The
+  separately frozen adaptive-v2 recovery completed all 30 fresh matched blocks
+  with zero invalids: BrowserIR passed 30/30 and official Playwright MCP passed
+  27/30. Its +10.00-point paired estimate had a 95% bound of −39.59 to +59.59
+  points, making the predeclared result inconclusive.
 
 ### Changed
 
@@ -109,9 +112,13 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   flight. The prefix has no score or interval. Diagnosis showed the model
   stringifying the old nested action object and LangChain rejecting it before
   the BrowserIR broker. Two score-excluded canaries on the already-seen
-  `create-customer` workflow passed after the flat-contract fix. Any v2 run is
+  `create-customer` workflow passed after the flat-contract fix. The v2 run is
   an adaptive recovery: it reuses the exact 30 seeds and arm orders, restarts
-  every arm, and is not independent confirmation.
+  every arm, and is not independent confirmation. Adaptive v2 completed with
+  27 both-passed blocks, 3 treatment wins, and no control wins, both-failed
+  blocks, or invalid blocks. It compares complete interfaces rather than
+  representation alone and does not establish raw-DOM uplift, independent
+  confirmation, generalization, or superiority.
 
 ### Security
 
@@ -139,7 +146,10 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Chromium is the only supported browser backend.
 - Packages remain unpublished pending npm scope ownership, an alpha version/tag
   decision, public-package privacy changes, and the publication step itself.
-- No published BrowserIR or competitor benchmark baseline exists yet.
+- The only completed paired real-model result is one inconclusive adaptive
+  complete-interface controlled-fixture pilot; no raw-DOM comparison,
+  independent confirmation, multi-workflow generalization, or broad
+  superiority result exists yet.
 - Closed Shadow DOM, canvas-only interfaces, fully unannotated choices,
   higher-level table semantics such as general sort/filter/pagination ownership,
   persisted auth profiles, managed downloads, continuation views, historical

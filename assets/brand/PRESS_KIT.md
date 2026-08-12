@@ -31,33 +31,43 @@ semantic entities, relationships, state, available actions, and revision-bound
 references, then exposes them through a TypeScript core and MCP.
 
 Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
-execution is absent by default. The latest qualified v14 run passed 14/14
-database-judged fixture tasks through real Chromium and the official MCP client.
-That clean, source-bound GitHub Actions run assembled a checksummed release
-evidence dossier. It remains a system qualification, not an LLM or competitor
-score. The separate v13 scorecard records its own 302-call/one-stale-refusal
-telemetry and is not silently relabelled as v14 telemetry.
+execution is absent by default. The latest hosted source qualification is v16
+freeze commit `5b7db58`, reproduced by GitHub Actions run `31600711043`; it
+passed the deterministic 14/14 task gate. The latest dossier with a recorded
+identity and digest remains v15 on commit `89c82ff`, run `31590339246`. These are
+system qualifications, not LLM or competitor scores, and neither qualifies the
+later result-publication commit. The separate v13 scorecard records its own
+302-call/one-stale-refusal telemetry.
 
-Before the first paired comparison, a separate score-excluded compatibility
-gate established that the selected control was capable of completing the test
-workflow. One precommitted OpenRouter Qwen3.8-Max configuration completed all
-5/5 scheduled attempts of the already-seen `create-customer` workflow through
-the safe browser-tool subset of official Playwright MCP `0.0.78`. All five
-passed the database, audit, no-collateral-mutation, and exactly-once submission
-checks; none was failed or invalid. This contains no BrowserIR arm and is not a
-score, pass-rate estimate, uplift result, or generalization claim.
+A separate score-excluded compatibility gate first established that the selected
+control could complete the test workflow. One precommitted OpenRouter
+Qwen3.8-Max configuration completed all 5/5 scheduled attempts of the
+already-seen `create-customer` workflow through the safe browser-tool subset of
+official Playwright MCP `0.0.78`. This gate contained no BrowserIR arm and remains
+a compatibility check, not a comparative result.
+
+Evidence Drop 01 adaptive v2 then compared the complete BrowserIR interface with
+the official Playwright MCP accessibility-snapshot control across 30 matched
+validation-recovery blocks with Qwen3.8-Max. BrowserIR passed 30/30 and the
+control passed 27/30. The observed paired lift was +10.00 percentage points, with
+a 95% paired interval from −39.59 to +59.59 percentage points. The result is
+**inconclusive** because the interval includes zero. This is an adaptive
+complete-interface comparison, not a raw-DOM comparison or independent
+confirmation, and it does not establish superiority.
 
 ## Current source-bound engineering evidence
 
-The latest source qualification was reproduced on commit `6a122a2` by GitHub
-Actions run `31540028205` and is bound to that complete source tree.
+The latest hosted source qualification was reproduced on v16 freeze commit
+`5b7db58` by GitHub Actions run `31600711043`. The latest dossier with a
+recorded identity and digest remains v15 on commit `89c82ff`, run
+`31590339246`; the later result-publication commit still requires hosted CI.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Latest v14 qualification run: 14/14 tasks; all required CI jobs passed and a
-  checksummed dossier was assembled.
+- Latest hosted v16 freeze qualification: 14/14 tasks; all required CI jobs
+  passed. Latest recorded dossier: v15.
 - Previous v13 run-specific telemetry: 302 MCP calls and one stale action
   refused before dispatch, then recovered by the reference planner.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
@@ -65,6 +75,13 @@ Actions run `31540028205` and is bound to that complete source tree.
 - Score-excluded control compatibility: 5/5 scheduled attempts passed for one
   selected model/configuration on one already-seen workflow through official
   Playwright MCP `0.0.78`; no BrowserIR arm and no comparative claim.
+- Evidence Drop 01 adaptive v2: BrowserIR 30/30; official Playwright MCP
+  accessibility-snapshot control 27/30; observed lift +10.00 percentage points;
+  95% paired interval −39.59 to +59.59 percentage points; **inconclusive**.
+- Matched outcomes: three BrowserIR wins, zero control wins, 27 both pass, zero
+  both fail, and zero invalid across 30 Qwen3.8-Max validation-recovery blocks.
+- Comparison boundary: complete interfaces, not raw DOM; adaptive follow-up,
+  not independent confirmation.
 - Status: public Apache-2.0 source alpha; packages are not yet published to npm.
 
 ## Quote
@@ -86,6 +103,10 @@ result through TypeScript and MCP.
 Apache-2.0 `0.1` source alpha. 14/14 in a clean, source-bound deterministic CI run.
 Not an LLM or competitor score.
 
+Evidence Drop 01 adaptive v2: BrowserIR 30/30; official Playwright MCP
+accessibility-snapshot control 27/30. Observed lift +10.00 pp; 95% paired
+interval −39.59 to +59.59 pp. **Inconclusive.**
+
 ### Long
 
 AI browser agents do not need more DOM. They need the right representation.
@@ -100,13 +121,21 @@ relationships, available actions, revisions, and explicit omissions. Playwright
 handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
-The clean, source-bound v14 CI run passed all 14 controlled, database-judged
-fixture tasks through real Chromium and assembled a checksummed dossier. The
-previous v13 scorecard separately records 302 MCP calls and one stale action
-refused by BrowserIR before dispatch, then recovered by the deterministic
-reference planner. These results are
-deliberately scoped: they are system qualification,
-not a real-model or competitor result.
+The clean, source-bound v16 freeze CI run passed all 14 controlled,
+database-judged fixture tasks through real Chromium. The latest dossier with a
+recorded identity and digest remains v15. The previous v13 scorecard separately
+records 302 MCP calls and one stale action refused by BrowserIR before dispatch,
+then recovered by the deterministic reference planner. Those are system-
+qualification results, and the result-publication commit still requires hosted
+CI.
+
+Evidence Drop 01 adaptive v2 separately ran a matched real-model comparison on
+30 validation-recovery blocks with Qwen3.8-Max. BrowserIR passed 30/30; the
+official Playwright MCP accessibility-snapshot control passed 27/30. The
+observed +10.00 percentage-point lift had a 95% paired interval from −39.59 to
++59.59 percentage points, so the result is **inconclusive**. It compares complete
+interfaces, not BrowserIR with raw DOM, and is an adaptive follow-up rather than
+independent confirmation.
 
 ## FAQ
 
@@ -128,6 +157,15 @@ official Playwright MCP. BrowserIR did not participate. The raw 5/5 is not a
 pass-rate estimate, uplift measurement, generalization result, or evidence of
 superiority.
 
+### Did Evidence Drop 01 show that BrowserIR is better?
+
+No. BrowserIR passed 30/30 and the official Playwright MCP
+accessibility-snapshot control passed 27/30, but the 95% paired interval around
+the observed +10.00 percentage-point lift ran from −39.59 to +59.59 percentage
+points. Because that interval includes zero, the result is inconclusive. It was
+also an adaptive v2 complete-interface comparison—not a raw-DOM comparison or
+independent confirmation.
+
 ### Why should anyone trust the 14/14 score?
 
 Each task runs in a separate worker with a fresh seeded database, browser,
@@ -146,8 +184,9 @@ boundaries exist precisely so progress can be measured without overstating it.
 
 ### Does it claim to beat other browser-agent systems?
 
-No. Fair paired competitor runs have not been published. BrowserIR's current
-evidence establishes its own controlled behavior, not market superiority.
+No. Evidence Drop 01 is one adaptive matched comparison against the official
+Playwright MCP accessibility-snapshot control, and its result is inconclusive.
+It does not establish market superiority or performance against raw DOM.
 
 ## Media assets
 
@@ -158,6 +197,7 @@ evidence establishes its own controlled behavior, not market superiority.
 - Hero: [`browserir-hero.png`](browserir-hero.png)
 - Repository/social preview: [`browserir-social-card.png`](browserir-social-card.png)
 - Benchmark scorecard: [`browserir-benchmark.svg`](browserir-benchmark.svg)
+- Evidence Drop 01 adaptive v2 result: [`browserir-evidence-drop-01-v2.svg`](browserir-evidence-drop-01-v2.svg)
 - Scoring method: [`browserir-scoring-method.svg`](browserir-scoring-method.svg)
 - Representation visual: [`browserir-representation.svg`](browserir-representation.svg)
 - Architecture visual: [`browserir-architecture.svg`](browserir-architecture.svg)

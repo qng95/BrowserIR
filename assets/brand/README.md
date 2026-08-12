@@ -25,6 +25,8 @@ pass through a compile gate and emerge as a compact, structured representation.
 | [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg) | Horizontal wordmark for dark backgrounds. |
 | [`browserir-hero.png`](browserir-hero.png) | Cinematic text-free README and launch hero. |
 | [`browserir-benchmark.svg`](browserir-benchmark.svg) | Exact local qualification scorecard. |
+| [`browserir-evidence-drop-01-v2.svg`](browserir-evidence-drop-01-v2.svg) | Evidence Drop 01 adaptive v2 matched-comparison result card. |
+| [`browserir-evidence-drop-01-v2.png`](browserir-evidence-drop-01-v2.png) | Raster export of the Evidence Drop 01 adaptive v2 result card. |
 | [`browserir-scoring-method.svg`](browserir-scoring-method.svg) | Plain-English visual showing how a task earns a pass. |
 | [`browserir-representation.svg`](browserir-representation.svg) | Product visual showing a live UI compiled into model-ready IR. |
 | [`browserir-architecture.svg`](browserir-architecture.svg) | High-level product architecture visual. |
@@ -79,12 +81,14 @@ execution.
 
 ## Benchmark language
 
-Use this formulation for the latest source qualification:
+Use this formulation for the latest hosted source qualification:
 
 > GitHub Actions reproduced BrowserIR's 14/14 deterministic fixture
-> qualification on clean, source-bound v14 commit `6a122a2` and assembled a
-> checksummed release-evidence dossier. This is system qualification, not an
-> LLM or competitor score.
+> qualification on clean, source-bound v16 freeze commit `5b7db58` in run
+> `31600711043`. This qualifies the frozen source—not the later result-
+> publication commit—and is system qualification, not an LLM or competitor
+> score. The latest dossier with a recorded identity and digest remains v15 on
+> commit `89c82ff`, run `31590339246`.
 
 For the v13 scorecard's run-specific telemetry, use this exact scoped
 formulation:
@@ -101,8 +105,8 @@ formulation:
 > not an LLM or competitor score.
 
 Do not use `100% agent success`, `production-ready`, `fastest`, `most compact`,
-or superiority claims until paired, reproducible model and competitor results
-exist.
+or superiority claims. The available paired result is inconclusive and does not
+support them.
 
 The separate official-control compatibility result may be described only as:
 
@@ -111,6 +115,22 @@ The separate official-control compatibility result may be described only as:
 > `create-customer` workflow through the safe browser-tool subset of official
 > Playwright MCP `0.0.78`. There was no BrowserIR arm; this is not an uplift,
 > pass-rate, generalization, or superiority result.
+
+Use this formulation for Evidence Drop 01:
+
+> Evidence Drop 01 adaptive v2 compared the complete BrowserIR interface with
+> the official Playwright MCP accessibility-snapshot control across 30 matched
+> validation-recovery blocks using Qwen3.8-Max. BrowserIR passed 30/30 and the
+> control passed 27/30: an observed lift of +10.00 percentage points, with a 95%
+> paired interval from −39.59 to +59.59 percentage points. Matched outcomes were
+> three BrowserIR wins, zero control wins, 27 both pass, zero both fail, and zero
+> invalid. The result is **inconclusive** because the interval includes zero.
+> This adaptive v2 run is not a raw-DOM comparison or independent confirmation,
+> and it does not establish superiority.
+
+Do not describe the observed lift without the interval and inconclusive verdict.
+Do not present this adaptive complete-interface comparison as a raw-DOM result
+or independent confirmation.
 
 ## Logo usage
 

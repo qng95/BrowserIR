@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 106,
+  "recordedAt": "2026-08-12T14:03:16.671Z",
+  "previousEventSha256": "008f754410ccbb3629233da54944286870e43c9002e02c774e8d5bea4aa800e3",
+  "event": {
+    "type": "attempt_started",
+    "blockId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:17",
+    "attemptId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:17:treatment",
+    "taskId": "validation-recovery",
+    "trialIndex": 17,
+    "role": "treatment"
+  },
+  "eventSha256": "94bbaadef398514b5c05018d285ea94a9e8726ec61c1ae14a6c6fed5f27c87c5"
+}

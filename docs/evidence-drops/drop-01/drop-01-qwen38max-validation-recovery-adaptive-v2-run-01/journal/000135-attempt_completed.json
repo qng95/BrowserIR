@@ -1,0 +1,340 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 135,
+  "recordedAt": "2026-08-12T14:13:40.727Z",
+  "previousEventSha256": "e7f5ea3df59fec6bbb521f20dd0b20f60152922631433cf06767e2162945dd59",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:22",
+    "role": "treatment",
+    "attempt": {
+      "attemptId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:22:treatment",
+      "taskId": "validation-recovery",
+      "taskVersion": "sha256:17ef0329cef9a0634d531c3b3b46c68321906a0e84108f30a25a0fc8e0cccb17",
+      "trialIndex": 22,
+      "outcome": "passed",
+      "targetId": "fixture:validation-recovery:22",
+      "targetVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+      "agentStatus": "completed",
+      "finalTextSha256": "d5321b5dce02cdf5654ed0731dc66d38732546b646879c81b0c309df86672f2e",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 1,
+      "modelTurns": 16,
+      "usage": {
+        "output_tokens": 2529,
+        "input_tokens": 245704,
+        "total_tokens": 248233
+      },
+      "durationMs": 67396,
+      "agentRunDurationMs": 67035,
+      "tools": {
+        "calls": 15,
+        "errors": 0,
+        "byTool": {
+          "browser_act": 11,
+          "browser_create": 1,
+          "browser_inspect": 1,
+          "browser_navigate": 1,
+          "benchmark_submit_result": 1
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "6257d7619f5ae3d5c4199fc2fb604cbde24886991519f173b503e75a2e64465e",
+        "toolCatalogToolCount": 10,
+        "responseBytes": 56306,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 11
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_create",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 186,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "page_id",
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 129,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 119,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 133,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 428,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 781,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 191,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 210,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 159,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 160,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 251,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 172,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 245,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_inspect",
+          "inputKeys": [
+            "browser_id",
+            "entity_ids",
+            "expected_revision",
+            "include_evidence"
+          ],
+          "outcome": "returned",
+          "durationMs": 6,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+          }
+        ],
+        "reasonSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+      },
+      "judge": {
+        "outcome": "passed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "b9086eb178fe3257a046f2a8ed228408da76b1e7ac76a6d3bbe7fd6fcf714b72",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765",
+            "evidenceSha256": "28ffff22d3cc7b36ef02fe0bf30bb7bf80e714faee5dca8010cc7d89537ede10"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "6c0bc337e70b241c82c445498a45526400b27a9760f3441a7954b482c5fa0096"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "3645f4ab4a21feffd4d962f76ffeeee5b336b3710e21a5cceb4a99ea8207511e"
+          }
+        ],
+        "evidenceSha256": "28ffff22d3cc7b36ef02fe0bf30bb7bf80e714faee5dca8010cc7d89537ede10",
+        "reasonSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "fbdd95f6ae38dca048b9c5221efd5466bab67fa4c8f0e5f332681db20b640738",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "cbc0bfe158a02a38a6cc909df64c809f876e0367c9e487a0730c43ded5951cd2"
+}

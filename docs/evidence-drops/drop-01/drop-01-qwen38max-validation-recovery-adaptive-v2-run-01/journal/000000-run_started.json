@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 0,
+  "recordedAt": "2026-08-12T13:26:15.064Z",
+  "previousEventSha256": null,
+  "event": {
+    "type": "run_started",
+    "runId": "drop-01-sealed-2026-08-12T13-26-10-153Z",
+    "protocolId": "drop-01-qwen38max-validation-recovery-adaptive-v2",
+    "protocolSha256": "5b666c6b7c18be2bb2128d487cfa78186286bc2855466282a7cb1bd821950c19",
+    "phase": "sealed",
+    "protocolBinding": "frozen_verified",
+    "scheduledBlocks": 30
+  },
+  "eventSha256": "01c9297dbacda567f1a2b20755773c2c0bee8e48860a662ac03c7f605da50484"
+}

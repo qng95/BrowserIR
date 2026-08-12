@@ -7,7 +7,8 @@ BrowserIR's central claim is about representation quality: give an AI model enou
 1. Did the agent complete the task in the real application?
 2. Did the representation expose the right entities, capabilities, and relationships at an acceptable payload cost?
 
-The repository contains the measuring components, not a published comparative result. It currently includes:
+The repository contains the measuring components and one completed comparative
+pilot. It currently includes:
 
 - a deterministic ERP/DMS fixture with 14 database-backed task oracles;
 - representation, identity, omission, payload, and task-outcome metrics;
@@ -19,20 +20,22 @@ The repository contains the measuring components, not a published comparative re
 - an optional LangChain/BrowserIR agent runner with deterministic database/audit
   judging and per-attempt Wilson score reporting.
 
-There is no built-in competitor adapter and no published BrowserIR, sealed
-real-model, or competitor baseline. The optional agent runner can execute a
-LangChain `createAgent` loop. Local Ollama development diagnostics exist. Drop
-01 v1 also began, but the operator stopped it after nine complete blocks plus a
-completed tenth control arm while treatment was in flight; that prefix has no
-score or interval. No sealed or public real-model or competitor result has been
-published. The
-checked-in fake-model vertical slice validates the harness rather than model
-generalization. The official-client 14-task runner uses a deterministic
+Evidence Drop 01 adaptive v2 completed a sealed 30-block comparison between the
+complete BrowserIR interface and official Playwright MCP `0.0.78` in
+accessibility-snapshot mode. BrowserIR passed 30/30 and the control passed
+27/30; the observed +10.00-point paired estimate had a conservative 95% bound
+of −39.59 to +59.59 points, so the predeclared result is **inconclusive**. It is
+an adaptive one-workflow controlled-fixture pilot—not a raw-DOM baseline, pure
+representation ablation, independent confirmation, generalization result, or
+superiority claim. Drop 01 v1 was operator-stopped and remains a diagnostic
+prefix with no score or interval.
+
+The checked-in fake-model vertical slice validates the harness rather than
+model generalization. The official-client 14-task runner uses a deterministic
 reference planner to qualify representation and action reachability; it also
 does not measure model generalization. The checked-in representation corpus
-qualifies the declared supported cases only; it is not evidence about every
-modern or legacy UI pattern. Do not interpret passing unit tests or a short
-local characterization run as a comparative release result.
+qualifies only its declared supported cases. Do not interpret those engineering
+qualifications as another comparative result.
 
 ## Fixture and task oracles
 
@@ -383,8 +386,13 @@ bytes as a separate, predeclared profile; `--headful` is diagnostic and is also
 a different environment. The current target runs attempts sequentially in the
 benchmark process, so it needs per-attempt worker/container isolation before it
 can be used as a hosted scoring service. Local Ollama development diagnostics
-exist, but no sealed or public real-model or competitor baseline has been
-published.
+exist. The separately frozen adaptive-v2 real-model comparison completed all
+30 matched blocks: BrowserIR passed 30/30 and official Playwright MCP passed
+27/30, for an observed +10.00-point lift with a 95% paired bound of −39.59 to
++59.59 points. The predeclared result is therefore inconclusive. It is one
+adaptive complete-interface controlled-fixture pilot, not a raw-DOM baseline,
+pure representation ablation, independent confirmation, generalization result,
+or superiority claim.
 
 See [Agent benchmark](AGENT_BENCHMARK.md) for the trust boundary, deterministic
 judge contract, trial schedule, interpretation, report artifacts, and current
@@ -447,4 +455,12 @@ it before broker dispatch. The flat action/wait contract was checked with two
 score-excluded canaries on the already-seen development workflow. Adaptive v2
 therefore reuses v1's exact 30 seeds and arm order but restarts every arm from
 fresh state. It is not independent confirmation, and no v1 arm or partial
-statistic is carried into the v2 result.
+statistic is carried into the v2 result. All 30 v2 blocks completed with zero
+invalids: 27 both passed and 3 favored BrowserIR, yielding BrowserIR 30/30 and
+control 27/30. The +10.00-point estimate had a conservative 95% paired interval
+from −39.59 to +59.59 points, so the frozen rule classifies the result as
+**inconclusive**.
+
+[Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
+[Read the analysis](evidence-drops/drop-01/adaptive-v2-analysis.md) ·
+[Inspect the frozen protocol](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)

@@ -1,0 +1,305 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 101,
+  "recordedAt": "2026-08-12T14:02:26.969Z",
+  "previousEventSha256": "e0d7466e40237bc628f0de22c851c0274ff8c2e6b29ceac2be26c02ef3e4e7c5",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:16",
+    "role": "control",
+    "attempt": {
+      "attemptId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:16:control",
+      "taskId": "validation-recovery",
+      "taskVersion": "sha256:17ef0329cef9a0634d531c3b3b46c68321906a0e84108f30a25a0fc8e0cccb17",
+      "trialIndex": 16,
+      "outcome": "passed",
+      "targetId": "fixture:validation-recovery:16",
+      "targetVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+      "agentStatus": "completed",
+      "finalTextSha256": "349bcd2b3525ee39135eac83f236c31ec1c2cd0209f6a469f7d7cf6855c9da12",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 1,
+      "modelTurns": 17,
+      "usage": {
+        "output_tokens": 1639,
+        "input_tokens": 198457,
+        "total_tokens": 200096
+      },
+      "durationMs": 51901,
+      "agentRunDurationMs": 51192,
+      "tools": {
+        "calls": 16,
+        "errors": 0,
+        "byTool": {
+          "browser_click": 5,
+          "browser_fill_form": 2,
+          "browser_navigate": 1,
+          "browser_press_key": 1,
+          "browser_snapshot": 5,
+          "browser_type": 1,
+          "benchmark_submit_result": 1
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75",
+        "toolCatalogToolCount": 17,
+        "responseBytes": 74199,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 9
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 1668,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 8,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_fill_form",
+          "inputKeys": [
+            "fields"
+          ],
+          "actionKind": "fill_form",
+          "outcome": "returned",
+          "durationMs": 139,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 689,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 26,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 692,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 7,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_fill_form",
+          "inputKeys": [
+            "fields"
+          ],
+          "actionKind": "fill_form",
+          "outcome": "returned",
+          "durationMs": 75,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 640,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 9,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 556,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_press_key",
+          "inputKeys": [
+            "key"
+          ],
+          "actionKind": "press",
+          "outcome": "returned",
+          "durationMs": 11,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_type",
+          "inputKeys": [
+            "element",
+            "target",
+            "text"
+          ],
+          "actionKind": "type",
+          "outcome": "returned",
+          "durationMs": 18,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 664,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 6,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 15,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+          }
+        ],
+        "reasonSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+      },
+      "judge": {
+        "outcome": "passed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "2d0281cff503ee392e2807cdf647f90146dc807f4b1befeffa3ebbd5c06c60a5",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765",
+            "evidenceSha256": "40201d66d82e0ed46a30464c703e788b676cdf712658d11c40397749f01e062e"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "6c0bc337e70b241c82c445498a45526400b27a9760f3441a7954b482c5fa0096"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "3645f4ab4a21feffd4d962f76ffeeee5b336b3710e21a5cceb4a99ea8207511e"
+          }
+        ],
+        "evidenceSha256": "40201d66d82e0ed46a30464c703e788b676cdf712658d11c40397749f01e062e",
+        "reasonSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "0fe5d182a588463ebe2c17cf36a788a6947bc6c34d54dfc6770825b7f5ddbc74",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "4113dae465556a2023eb9f44ea5e3740e67501af60cad561f40854700cd19198"
+}

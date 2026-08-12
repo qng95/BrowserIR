@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 89,
+  "recordedAt": "2026-08-12T13:58:27.364Z",
+  "previousEventSha256": "32aa9a0d7891f971d4fbc2dad3ae6cf0fb92cc257d8699002f2d6b0da02da2c2",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:14",
+    "role": "control",
+    "attempt": {
+      "attemptId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:14:control",
+      "taskId": "validation-recovery",
+      "taskVersion": "sha256:17ef0329cef9a0634d531c3b3b46c68321906a0e84108f30a25a0fc8e0cccb17",
+      "trialIndex": 14,
+      "outcome": "failed",
+      "failureKind": "submission_invalid",
+      "targetId": "fixture:validation-recovery:14",
+      "targetVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+      "agentStatus": "completed",
+      "finalTextSha256": "1f936222b59634f9f1ebde12720cd862d7942f56beb77283b50192f111381217",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 2,
+      "modelTurns": 20,
+      "usage": {
+        "output_tokens": 2385,
+        "input_tokens": 258741,
+        "total_tokens": 261126
+      },
+      "durationMs": 74898,
+      "agentRunDurationMs": 74285,
+      "tools": {
+        "calls": 19,
+        "errors": 1,
+        "byTool": {
+          "browser_click": 5,
+          "browser_fill_form": 2,
+          "browser_navigate": 2,
+          "browser_press_key": 1,
+          "browser_snapshot": 6,
+          "browser_type": 1,
+          "benchmark_submit_result": 2
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75",
+        "toolCatalogToolCount": 17,
+        "responseBytes": 83200,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 9
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 1158,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 8,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_fill_form",
+          "inputKeys": [
+            "fields"
+          ],
+          "actionKind": "fill_form",
+          "outcome": "returned",
+          "durationMs": 108,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 669,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 26,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 693,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 11,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_fill_form",
+          "inputKeys": [
+            "fields"
+          ],
+          "actionKind": "fill_form",
+          "outcome": "returned",
+          "durationMs": 95,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 671,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 12,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 566,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_press_key",
+          "inputKeys": [
+            "key"
+          ],
+          "actionKind": "press",
+          "outcome": "returned",
+          "durationMs": 20,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_type",
+          "inputKeys": [
+            "element",
+            "target",
+            "text"
+          ],
+          "actionKind": "type",
+          "outcome": "returned",
+          "durationMs": 15,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 7,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 689,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 15,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 8,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 16,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 17,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 108,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 18,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": true,
+            "errorCode": "invalid_submission"
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+          }
+        ],
+        "reasonSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+      },
+      "judge": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "80ce70b1ce26896bb23bf4584a329fccb22aab1654ced91a5c146c89534436f2",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765",
+            "evidenceSha256": "40201d66d82e0ed46a30464c703e788b676cdf712658d11c40397749f01e062e"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "6c0bc337e70b241c82c445498a45526400b27a9760f3441a7954b482c5fa0096"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "606a71a7664f74b83b52989dacda5027d139b9e176a96b915fcb5691fbbb43f3"
+          }
+        ],
+        "evidenceSha256": "40201d66d82e0ed46a30464c703e788b676cdf712658d11c40397749f01e062e",
+        "reasonSha256": "f8fc943d325e96122b8cd59d8c8d3877ac2b93b0f08d64625b7a27d43bceb4b5"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "41616bb0839da37d92ff12ad5af54349f283efbac11ec01eb179838043a8e315",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "1fd881073a09917d4867b8fefb93a128d0f5039db5ff03eab3b95263ca252e54"
+}

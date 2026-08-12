@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 620" width="1400" height="620" role="img" aria-labelledby="title desc">
+  <title id="title">BrowserIR Evidence Drop 01 adaptive v2 result</title>
+  <desc id="desc">An inconclusive matched real-model comparison across 30 validation-recovery blocks with Qwen3.8-Max. BrowserIR passed 30 of 30 and the official Playwright MCP accessibility-snapshot control passed 27 of 30, an observed lift of 10.00 percentage points. The 95 percent paired interval ranges from minus 39.59 to plus 59.59 percentage points. Matched outcomes were three BrowserIR wins, zero control wins, 27 both pass, zero both fail, and zero invalid. This was an adaptive v2 complete-interface comparison, not a raw DOM comparison or independent confirmation.</desc>
+  <defs>
+    <linearGradient id="surface" x1="35" y1="20" x2="1360" y2="620" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#101936"/>
+      <stop offset="0.55" stop-color="#090D20"/>
+      <stop offset="1" stop-color="#060914"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="90" y1="70" x2="1230" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#39C2FF"/>
+      <stop offset="0.48" stop-color="#557CFF"/>
+      <stop offset="1" stop-color="#A05CFF"/>
+    </linearGradient>
+    <linearGradient id="browserir-score" x1="90" y1="190" x2="445" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#75D8FF"/>
+      <stop offset="0.58" stop-color="#6686FF"/>
+      <stop offset="1" stop-color="#B477FF"/>
+    </linearGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0V44" fill="none" stroke="#7895FF" stroke-opacity="0.055"/>
+    </pattern>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <rect width="1400" height="620" rx="36" fill="url(#surface)"/>
+  <rect width="1400" height="620" rx="36" fill="url(#grid)"/>
+  <circle cx="1190" cy="100" r="190" fill="#663CFF" fill-opacity="0.12" filter="url(#soft)"/>
+  <circle cx="205" cy="550" r="190" fill="#1DAEFF" fill-opacity="0.09" filter="url(#soft)"/>
+  <rect x="1.5" y="1.5" width="1397" height="617" rx="34.5" fill="none" stroke="url(#brand)" stroke-opacity="0.42" stroke-width="3"/>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text x="70" y="70" fill="#8FA5D9" font-size="16" font-weight="700" letter-spacing="3.3">EVIDENCE DROP 01 · 30 MATCHED VALIDATION-RECOVERY BLOCKS · QWEN3.8-MAX</text>
+    <text x="70" y="123" fill="#F8FAFF" font-size="37" font-weight="750" letter-spacing="-1.1">Adaptive v2 complete-interface comparison</text>
+
+    <g transform="translate(1120 81)">
+      <rect width="210" height="52" rx="26" fill="#221B43" stroke="#A978FF" stroke-opacity="0.78"/>
+      <circle cx="28" cy="26" r="5" fill="#B477FF"/>
+      <text x="48" y="33" fill="#EADFFF" font-size="16" font-weight="780" letter-spacing="1.45">INCONCLUSIVE</text>
+    </g>
+
+    <g transform="translate(70 161)">
+      <rect width="392" height="188" rx="26" fill="#101A38" fill-opacity="0.94" stroke="#5D80F0" stroke-opacity="0.48"/>
+      <text x="28" y="42" fill="#90A6D9" font-size="14" font-weight="700" letter-spacing="2.2">BROWSERIR</text>
+      <text x="26" y="121" fill="url(#browserir-score)" font-size="76" font-weight="820" letter-spacing="-4">30/30</text>
+      <text x="28" y="156" fill="#EAF1FF" font-size="20" font-weight="680">100% passed</text>
+      <circle cx="344" cy="40" r="15" fill="#15366A" stroke="#39C2FF" stroke-width="2"/>
+      <path d="m337 40 5 5 9-12" fill="none" stroke="#DFF7FF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g transform="translate(480 161)">
+      <rect width="500" height="188" rx="26" fill="#0E1630" fill-opacity="0.94" stroke="#506CC3" stroke-opacity="0.42"/>
+      <text x="28" y="42" fill="#90A6D9" font-size="14" font-weight="700" letter-spacing="1.65">OFFICIAL PLAYWRIGHT MCP CONTROL</text>
+      <text x="28" y="69" fill="#778AB5" font-size="14">accessibility-snapshot interface</text>
+      <text x="26" y="138" fill="#F8FAFF" font-size="65" font-weight="800" letter-spacing="-3.5">27/30</text>
+      <text x="276" y="136" fill="#C4CEE5" font-size="20" font-weight="680">90% passed</text>
+    </g>
+
+    <g transform="translate(998 161)">
+      <rect width="332" height="188" rx="26" fill="#151532" fill-opacity="0.94" stroke="#8E62EA" stroke-opacity="0.54"/>
+      <text x="28" y="42" fill="#A79BD2" font-size="14" font-weight="700" letter-spacing="2.1">OBSERVED LIFT</text>
+      <text x="25" y="119" fill="#F5EEFF" font-size="58" font-weight="810" letter-spacing="-2.8">+10.00</text>
+      <text x="250" y="118" fill="#B5A9D8" font-size="20" font-weight="700">pp</text>
+      <text x="28" y="157" fill="#887CA9" font-size="14">estimate, not a conclusive win</text>
+    </g>
+
+    <g transform="translate(70 371)">
+      <rect width="1260" height="104" rx="24" fill="#0B132B" stroke="#627FE4" stroke-opacity="0.34"/>
+      <text x="28" y="35" fill="#9BADD3" font-size="14" font-weight="700" letter-spacing="1.8">95% PAIRED INTERVAL</text>
+      <text x="280" y="36" fill="#EEF2FF" font-size="20" font-weight="720">−39.59 to +59.59 percentage points</text>
+      <line x1="700" y1="72" x2="1208" y2="72" stroke="#506184" stroke-width="3" stroke-linecap="round"/>
+      <line x1="903" y1="59" x2="903" y2="85" stroke="#E7ECF8" stroke-opacity="0.85" stroke-width="2"/>
+      <text x="899" y="52" fill="#AEBAD5" font-size="12">0</text>
+      <line x1="700" y1="72" x2="1208" y2="72" stroke="url(#brand)" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="954" cy="72" r="8" fill="#F8FAFF" stroke="#728CFF" stroke-width="4"/>
+      <text x="28" y="75" fill="#8D9EC3" font-size="15">The interval crosses zero, so the result is inconclusive.</text>
+    </g>
+
+    <g transform="translate(70 495)">
+      <text x="0" y="21" fill="#8FA5D9" font-size="13" font-weight="700" letter-spacing="1.5">MATCHED OUTCOMES</text>
+      <g transform="translate(175 0)">
+        <rect width="204" height="38" rx="19" fill="#10203A" stroke="#3E9CD0" stroke-opacity="0.54"/>
+        <text x="18" y="25" fill="#D9F4FF" font-size="14"><tspan font-weight="780">3</tspan><tspan dx="7" fill="#9EB7D2">BrowserIR wins</tspan></text>
+      </g>
+      <g transform="translate(393 0)">
+        <rect width="196" height="38" rx="19" fill="#13182D" stroke="#5E6D98" stroke-opacity="0.52"/>
+        <text x="18" y="25" fill="#E5EAF6" font-size="14"><tspan font-weight="780">0</tspan><tspan dx="7" fill="#9DAAC7">control wins</tspan></text>
+      </g>
+      <g transform="translate(603 0)">
+        <rect width="180" height="38" rx="19" fill="#151A35" stroke="#7562C9" stroke-opacity="0.54"/>
+        <text x="18" y="25" fill="#EEE9FF" font-size="14"><tspan font-weight="780">27</tspan><tspan dx="7" fill="#AAA0CC">both pass</tspan></text>
+      </g>
+      <g transform="translate(797 0)">
+        <rect width="170" height="38" rx="19" fill="#13182D" stroke="#5E6D98" stroke-opacity="0.52"/>
+        <text x="18" y="25" fill="#E5EAF6" font-size="14"><tspan font-weight="780">0</tspan><tspan dx="7" fill="#9DAAC7">both fail</tspan></text>
+      </g>
+      <g transform="translate(981 0)">
+        <rect width="150" height="38" rx="19" fill="#13182D" stroke="#5E6D98" stroke-opacity="0.52"/>
+        <text x="18" y="25" fill="#E5EAF6" font-size="14"><tspan font-weight="780">0</tspan><tspan dx="7" fill="#9DAAC7">invalid</tspan></text>
+      </g>
+    </g>
+
+    <rect x="70" y="555" width="1260" height="42" rx="21" fill="#0A1025" stroke="#546DBC" stroke-opacity="0.28"/>
+    <text x="700" y="582" text-anchor="middle" fill="#8293B7" font-size="13" font-weight="680" letter-spacing="0.9">ADAPTIVE V2 · COMPLETE-INTERFACE COMPARISON · NOT RAW DOM · NOT INDEPENDENT CONFIRMATION</text>
+  </g>
+</svg>

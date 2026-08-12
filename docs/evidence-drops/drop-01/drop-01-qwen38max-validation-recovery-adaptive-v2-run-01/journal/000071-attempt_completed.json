@@ -1,0 +1,351 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 71,
+  "recordedAt": "2026-08-12T13:51:41.556Z",
+  "previousEventSha256": "333f628301524e569cb9fa384f1f21e04a870d82950a2de60b9df36ff03318e8",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:11",
+    "role": "treatment",
+    "attempt": {
+      "attemptId": "drop-01-sealed-2026-08-12T13-26-10-153Z:validation-recovery:11:treatment",
+      "taskId": "validation-recovery",
+      "taskVersion": "sha256:17ef0329cef9a0634d531c3b3b46c68321906a0e84108f30a25a0fc8e0cccb17",
+      "trialIndex": 11,
+      "outcome": "passed",
+      "targetId": "fixture:validation-recovery:11",
+      "targetVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+      "agentStatus": "completed",
+      "finalTextSha256": "0124e3a6bf0ed3c6ed3d7a19ccba66259ed7d2d6a65f73a4ee0a407f942155e3",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 1,
+      "modelTurns": 16,
+      "usage": {
+        "output_tokens": 2890,
+        "input_tokens": 248071,
+        "total_tokens": 250961
+      },
+      "durationMs": 76358,
+      "agentRunDurationMs": 75979,
+      "tools": {
+        "calls": 15,
+        "errors": 0,
+        "byTool": {
+          "browser_act": 11,
+          "browser_create": 1,
+          "browser_inspect": 1,
+          "browser_navigate": 1,
+          "benchmark_submit_result": 1
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "6257d7619f5ae3d5c4199fc2fb604cbde24886991519f173b503e75a2e64465e",
+        "toolCatalogToolCount": 10,
+        "responseBytes": 56850,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 11
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_create",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 181,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "page_id",
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 128,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 126,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 144,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 471,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 535,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 166,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 177,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 171,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 172,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 227,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 172,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 241,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_inspect",
+          "inputKeys": [
+            "browser_id",
+            "entity_ids",
+            "expected_revision",
+            "include_evidence"
+          ],
+          "outcome": "returned",
+          "durationMs": 10,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+          }
+        ],
+        "reasonSha256": "32d14f14a0645a503d34ad97e501dd0860051e854fac36f7ac27ddcac4310630"
+      },
+      "judge": {
+        "outcome": "passed",
+        "oracleVersion": "sha256:c9006e9100374dfeb28d0434111caa109c49424689b603dd100a1ddcd1ff7f10",
+        "stateFingerprint": "45869c89af8916c247763e01e432277d555129978341863bc3eef0eb3e1d3d62",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765",
+            "evidenceSha256": "28ffff22d3cc7b36ef02fe0bf30bb7bf80e714faee5dca8010cc7d89537ede10"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "6c0bc337e70b241c82c445498a45526400b27a9760f3441a7954b482c5fa0096"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "3645f4ab4a21feffd4d962f76ffeeee5b336b3710e21a5cceb4a99ea8207511e"
+          }
+        ],
+        "evidenceSha256": "28ffff22d3cc7b36ef02fe0bf30bb7bf80e714faee5dca8010cc7d89537ede10",
+        "reasonSha256": "bb673926c0da5e0e5236ace23199a78f255d1eb8ae245cb67855aac198014765"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "5946552b461363dc4a463a07de2445368f51e1113b5c361bce7b5bf8e5edbc0d",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "2708b05a64d15fd4b0fb0f9bada5d69b1dc66c8195c6e8c7a2ce70ccc3016a00"
+}

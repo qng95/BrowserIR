@@ -15,12 +15,13 @@ oracles, benchmark/report infrastructure, and the release-evidence pipeline are
 implemented. The local v16 candidate declares 749 cases: 730 executed and 19
 intentional opt-in cases skipped. By package, that is core 60/60, fixture
 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared with
-176 executed and 19 skipped. The full local suite and type checks passed, but
-this is not hosted clean-commit evidence. The latest qualified public evidence
-remains v15 [GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
-for commit `89c82ff`; every required job passed, the run assembled a checksummed
-dossier, and annotated tag `evidence-drop-01-protocol-v1` resolves to that exact
-commit. Earlier v14, v13, and
+176 executed and 19 skipped. Adaptive-v2 freeze commit `5b7db58` passed hosted
+v16 [GitHub Actions run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043),
+and tag `evidence-drop-01-protocol-v2` resolves to that source. The result-
+publication commit is not yet hosted-qualified. The latest dossier whose
+identity and digest are recorded in release readiness remains v15 from
+[run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
+on commit `89c82ff`. Earlier v14, v13, and
 v11 dossiers remain valid for their own source trees; 487/468/19 and 439/420/19
 runs remain retained dirty/unbound history under stale exact-count policies.
 Publication gates and durable promotion of the qualified dossier remain open;
@@ -51,8 +52,9 @@ seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
 [GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
-is the latest source-bound public qualification. Neither is a competitor
-comparison.
+is the latest retained dossier with a recorded identity and digest. The latest
+hosted source qualification is v16 freeze run `31600711043`; neither system-
+qualification record is itself a competitor comparison.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
 
@@ -390,14 +392,25 @@ has no score or interval.
   telemetry on failed attempts.
 - [x] Pass two score-excluded canaries on the already-seen `create-customer`
   workflow through the corrected flat contract and exact judge.
-- [ ] Freeze adaptive v2 separately, reusing the exact v1 30 seeds and arm
+- [x] Freeze adaptive v2 separately, reusing the exact v1 30 seeds and arm
   order while restarting every control and treatment arm from fresh state.
-- [ ] Run all 30 adaptive-v2 blocks without early stopping or favorable rerun;
+- [x] Run all 30 adaptive-v2 blocks without early stopping or favorable rerun;
   label the run adaptive recovery rather than independent confirmation.
-- [ ] Classify discordant failures from retained evidence; add test-first,
-  technology-neutral BrowserIR fixes only when a general defect is proven.
+- [x] Review the discordant outcomes: all three favored BrowserIR and none
+  favored control, so no BrowserIR loss triggered another product-code fix.
 - [ ] Publish the unchanged sealed result, visual scorecard, README scope,
   reproduction command, announcement, commit, tag, and GitHub release.
+
+Adaptive v2 completed with zero invalid blocks: BrowserIR passed 30/30,
+official Playwright MCP passed 27/30, 27 blocks both passed, and 3 favored
+BrowserIR. The paired estimate was +10.00 percentage points with a 95% bound of
+−39.59 to +59.59 points. Because the interval crosses zero, the predeclared
+result is **inconclusive**. This is a complete-interface adaptive recovery, not
+a raw-DOM comparison, pure representation ablation, independent confirmation,
+generalization result, or superiority claim.
+
+[Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
+[Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
 
 Gate: no uplift headline unless the 95% paired interval is entirely above zero
 and at most 5% of scheduled blocks are invalid. A regression or inconclusive
@@ -513,7 +526,9 @@ unaffected document loses valid references.
   current 289/289 benchmark package gate. Local Ollama development diagnostics
   exist, including one BrowserIR treatment-path signal whose official control
   failed; the separate score-excluded official-control qualification completed
-  5/5, while no sealed paired run or public uplift score has been completed.
+  5/5. The later adaptive-v2 sealed run completed BrowserIR 30/30 versus control
+  27/30, but its +10.00-point lift was predeclared inconclusive because the 95%
+  paired interval crossed zero.
 
 This completes the local benchmark mechanism, not a hosted scoring service.
 Canonical public scoring still requires a disposable process/container and

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "complete",
+  "runId": "drop-01-sealed-2026-08-12T13-26-10-153Z",
+  "protocolId": "drop-01-qwen38max-validation-recovery-adaptive-v2",
+  "protocolSha256": "5b666c6b7c18be2bb2128d487cfa78186286bc2855466282a7cb1bd821950c19",
+  "journalFinalEventSha256": "2d78f8bdc016c467b5c8b0bb8dfc014c8901a74b7cfb8f916acc6ffb3fb02abb",
+  "artifactManifestSha256": "68d4e506995f011594b9a115e185aafe381fc3d694424608e09183560577a9f3"
+}

@@ -2,11 +2,13 @@
 
 Assessment updated: 2026-08-12 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha is public and commit `89c82ff` has a
-qualified, source-bound v15 GitHub Actions dossier plus the annotated frozen-
-protocol tag; npm packages and a product release remain unpublished.** Publication gates must not be bypassed by weakening the
-release verifier or by presenting dirty/unbound local evidence as release
-evidence.
+Status: **the Apache-2.0 source alpha is public. Adaptive-v2 freeze commit
+`5b7db58` and tag `evidence-drop-01-protocol-v2` passed hosted v16 CI in
+[run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043);
+the result-publication commit has not yet received hosted qualification. npm
+packages and a product release remain unpublished.** Publication gates must
+not be bypassed by weakening the release verifier or by presenting
+dirty/unbound local evidence as release evidence.
 
 ## Source and hosted release behavior
 
@@ -14,7 +16,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Local v16 candidate workspace verification | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. The full local workspace suite and all package type checks passed. This is not hosted, clean-commit release evidence. |
+| Hosted v16 freeze workspace verification (commit `5b7db58`) | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31600711043` is green for this freeze source. This does not qualify the later result-publication commit. |
 | Qualified v15 workspace verification (commit `89c82ff`) | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Previous qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
@@ -24,10 +26,11 @@ Local development and clean hosted CI produced the following engineering evidenc
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
 | Score-excluded official-control capability | One selected OpenRouter `qwen/qwen3.8-max` configuration completed the full five-attempt schedule through the safe subset of official Playwright MCP `0.0.78`: 5 passed, 0 failed, 0 invalid; 56 tool calls, 61 model turns, zero tool errors, and five exact database/audit/structured submissions. This raw 5/5 is not a score. |
-| Qualified v15 database-backed task qualification | 14/14 tasks passed through the official MCP client. |
+| Hosted v16 database-backed task qualification | 14/14 tasks passed through the official MCP client in freeze run `31600711043`. |
 | Previous v13 task telemetry | 14/14 tasks passed in 302 MCP calls. BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. These exact call/refusal figures belong to v13 and are not silently relabelled as v14 telemetry. |
 | First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
 | Earlier clean hosted qualification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required v11 job on commit `0097f28`. It remains valid for that source tree. |
+| Hosted v16 freeze source run | [Run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043) is green on commit `5b7db58`, to which `evidence-drop-01-protocol-v2` resolves. It qualifies the source frozen before the adaptive run, not the pending result-publication commit. |
 | Qualified v14 source run | [Run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205) passed every required v14 job on commit `6a122a2`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
 | Qualified v15 source run | [Run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246) passed every required v15 job on commit `89c82ff`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. The annotated tag `evidence-drop-01-protocol-v1` peels to this exact commit. |
 | Qualified v13 source run | [Run `31531657356`](https://github.com/qng95/BrowserIR/actions/runs/31531657356) passed every required v13 job on commit `14f86f6`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
@@ -62,11 +65,12 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current local candidate policy is `2026-08-12-v16`, requiring 749 declared,
-730 executed, and 19 skipped cases. It passed locally but is not yet qualified
-release evidence. GitHub Actions run `31590339246` remains the latest hosted
-qualification: it qualified v15 on commit `89c82ff` with 735 declared, 716
-executed, and 19 skipped cases.
+The current exact-count policy is `2026-08-12-v16`, requiring 749 declared, 730
+executed, and 19 skipped cases. It passed hosted freeze run `31600711043` on
+commit `5b7db58`. That run binds the source used for adaptive v2; the later
+result-publication commit and documentation still require their own hosted CI.
+The latest dossier whose identity and digest are recorded below remains v15 on
+commit `89c82ff`.
 
 The current qualified public source release-evidence dossier is
 `release-evidence-dossier-31590339246-1-89c82ff4d89ec33c1311df65729306c579192357`,
@@ -124,9 +128,12 @@ checksum; they are not signatures or proof of release authorization. See
 
 ## Benchmark evidence
 
-Evidence Drop 01 v1 has a frozen protocol and an aborted execution diagnostic,
-but no completed comparison result. Its comparison infrastructure is
-implemented and tested. The official Playwright MCP control is pinned at
+Evidence Drop 01 adaptive v2 completed all 30 matched blocks with zero invalid
+blocks. BrowserIR passed 30/30 and official Playwright MCP passed 27/30: 27
+both passed and 3 were BrowserIR wins. The observed paired lift is +10.00
+percentage points with a conservative 95% interval from −39.59 to +59.59
+points, so the predeclared result is **inconclusive**. The historical v1 prefix
+remains an aborted diagnostic. The official Playwright MCP control is pinned at
 `0.0.78`; broker injection, the
 neutral agent prompt, counterbalanced matched runner, paired interval,
 model-facing tool traces, and create-only comparison artifacts have focused
@@ -163,11 +170,10 @@ journals, checksums, and atomic completion markers. They still record
 different pnpm runtime than v6. They are not source-bound release evidence and
 cannot prove which code change caused the result.
 
-No completed sealed score has been produced or published. The operator stopped
-v1 after nine complete matched blocks; a tenth control arm had completed while
-its treatment arm was in flight. The unplanned prefix has no arm-rate estimate,
-paired lift, interval, or result wording. It remains an aborted diagnostic, not
-a shortened run. The
+The operator stopped v1 after nine complete matched blocks; a tenth control arm
+had completed while its treatment arm was in flight. The unplanned prefix has
+no arm-rate estimate, paired lift, interval, or result wording. It remains an
+aborted diagnostic, not a shortened run. The
 [checksummed aborted bundle](evidence-drops/drop-01/aborted-v1-diagnostic/README.md)
 contains no completion marker or scored summary. The separate
 score-excluded official-control qualification completed from clean source at
@@ -196,8 +202,9 @@ model-facing action and wait schemas are now flat and strict, and failed runs
 retain bounded pre-broker rejection counts plus partial turn/usage metrics.
 Two score-excluded canaries passed the exact judge on the already-seen
 `create-customer` workflow after the fix. Those canaries are compatibility
-checks, not a score. Therefore there is still no BrowserIR uplift, competitor-
-superiority, or general agent-quality claim. See
+checks, not a score. The later v2 comparison remains a controlled adaptive
+complete-interface pilot, not raw-DOM evidence, a pure representation
+ablation, independent confirmation, generalization, or a superiority claim. See
 [the evidence-drop protocol](EVIDENCE_DROPS.md).
 
 The historical v1 manifest is frozen at
@@ -212,11 +219,14 @@ is inconclusive. Its aborted output cannot be resumed or finalized as a result.
 
 Adaptive v2 reuses those exact 30 seeds and arm orders to isolate the flat-tool
 contract change, but starts every control and treatment arm again in fresh
-state. Its
-[manifest candidate](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
-needs its own freeze tag before the first attempt. No v1 arm is reused, and v2
-is explicitly an adaptive recovery rather than independent confirmation.
-Freezing either protocol is not a benchmark result.
+state. Its [frozen manifest](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
+is bound to `evidence-drop-01-protocol-v2` at commit `5b7db58`; hosted freeze
+run `31600711043` is green. No v1 arm was reused, and v2 is explicitly an
+adaptive recovery rather than independent confirmation. The completed bundle
+has a valid `COMPLETE.json` and retained checksums:
+[inspect its summary](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md)
+or [read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md).
+The result-publication commit still requires its own hosted qualification.
 
 The representation report passed all 11 release tasks in its complete checked
 corpus. Its JSON report has SHA-256

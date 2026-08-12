@@ -141,22 +141,22 @@ are fixed at their own layer.
 
 ## Evidence Drop 01
 
-Status: **v1 operator-stopped and retained as an aborted diagnostic; adaptive
-v2 recovery being prepared; no Drop 01 comparison result exists**.
+Status: **adaptive v2 completed; the predeclared result is inconclusive. The
+operator-stopped v1 prefix remains an aborted diagnostic, not a score**.
 
-The intended first public question is deliberately narrow:
+The question is deliberately narrow:
 
 > On the `validation-recovery` enterprise workflow, does the same model and
 > LangChain agent succeed more often with BrowserIR than with pinned official
 > Playwright MCP?
 
-The v1 sealed schedule is 30 matched blocks, text-only, with alternating arm
-order from a committed order seed, a precommitted model-seed base, and a
-non-zero frozen sampling temperature. Each task/trial coordinate
+Adaptive v2 ran 30 matched blocks, text-only, with alternating arm order from a
+committed order seed, a precommitted model-seed base, and a non-zero frozen
+sampling temperature. Each task/trial coordinate
 deterministically derives one model seed shared by both arms; temperature-zero
 repetition is rejected because greedy decoding may ignore seeds.
 `create-customer` is the development task for adapter and reporting work and is
-excluded from the Drop 01 score. Any completed result must be labelled a
+excluded from the Drop 01 score. The result is a
 **controlled fixture pilot**, never a general browser-agent benchmark or an
 independent-samples population estimate.
 
@@ -168,22 +168,42 @@ output ceiling, temperature `0.2`, and no-fallback/data-deny policy. The
 endpoint fingerprint is not a model-weight digest. The complete browser
 interface is the intervention, so this is not a pure representation ablation.
 
-The schedule and decision rule are retained in
-[`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
-to `refs/tags/evidence-drop-01-protocol-v1`; the published annotated tag peels
-to hosted-CI-qualified commit `89c82ff`. A valid result requires all 30 blocks,
-with no replacement. At most one invalid block is allowed for a headline; the
-result is positive only when the conservative 95% lower bound is above zero,
-negative only when the upper bound is below zero, and otherwise inconclusive.
-With 30 pairs, the implemented bound is roughly ±49.6 percentage points, so
-this first pilot can detect only a large effect.
+The v2 schedule and decision rule are frozen in
+[`sealed-adaptive-v2.protocol.json`](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
+and bound to tag `evidence-drop-01-protocol-v2` at commit `5b7db58`. Hosted CI
+[run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043)
+is green for that freeze commit. V2 reused the exact v1 30 seeds and arm order
+to isolate the flat-tool-contract change, but restarted every control and
+treatment arm from fresh state; no v1 outcome was reused. Because the scored
+slice informed that change, v2 is an adaptive recovery, not independent
+confirmation. The intervention is the complete interface, not a pure
+representation ablation.
 
-The v1 execution did not satisfy that contract. The operator stopped it after
-nine complete blocks; a tenth control arm had completed while its treatment
-arm was still in flight. All nine complete blocks favored control, but this
-unplanned prefix is not a nine-pair result and has no pass-rate estimate,
-paired lift, confidence interval, or result wording. It is retained only as an
-aborted diagnostic and must never receive a `COMPLETE.json` result marker.
+The full schedule completed with no invalid blocks. BrowserIR passed **30/30**
+attempts and official Playwright MCP passed **27/30**: 27 blocks both passed and
+3 were BrowserIR treatment wins, with no control wins or both-failed blocks.
+The paired treatment-minus-control estimate is **+10.00 percentage points**;
+the conservative 95% paired Hoeffding interval is **−39.59 to +59.59 points**.
+Because that interval crosses zero, the predeclared classification is
+**inconclusive**. The positive point estimate is not an uplift headline or a
+claim of generalization or superiority.
+
+[Inspect the complete result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
+[Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
+
+`SHA256SUMS` and `COMPLETE.json` bind the 18 canonical final artifacts,
+including the consolidated `journal.ndjson`. The retained `journal/` directory
+contains redundant per-event operational copies for inspection; those
+convenience files are not separate entries in the final checksum manifest and
+are not part of the completion trust boundary.
+
+The historical v1 execution did not satisfy its frozen contract. The operator
+stopped it after nine complete blocks; a tenth control arm had completed while
+its treatment arm was still in flight. All nine complete blocks favored
+control, but this unplanned prefix is not a nine-pair result and has no
+pass-rate estimate, paired lift, confidence interval, or result wording. It is
+retained only as an aborted diagnostic and must never receive a `COMPLETE.json`
+result marker.
 [Inspect the checksummed non-scoreable v1 bundle](evidence-drops/drop-01/aborted-v1-diagnostic/README.md).
 
 The treatment failures had one repeated, general cause. The model selected
@@ -200,15 +220,6 @@ the already-seen `create-customer` workflow after this fix. They establish that
 the selected model can use the corrected contract; they are not Drop 01 trials,
 an uplift result, or evidence about `validation-recovery` performance.
 
-The next execution is an adaptive v2 recovery, not a continuation and not
-independent confirmation. It reuses the exact v1 30-trial seeds and arm order
-so the contract change is isolated, but starts every control and treatment arm
-again from fresh state. No v1 outcome is reused. Its separate manifest and
-freeze tag must be committed before the first v2 attempt, and all outcomes will
-be published regardless of sign. Independent confirmation must move to a
-previously unmeasured slice.
-[Inspect the adaptive v2 manifest candidate](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json).
-
 Development is manifest-driven through `pnpm benchmark:uplift`. The original
 failed artifacts remain retained; a development failure is an input to the
 engineering loop, not something to hide or rerun favorably.
@@ -222,7 +233,8 @@ already-seen development task `create-customer`. It had no BrowserIR arm and
 cannot produce a score or uplift result. The sealed candidate
 `validation-recovery` was exercised by the deterministic reference
 qualification and by the aborted v1 real-model prefix. That prefix cannot
-produce a score or interval, and no completed paired result exists.
+produce a score or interval; only the separately frozen, fully completed v2
+schedule produces the Drop 01 result above.
 
 The qualification precommits exactly five attempts and runs the entire
 schedule. It permits no early stop, favorable rerun, or invalid-attempt
@@ -278,7 +290,7 @@ fixed; independent confirmation moves to a previously unmeasured slice.
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
-| 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | v1 aborted diagnostic retained; adaptive v2 recovery pending | No complete paired result |
+| 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Adaptive v2 complete; v1 aborted diagnostic retained | **Inconclusive:** BrowserIR 30/30 vs control 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
 | 02 | External representation slice | Planned | Not run |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |

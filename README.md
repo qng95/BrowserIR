@@ -65,17 +65,20 @@ driver; BrowserIR provides the model-facing meaning and safety boundary.
   BrowserIR matched 31/31 entities, 44/44 capabilities, 28/28 relationships,
   and 1/1 required abstention, with no false facts or misses.
 
-| Matched agent comparison | Published improvement |
+| Matched agent comparison | Published result |
 | --- | ---: |
 | BrowserIR vs raw-DOM serialization | **Not measured yet** |
-| BrowserIR vs accessibility snapshot | **Not measured yet** |
+| BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
 
-No matched LLM uplift result is published yet. Any comparison will hold the
-model, prompt, task, browser, budgets, and hidden judge fixed—and publish
-failures and inconclusive runs.
+Across 30 matched `validation-recovery` blocks, BrowserIR passed 30/30 and the
+control passed 27/30. The observed +10.00-point lift is inconclusive because
+the predeclared interval crosses zero. This adaptive v2 result compares the
+complete interfaces; it is not a raw-DOM measurement, pure representation
+ablation, independent confirmation, generalization, or a superiority claim.
 
-[Inspect the qualified CI run](https://github.com/qng95/BrowserIR/actions/runs/31540028205) ·
-[Read the exact evidence boundaries](docs/RELEASE_READINESS.md)
+[Inspect the complete result](docs/evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
+[Read the analysis](docs/evidence-drops/drop-01/adaptive-v2-analysis.md) ·
+[See the frozen protocol](docs/evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
 
 ## How the scores are earned
 

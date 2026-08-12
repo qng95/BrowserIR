@@ -28,14 +28,17 @@ submitting. That is not an official-control capability pass. A dedicated
 score-excluded control qualification has now completed: one selected OpenRouter
 `qwen/qwen3.8-max` configuration ran all five attempts through the safe subset
 of official Playwright MCP `0.0.78` and produced 5 passed, 0 failed, and 0
-invalid outcomes. This is a compatibility result, not a score. No sealed paired
-real-model result, public competitor score, or generalization result has been
-published. Drop 01 v1 was operator-stopped after nine complete blocks, with a
-tenth control arm complete and treatment in flight. That aborted prefix has no
-score or interval. The deterministic fake-model test validates benchmark
-wiring and grading, not model capability or generalization. The current CLI is
-suitable for local development and characterization; it is not yet a hardened
-public scoring service. See the
+invalid outcomes. This is a compatibility result, not a score. The separately
+frozen adaptive v2 schedule is the first completed sealed paired real-model
+run. In that 30-block complete-interface comparison, BrowserIR passed
+30/30 and official Playwright MCP passed 27/30; the +10.00-point paired estimate
+had a 95% bound of −39.59 to +59.59 points, so the predeclared result is
+inconclusive. It is an adaptive controlled-fixture result, not raw-DOM evidence,
+independent confirmation, generalization, or a superiority claim. Drop 01 v1
+remains an aborted diagnostic with no score or interval. The deterministic
+fake-model test validates benchmark wiring and grading, not model capability or
+generalization. The current CLI is suitable for local development and
+characterization; it is not yet a hardened public scoring service. See the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
 
 ## What is a scored target?
@@ -287,9 +290,21 @@ or establish uplift.
 Adaptive v2 reuses the exact v1 30-trial seeds and arm order, but restarts every
 arm from fresh state; completed v1 arms are not resumed or reused. Because the
 scored slice informed the interface fix, v2 is an adaptive recovery rather than
-independent confirmation. A separate frozen manifest and tag must bind v2
-before its first attempt, and independent confirmation must use a previously
-unmeasured slice.
+independent confirmation. Its separate manifest was bound before the first
+attempt to tag `evidence-drop-01-protocol-v2` at commit `5b7db58`; hosted CI
+[run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043)
+is green for that freeze commit.
+
+All 30 matched blocks then completed with zero invalids: 27 both passed and 3
+were treatment wins, so BrowserIR passed 30/30 and official Playwright MCP
+passed 27/30. The paired lift was +10.00 percentage points with a conservative
+95% Hoeffding interval from −39.59 to +59.59 points. The interval crosses zero,
+making the predeclared result **inconclusive**. This complete-interface pilot
+does not isolate representation alone, and independent confirmation must use a
+previously unmeasured slice.
+
+[Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
+[Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
 
 ## Score-excluded official-control qualification
 
@@ -424,7 +439,7 @@ OpenAI-compatible invocation parameters rather than metadata alone.
 
 Sealed runs use the outer launcher rather than the development command. The v1
 output is an aborted diagnostic and must not be resumed or finalized. Adaptive
-v2 has a separate manifest candidate retaining the same 30 seeds, arm order,
+v2 has a separate frozen manifest retaining the same 30 seeds, arm order,
 workflow, model, route, prompt, budgets, and decision rule:
 
 ```sh
@@ -434,8 +449,9 @@ pnpm benchmark:uplift:sealed \
 ```
 
 That output must be a new create-only directory. Every control and treatment
-arm runs again; no completed v1 arm is imported. The command is valid only
-after the v2 manifest and its distinct freeze tag have been committed.
+arm runs again; no completed v1 arm is imported. The completed v2 result used
+the distinct `evidence-drop-01-protocol-v2` freeze tag; the command shown above
+is reproduction guidance and must use a new external output directory.
 
 The launcher checks out the manifest's freeze tag into a fresh detached
 temporary clone, installs the frozen lockfile, builds before the benchmark CLI
