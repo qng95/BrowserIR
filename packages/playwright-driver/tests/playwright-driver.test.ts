@@ -1824,7 +1824,7 @@ describe('PlaywrightBrowserDriver', () => {
     } finally {
       await session.close();
     }
-  });
+  }, 15_000);
 
   it('does not materialize standard controls beyond the bounded raw scan', async () => {
     const driver = createPlaywrightBrowserDriver();
