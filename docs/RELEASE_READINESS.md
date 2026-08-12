@@ -5,8 +5,10 @@ Assessment updated: 2026-08-12 (Europe/Berlin)
 Status: **the Apache-2.0 source alpha and Evidence Drop 01 adaptive-v2 result
 are public. Result-publication commit `e448b58` passed all ten hosted v16 jobs
 in [run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
-and is bound by annotated tag `evidence-drop-01-adaptive-v2-result`. npm packages
-and a product release remain unpublished.** Publication gates must
+and is bound by annotated tag `evidence-drop-01-adaptive-v2-result`. Evidence
+Drop 02 has completed its sealed schedule with an inconclusive result;
+result-publication CI and its result tag remain pending. npm packages and a
+product release remain unpublished.** Publication gates must
 not be bypassed by weakening the release verifier or by presenting
 dirty/unbound local evidence as release evidence.
 
@@ -16,7 +18,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
-| Current unqualified v17 Drop 02 freeze candidate | 754 declared cases: 735 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 100/100, Playwright driver 107/107, benchmark 292/292, and MCP 195 declared / 176 executed / 19 skipped. The complete local gate passes; hosted qualification and a dossier remain pending. |
+| Qualified v17 Drop 02 freeze (commit `1b4f78a`) | 754 declared cases: 735 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 100/100, Playwright driver 107/107, benchmark 292/292, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31616555262` passed all ten required jobs and assembled a dossier with digest `sha256:c2ecd2f7bfa07ba17c01dfd5cca7e15d3158a1f779ed78a160e015319226c479`; `evidence-drop-02-protocol-v1` binds the freeze. |
 | Qualified v16 result-publication workspace verification (commit `e448b58`) | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31608404916` passed all ten required jobs and assembled the current dossier. |
 | Qualified v15 workspace verification (commit `89c82ff`) | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
@@ -67,12 +69,13 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current freeze-candidate exact-count policy is `2026-08-12-v17`, requiring
-754 declared, 735 executed, and 19 skipped cases. Its focused release tests
-and the complete local gate pass, but hosted qualification remains pending. The latest
-qualified policy remains v16: hosted
-result-publication run `31608404916` on commit `e448b58` qualified the checked-in
-Drop 01 result, documentation, and visual and assembled the current dossier.
+The current qualified exact-count policy is `2026-08-12-v17`, requiring 754
+declared, 735 executed, and 19 skipped cases. Freeze commit `1b4f78a` passed all
+ten hosted jobs in run `31616555262`; its annotated protocol tag and source
+dossier bind the Drop 02 execution. The latest qualified *result-publication*
+dossier remains v16: hosted run `31608404916` on commit `e448b58` qualified the
+checked-in Drop 01 result, documentation, and visual. Drop 02 result-publication
+qualification remains pending.
 
 The current qualified public source release-evidence dossier is
 `release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`,
@@ -150,9 +153,9 @@ tests. Both BrowserIR and Playwright MCP deterministic reference models can
 complete `create-customer` through real Chromium and the same sealed
 database/audit oracle.
 
-Evidence Drop 02 now has a provisional local freeze candidate. The discovered
-direct-navigation oracle bypass was fixed test-first, and the regenerated task
-and oracle bindings pass the local manifest preflight. The candidate at
+Evidence Drop 02 was frozen only after the discovered direct-navigation oracle
+bypass was fixed test-first and the regenerated task and oracle bindings passed
+preflight. The protocol at
 [`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json) has
 SHA-256
 `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
@@ -160,11 +163,23 @@ It selects the real-model-unexposed `query-three-conditions` fixture workflow,
 fixes Qwen3.8-Max across the same complete interfaces, and schedules 30 fresh
 matched blocks with new order and paired model seeds and no adaptive lineage to
 Drop 01. This remains a known-fixture complete-interface comparison—not raw
-DOM, a pure representation ablation, or unseen-site generalization. No model
-call or result exists. The complete local v17 gate is green; hosted
-qualification, commit, push, and the annotated tag remain pending. Until they
-complete, the local candidate is not a frozen Git
-source and scored execution is prohibited.
+DOM, a pure representation ablation, or unseen-site generalization. Commit
+`1b4f78a` passed all ten hosted v17 jobs in
+[run `31616555262`](https://github.com/qng95/BrowserIR/actions/runs/31616555262)
+and is bound by `evidence-drop-02-protocol-v1`.
+
+The complete sealed schedule produced BrowserIR **21/30** versus official
+Playwright MCP **20/30**: 1 BrowserIR win, 0 control wins, 20 both pass, 9 both
+fail, and 0 invalid. The +3.33-point paired estimate has a 95% paired Hoeffding
+interval of −46.26 to +52.92 points, so the predeclared verdict is
+**inconclusive**. The contiguous final nine both-failed pairs are
+provider-contaminated and best explained by exhausted OpenRouter credit; those
+failures remain scored, and the protocol permits no selective rerun. The
+unchanged bundle is awaiting hosted result-publication CI and an annotated
+result tag.
+
+[Inspect the Drop 02 result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
+[Read the analysis](evidence-drops/drop-02/analysis.md)
 
 The sealed path now requires a fresh checkout of the freeze tag, frozen
 dependency installation, a complete build before the runner loads, exact

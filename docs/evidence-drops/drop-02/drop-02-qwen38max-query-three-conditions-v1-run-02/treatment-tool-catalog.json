@@ -1,0 +1,518 @@
+[
+  {
+    "description": "Create an isolated BrowserIR browser and return opaque browser/page handles plus the initial revision. The benchmark pins the browser profile to 1440x900 CSS pixels at 1x, locale en-US, timezone UTC, light color scheme, and reduce reduced motion; caller-supplied profile values are ignored.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "color_scheme": {
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "type": "string"
+        },
+        "locale": {
+          "maxLength": 64,
+          "minLength": 2,
+          "type": "string"
+        },
+        "reduced_motion": {
+          "type": "boolean"
+        },
+        "timezone_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        "viewport": {
+          "additionalProperties": false,
+          "properties": {
+            "device_scale_factor": {
+              "maximum": 3,
+              "minimum": 0.5,
+              "type": "number"
+            },
+            "height": {
+              "maximum": 2160,
+              "minimum": 240,
+              "type": "integer"
+            },
+            "width": {
+              "maximum": 3840,
+              "minimum": 320,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "width",
+            "height"
+          ],
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "name": "browser_create",
+    "title": "Create browser"
+  },
+  {
+    "description": "Navigate a page at the expected BrowserIR revision and return the resulting compact observation.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_tokens": {
+          "description": "Maximum approximate tokens for the complete returned BrowserIR model payload.",
+          "maximum": 100000,
+          "minimum": 256,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id",
+        "url",
+        "expected_revision"
+      ],
+      "type": "object"
+    },
+    "name": "browser_navigate",
+    "title": "Navigate browser"
+  },
+  {
+    "description": "Compile the current compact BrowserIR view with deterministic ordering, explicit omissions, and changes from the preceding observation.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "max_tokens": {
+          "description": "Maximum approximate tokens for the complete returned BrowserIR model payload.",
+          "maximum": 100000,
+          "minimum": 256,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id"
+      ],
+      "type": "object"
+    },
+    "name": "browser_observe",
+    "title": "Observe browser"
+  },
+  {
+    "description": "Expand selected BrowserIR entities, relationships, capabilities, and optional evidence.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "entity_ids": {
+          "items": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "type": "array"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "include_evidence": {
+          "type": "boolean"
+        },
+        "max_tokens": {
+          "description": "Maximum approximate tokens for the complete returned BrowserIR model payload.",
+          "maximum": 100000,
+          "minimum": 256,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id",
+        "entity_ids",
+        "expected_revision"
+      ],
+      "type": "object"
+    },
+    "name": "browser_inspect",
+    "title": "Inspect BrowserIR entities"
+  },
+  {
+    "description": "Execute one entity-targeted or page-scoped typed action at an expected revision and return verified effects. Copy entity ref tokens exactly without brackets. Example fill: {kind:\"fill\",target_ref:\"e15@r7\",value:\"Ada\",expected_revision:7}. Required fields by kind: target_ref for click/double_click/context_click/focus/hover/fill/type/select/check/uncheck/upload; value for fill; text for type; values for select; keys for press; artifact_ids for upload; source_ref and destination_ref for drag.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ids": {
+          "description": "Required only for upload.",
+          "items": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "type": "array"
+        },
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "delta_x": {
+          "description": "Horizontal delta for scroll.",
+          "type": "number"
+        },
+        "delta_y": {
+          "description": "Vertical delta for scroll.",
+          "type": "number"
+        },
+        "destination_page_id": {
+          "description": "Destination page for drag; defaults to page_id.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "destination_ref": {
+          "description": "Required only for drag; copy the destination token without brackets.",
+          "maxLength": 256,
+          "pattern": "^e[1-9]\\d*@r(?:0|[1-9]\\d*)$",
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "keys": {
+          "description": "Required only for press.",
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "kind": {
+          "description": "Action to execute. Supply action-specific fields at this same top level.",
+          "enum": [
+            "click",
+            "double_click",
+            "context_click",
+            "focus",
+            "hover",
+            "fill",
+            "type",
+            "select",
+            "check",
+            "uncheck",
+            "press",
+            "scroll",
+            "drag",
+            "upload"
+          ],
+          "type": "string"
+        },
+        "max_tokens": {
+          "description": "Maximum approximate tokens for the complete returned BrowserIR model payload.",
+          "maximum": 100000,
+          "minimum": 256,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Page containing the target, or the page for a page-scoped press/scroll.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "source_ref": {
+          "description": "Required only for drag; copy the source token without brackets.",
+          "maxLength": 256,
+          "pattern": "^e[1-9]\\d*@r(?:0|[1-9]\\d*)$",
+          "type": "string"
+        },
+        "target_ref": {
+          "description": "Entity ref for this action. Copy the token without brackets: e15@r7 from [e15@r7].",
+          "maxLength": 256,
+          "pattern": "^e[1-9]\\d*@r(?:0|[1-9]\\d*)$",
+          "type": "string"
+        },
+        "text": {
+          "description": "Required only for type.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Required only for fill.",
+          "type": "string"
+        },
+        "values": {
+          "description": "Required only for select.",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "browser_id",
+        "expected_revision",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "name": "browser_act",
+    "title": "Act in browser"
+  },
+  {
+    "description": "Wait for a bounded semantic condition, then return the new BrowserIR revision and delta. Use flat fields: {kind:\"text\",value:\"Saved\",expected_revision:7}; entity_state additionally requires target_ref and state. Copy ref tokens exactly without brackets.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "description": "Wait condition. Supply its fields at this same top level.",
+          "enum": [
+            "revision_change",
+            "text",
+            "entity_state",
+            "settled"
+          ],
+          "type": "string"
+        },
+        "max_tokens": {
+          "description": "Maximum approximate tokens for the complete returned BrowserIR model payload.",
+          "maximum": 100000,
+          "minimum": 256,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "state": {
+          "description": "Required only for entity_state; text supports only visible and may omit it.",
+          "enum": [
+            "visible",
+            "hidden",
+            "enabled",
+            "disabled",
+            "expanded",
+            "collapsed"
+          ],
+          "type": "string"
+        },
+        "target_ref": {
+          "description": "Required only for entity_state; copy the ref token without brackets.",
+          "maxLength": 256,
+          "pattern": "^e[1-9]\\d*@r(?:0|[1-9]\\d*)$",
+          "type": "string"
+        },
+        "timeout_ms": {
+          "maximum": 120000,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "value": {
+          "description": "Required only for text.",
+          "maxLength": 4000,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id",
+        "expected_revision",
+        "kind"
+      ],
+      "type": "object"
+    },
+    "name": "browser_wait",
+    "title": "Wait for browser condition"
+  },
+  {
+    "description": "List the current pages, popups, and their opaque BrowserIR handles.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id"
+      ],
+      "type": "object"
+    },
+    "name": "browser_pages",
+    "title": "List browser pages"
+  },
+  {
+    "description": "Capture a viewport or entity image for one BrowserIR revision; reject the result if a post-capture observation finds represented page changes.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "format": {
+          "const": "png",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "viewport",
+            "entity"
+          ],
+          "type": "string"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "target_entity_id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id",
+        "expected_revision"
+      ],
+      "type": "object"
+    },
+    "name": "browser_capture",
+    "title": "Capture browser image"
+  },
+  {
+    "description": "Close a BrowserIR page or the complete isolated browser session.",
+    "inputSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "browser_id": {
+          "description": "Opaque browser handle returned by browser_create.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        "expected_revision": {
+          "description": "BrowserIR representation revision.",
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "page_id": {
+          "description": "Opaque page handle returned by BrowserIR.",
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "browser_id"
+      ],
+      "type": "object"
+    },
+    "name": "browser_close",
+    "title": "Close browser"
+  },
+  {
+    "description": "Confirm that the requested browser operation is complete. Call this exactly once after the browser task is complete.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "benchmark_submit_result",
+    "title": "Submit benchmark result"
+  }
+]

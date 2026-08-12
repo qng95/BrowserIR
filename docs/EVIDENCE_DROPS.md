@@ -294,13 +294,9 @@ fixed; independent confirmation moves to a previously unmeasured slice.
 
 ## Evidence Drop 02
 
-Status: **provisional local freeze candidate. The direct-navigation oracle
-bypass was fixed test-first, and the local manifest at
-[`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json) has SHA-256
-`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
-The complete local v17 gate is green at 754 declared cases, 735 executed, and
-19 intentional opt-in skips. No scored model call or result exists. Hosted
-qualification, commit, push, and the annotated tag remain pending**.
+Status: **the full sealed schedule completed; the predeclared result is
+inconclusive. The unchanged result bundle is being prepared for hosted
+result-publication CI and an annotated result tag**.
 
 The intended question is:
 
@@ -308,33 +304,53 @@ The intended question is:
 > does the same Qwen3.8-Max LangChain agent succeed more often with BrowserIR
 > than with pinned official Playwright MCP?
 
-`query-three-conditions` has not appeared in the retained real-model
-development, compatibility, or scored evidence. It has been exercised by the
-deterministic fixture qualification, so this is a real-model-unexposed slice,
-not an unseen site or an unseen workflow in the broader engineering process.
+Before this drop, `query-three-conditions` had not appeared in retained
+real-model development, compatibility, or scored evidence. Deterministic
+fixture qualification had exercised it, so this is a new real-model slice
+within a known fixture—not an unseen site or unseen engineering workflow.
 
-The planned protocol keeps the Qwen3.8-Max model configuration, neutral agent,
-browser profile, budgets, hidden database-and-audit judge, and complete
-BrowserIR-versus-Playwright-MCP interfaces fixed. It schedules 30 fresh matched
-blocks with a new order seed and 30 new paired model seeds. It has no adaptive
-lineage to Drop 01 and reuses no Drop 01 attempt.
+The protocol fixed the Qwen3.8-Max model configuration, neutral agent, browser
+profile, budgets, hidden database-and-audit judge, and complete
+BrowserIR-versus-Playwright-MCP interfaces. It used 30 fresh matched blocks,
+a new order seed, and 30 new paired model seeds, with no adaptive lineage to
+Drop 01 and no reused Drop 01 attempt.
 
-This would be another complete-interface fixture comparison. It would not be a
-raw-DOM comparison, a pure representation ablation, or evidence of unseen-site
-generalization. Before the first scored call, the exact manifest, task and
-oracle versions, model and endpoint binding, catalogs, schedule, and claim rule
-must be committed, pass hosted CI, and be bound by a new annotated freeze tag.
-The direct-navigation bypass now has failing-first application, browser, and
-oracle regressions plus a general fix; the provisional manifest binds the
-regenerated task and oracle hashes. It is still only local and is not a frozen
-Git source until the remaining qualification and publication steps complete.
+Before the first scored call, the exact manifest, task and oracle versions,
+model and endpoint binding, catalogs, schedule, and claim rule were committed.
+Freeze commit `1b4f78a` passed all ten hosted v17 jobs in
+[run `31616555262`](https://github.com/qng95/BrowserIR/actions/runs/31616555262)
+and is bound by annotated tag `evidence-drop-02-protocol-v1`. The frozen
+[`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json) has
+SHA-256
+`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+
+All 30 valid blocks completed. BrowserIR passed **21/30** and official
+Playwright MCP passed **20/30**: 1 BrowserIR win, 0 control wins, 20 both pass,
+9 both fail, and 0 invalid. The paired treatment-minus-control estimate is
+**+3.33 percentage points**; the conservative 95% paired Hoeffding interval is
+**−46.26 to +52.92 points**. Because the interval crosses zero, the
+predeclared verdict is **inconclusive**. The nine both-failed blocks form the
+contiguous provider-contaminated tail of the schedule. The abrupt identical
+error digest and zero-turn pattern, together with a post-run read-only account
+check, make exhausted OpenRouter credit the best explanation but do not
+independently prove causality. The blocks remain scored rather than being
+reclassified or selectively rerun, which prevents clean interpretation of the
+absolute arm rates as capability under continuously available model service.
+
+This is a complete-interface comparison on one known fixture workflow. It is
+not a raw-DOM baseline, pure representation ablation, unseen-site or
+multi-workflow generalization result, or superiority claim.
+
+[Inspect the complete result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
+[Read the outcome analysis](evidence-drops/drop-02/analysis.md) ·
+[Inspect the frozen protocol](evidence-drops/drop-02/sealed.protocol.json)
 
 ## Drop registry
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
 | 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Adaptive v2 complete; v1 aborted diagnostic retained | **Inconclusive:** BrowserIR 30/30 vs control 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
-| 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Local manifest and complete v17 gate green; hosted qualification, commit/push, and tag pending | Not run |
+| 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Sealed schedule complete; result-publication CI/tag pending | **Inconclusive:** BrowserIR 21/30 vs control 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |
 

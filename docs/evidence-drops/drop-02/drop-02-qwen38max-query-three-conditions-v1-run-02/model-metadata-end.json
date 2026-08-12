@@ -1,0 +1,20 @@
+{
+  "canonicalModelSlug": "qwen/qwen3.8-max-20260803",
+  "contextWindowTokens": 1000000,
+  "endpointModelId": "qwen/qwen3.8-max",
+  "endpointName": "Alibaba | qwen/qwen3.8-max-20260803",
+  "maxCompletionTokens": 131072,
+  "modelId": "qwen/qwen3.8-max",
+  "providerName": "Alibaba",
+  "providerRoute": "alibaba",
+  "requiredParameters": [
+    "max_tokens",
+    "reasoning",
+    "reasoning_effort",
+    "seed",
+    "temperature",
+    "tool_choice",
+    "tools"
+  ],
+  "schemaVersion": "1.0.0"
+}

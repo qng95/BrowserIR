@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 6,
+  "recordedAt": "2026-08-12T16:28:11.893Z",
+  "previousEventSha256": "f1262e738fce304b1242d101eaa73ee51716a16d46ffd122e7467932f44301ab",
+  "event": {
+    "type": "block_completed",
+    "blockId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:0",
+    "outcome": "both_passed",
+    "integrityFailures": []
+  },
+  "eventSha256": "127c38a57bba94415cbcb56df1791382b3c6bd6daa27d14bcc6e225fdc90b047"
+}

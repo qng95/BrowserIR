@@ -30,12 +30,12 @@ standards-hinted custom, open-shadow, frame, table, and legacy patterns into
 semantic entities, relationships, state, available actions, and revision-bound
 references, then exposes them through a TypeScript core and MCP.
 
-Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
-execution is absent by default. The latest hosted source qualification is v16
-result-publication commit `e448b58`, reproduced by GitHub Actions run
-`31608404916`; it passed the deterministic 14/14 task gate and assembled the
-current source-evidence dossier. That engineering qualification is not itself
-an LLM or competitor score. The separate v13 scorecard records its own
+Playwright remains underneath for reliable browser mechanics. Arbitrary
+page-code execution is absent by default. The latest hosted source
+qualification is v17 Drop 02 freeze commit `1b4f78a`, reproduced by GitHub
+Actions run `31616555262`; all ten required jobs passed and assembled a
+source-evidence dossier. That engineering qualification is not itself an LLM
+or competitor score. The separate v13 scorecard records its own
 302-call/one-stale-refusal telemetry.
 
 A separate score-excluded compatibility gate first established that the selected
@@ -54,19 +54,29 @@ a 95% paired interval from −39.59 to +59.59 percentage points. The result is
 complete-interface comparison, not a raw-DOM comparison or independent
 confirmation, and it does not establish superiority.
 
+Evidence Drop 02 then used a fresh 30-block schedule on the
+real-model-unexposed `query-three-conditions` slice. BrowserIR passed 21/30 and
+the control passed 20/30. The +3.33-point paired estimate had a 95% paired
+interval from −46.26 to +52.92 points, so the verdict is **inconclusive**.
+The final nine both-failed pairs are provider-contaminated and best explained
+by exhausted OpenRouter credit; they remain scored and were not rerun. This is
+one complete-interface workflow in a known fixture—not raw-DOM evidence,
+generalization, or a superiority result.
+
 ## Current source-bound engineering evidence
 
-The latest hosted source qualification was reproduced on v16 result-publication
-commit `e448b58` by GitHub Actions run `31608404916`. The same run assembled the
-current source-evidence dossier, and annotated tag
-`evidence-drop-01-adaptive-v2-result` resolves to that commit.
+The latest hosted source qualification was reproduced on v17 Drop 02 freeze
+commit `1b4f78a` by GitHub Actions run `31616555262`. The same run assembled a
+source-evidence dossier, and annotated tag `evidence-drop-02-protocol-v1`
+resolves to that freeze commit. Drop 02 result-publication CI and its result tag
+remain pending.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Latest hosted v16 result-publication qualification: 14/14 tasks; all required
-  CI jobs passed. Current recorded dossier: v16.
+- Latest hosted v17 Drop 02 freeze qualification: all ten required CI jobs
+  passed; protocol tag `evidence-drop-02-protocol-v1` binds the source.
 - Previous v13 run-specific telemetry: 302 MCP calls and one stale action
   refused before dispatch, then recovered by the reference planner.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
@@ -81,6 +91,15 @@ current source-evidence dossier, and annotated tag
   both fail, and zero invalid across 30 Qwen3.8-Max validation-recovery blocks.
 - Comparison boundary: complete interfaces, not raw DOM; adaptive follow-up,
   not independent confirmation.
+- Evidence Drop 02: BrowserIR 21/30; official Playwright MCP control 20/30;
+  observed lift +3.33 percentage points; 95% paired interval −46.26 to +52.92
+  points; **inconclusive**.
+- Drop 02 matched outcomes: one BrowserIR win, zero control wins, 20 both pass,
+  nine both fail, and zero invalid. The final nine pairs are
+  provider-contaminated and best explained by exhausted OpenRouter credit; they
+  remain scored with no rerun.
+- Drop 02 boundary: one complete-interface known-fixture workflow, not raw DOM,
+  generalization, or superiority.
 - Status: public Apache-2.0 source alpha; packages are not yet published to npm.
 
 ## Quote
@@ -105,6 +124,11 @@ Not an LLM or competitor score.
 Evidence Drop 01 adaptive v2: BrowserIR 30/30; official Playwright MCP
 accessibility-snapshot control 27/30. Observed lift +10.00 pp; 95% paired
 interval −39.59 to +59.59 pp. **Inconclusive.**
+
+Evidence Drop 02: BrowserIR 21/30; the same control 20/30. Observed lift +3.33
+pp; 95% paired interval −46.26 to +52.92 pp. **Inconclusive.** The final nine
+pairs are provider-contaminated, best explained by exhausted OpenRouter credit,
+and remain scored.
 
 ### Long
 
@@ -135,6 +159,14 @@ observed +10.00 percentage-point lift had a 95% paired interval from −39.59 to
 interfaces, not BrowserIR with raw DOM, and is an adaptive follow-up rather than
 independent confirmation.
 
+Evidence Drop 02 used a fresh schedule on the real-model-unexposed
+`query-three-conditions` slice. BrowserIR passed 21/30; the same control passed
+20/30. The +3.33-point estimate had a 95% paired interval from −46.26 to +52.92
+points, so this result is also **inconclusive**. Provider credit exhaustion
+is the best explanation for the provider-contaminated final nine both-failed
+pairs; the frozen protocol retains them and permits no selective rerun. This is
+one known-fixture workflow, not unseen-site or multi-workflow generalization.
+
 ## FAQ
 
 ### Is BrowserIR a replacement for Playwright?
@@ -164,6 +196,16 @@ points. Because that interval includes zero, the result is inconclusive. It was
 also an adaptive v2 complete-interface comparison—not a raw-DOM comparison or
 independent confirmation.
 
+### Did Evidence Drop 02 independently prove that BrowserIR is better?
+
+No. BrowserIR passed 21/30 and the official Playwright MCP control passed
+20/30, but the 95% paired interval around the +3.33-point estimate ran from
+−46.26 to +52.92 points. The result is inconclusive. The final nine pairs both
+failed in a provider-contaminated tail best explained by exhausted OpenRouter
+credit; they remain part of the frozen result and were not rerun. Drop 02 is a
+new real-model slice within the same known fixture, not a raw-DOM comparison,
+generalization result, or superiority claim.
+
 ### Why should anyone trust the 14/14 score?
 
 Each task runs in a separate worker with a fresh seeded database, browser,
@@ -182,9 +224,10 @@ boundaries exist precisely so progress can be measured without overstating it.
 
 ### Does it claim to beat other browser-agent systems?
 
-No. Evidence Drop 01 is one adaptive matched comparison against the official
-Playwright MCP accessibility-snapshot control, and its result is inconclusive.
-It does not establish market superiority or performance against raw DOM.
+No. Evidence Drops 01 and 02 are narrow matched comparisons against the
+official Playwright MCP accessibility-snapshot control, and both results are
+inconclusive. They do not establish market superiority or performance against
+raw DOM.
 
 ## Media assets
 
@@ -196,6 +239,7 @@ It does not establish market superiority or performance against raw DOM.
 - Repository/social preview: [`browserir-social-card.png`](browserir-social-card.png)
 - Benchmark scorecard: [`browserir-benchmark.svg`](browserir-benchmark.svg)
 - Evidence Drop 01 adaptive v2 result: [`browserir-evidence-drop-01-v2.svg`](browserir-evidence-drop-01-v2.svg)
+- Evidence Drop 02 result: [`browserir-evidence-drop-02.svg`](browserir-evidence-drop-02.svg)
 - Scoring method: [`browserir-scoring-method.svg`](browserir-scoring-method.svg)
 - Representation visual: [`browserir-representation.svg`](browserir-representation.svg)
 - Architecture visual: [`browserir-architecture.svg`](browserir-architecture.svg)

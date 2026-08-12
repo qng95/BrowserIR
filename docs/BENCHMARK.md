@@ -7,8 +7,8 @@ BrowserIR's central claim is about representation quality: give an AI model enou
 1. Did the agent complete the task in the real application?
 2. Did the representation expose the right entities, capabilities, and relationships at an acceptable payload cost?
 
-The repository contains the measuring components and one completed comparative
-pilot. It currently includes:
+The repository contains the measuring components and two completed comparative
+pilots. It currently includes:
 
 - a deterministic ERP/DMS fixture with 14 database-backed task oracles;
 - representation, identity, omission, payload, and task-outcome metrics;
@@ -29,6 +29,15 @@ an adaptive one-workflow controlled-fixture pilot—not a raw-DOM baseline, pure
 representation ablation, independent confirmation, generalization result, or
 superiority claim. Drop 01 v1 was operator-stopped and remains a diagnostic
 prefix with no score or interval.
+
+Evidence Drop 02 completed a new sealed 30-block schedule on the
+`query-three-conditions` known-fixture workflow. BrowserIR passed 21/30 and the
+same control passed 20/30; the +3.33-point estimate had a conservative 95%
+paired bound of −46.26 to +52.92 points, so its predeclared verdict is also
+**inconclusive**. The last nine pairs are provider-contaminated and best
+explained by exhausted OpenRouter credit; they remain scored with no rerun.
+This does not change the complete-interface,
+one-workflow, no-raw-DOM, no-generalization claim boundary.
 
 The checked-in fake-model vertical slice validates the harness rather than
 model generalization. The official-client 14-task runner uses a deterministic
@@ -386,13 +395,12 @@ bytes as a separate, predeclared profile; `--headful` is diagnostic and is also
 a different environment. The current target runs attempts sequentially in the
 benchmark process, so it needs per-attempt worker/container isolation before it
 can be used as a hosted scoring service. Local Ollama development diagnostics
-exist. The separately frozen adaptive-v2 real-model comparison completed all
-30 matched blocks: BrowserIR passed 30/30 and official Playwright MCP passed
-27/30, for an observed +10.00-point lift with a 95% paired bound of −39.59 to
-+59.59 points. The predeclared result is therefore inconclusive. It is one
-adaptive complete-interface controlled-fixture pilot, not a raw-DOM baseline,
-pure representation ablation, independent confirmation, generalization result,
-or superiority claim.
+exist. The two completed sealed comparisons are both inconclusive. Drop 01
+adaptive v2 was 30/30 for BrowserIR versus 27/30 for official Playwright MCP
+(+10.00 points; 95% paired bound −39.59 to +59.59). Drop 02 was 21/30 versus
+20/30 (+3.33 points; bound −46.26 to +52.92). These are complete-interface
+controlled-fixture pilots, not raw-DOM baselines, pure representation
+ablations, generalization results, or superiority claims.
 
 See [Agent benchmark](AGENT_BENCHMARK.md) for the trust boundary, deterministic
 judge contract, trial schedule, interpretation, report artifacts, and current
@@ -464,3 +472,16 @@ from −39.59 to +59.59 points, so the frozen rule classifies the result as
 [Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
 [Read the analysis](evidence-drops/drop-01/adaptive-v2-analysis.md) ·
 [Inspect the frozen protocol](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
+
+Drop 02 then used a new workflow and fresh schedule with no reused Drop 01
+attempt. All 30 blocks were valid: 1 favored BrowserIR, 0 favored control, 20
+both passed, and 9 both failed, yielding 21/30 versus 20/30. The paired
+estimate was +3.33 percentage points with a 95% paired Hoeffding interval from
+−46.26 to +52.92 points, so the result is **inconclusive**. The contiguous
+nine-pair both-failed tail is provider-contaminated and best explained by
+exhausted OpenRouter credit; the protocol retains those failures and permits no
+selective rerun.
+
+[Inspect Drop 02](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
+[Read the Drop 02 analysis](evidence-drops/drop-02/analysis.md) ·
+[Inspect the Drop 02 protocol](evidence-drops/drop-02/sealed.protocol.json)

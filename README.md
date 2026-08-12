@@ -68,17 +68,22 @@ driver; BrowserIR provides the model-facing meaning and safety boundary.
 | Matched agent comparison | Published result |
 | --- | ---: |
 | BrowserIR vs raw-DOM serialization | **Not measured yet** |
-| BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
+| Drop 02: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 21/30 vs 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
+| Drop 01: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
 
-Across 30 matched `validation-recovery` blocks, BrowserIR passed 30/30 and the
-control passed 27/30. The observed +10.00-point lift is inconclusive because
-the predeclared interval crosses zero. This adaptive v2 result compares the
-complete interfaces; it is not a raw-DOM measurement, pure representation
-ablation, independent confirmation, generalization, or a superiority claim.
+Drop 02 used Qwen3.8-Max on 30 fresh matched `query-three-conditions` blocks:
+1 BrowserIR win, 0 control wins, 20 both pass, 9 both fail, and 0 invalid. The
+interval crosses zero, so the predeclared verdict is **inconclusive**. This is a
+complete-interface test on one known fixture workflow—not raw-DOM evidence,
+generalization, or a superiority claim.
 
-[Inspect the complete result](docs/evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
-[Read the analysis](docs/evidence-drops/drop-01/adaptive-v2-analysis.md) ·
-[See the frozen protocol](docs/evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
+The nine-pair tail is provider-contaminated, so the absolute arm rates are not
+clean interface-capability estimates. The frozen score remains unchanged.
+
+[Inspect Drop 02](docs/evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
+[Read the analysis](docs/evidence-drops/drop-02/analysis.md) ·
+[See the frozen protocol](docs/evidence-drops/drop-02/sealed.protocol.json) ·
+[Earlier Drop 01 result](docs/evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md)
 
 ## How the scores are earned
 

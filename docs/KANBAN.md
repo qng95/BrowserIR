@@ -12,14 +12,18 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The Drop 02 freeze candidate advances the exact-count policy to
+implemented. The Drop 02 freeze advances the exact-count policy to
 v17 and declares 754 cases: 735 executed and 19 intentional opt-in cases
 skipped. By package, that is core 60/60, fixture 100/100, Playwright driver
 107/107, benchmark 292/292, and MCP 195 declared with 176 executed and 19
-skipped. This v17 candidate is not yet hosted-qualified. The latest qualified
-publication remains result-publication commit `e448b58`, which passed all ten
+skipped. Freeze commit `1b4f78a` passed all ten hosted jobs in
+[run `31616555262`](https://github.com/qng95/BrowserIR/actions/runs/31616555262)
+and is bound by tag `evidence-drop-02-protocol-v1`. Its dossier digest is
+`sha256:c2ecd2f7bfa07ba17c01dfd5cca7e15d3158a1f779ed78a160e015319226c479`.
+The latest qualified result publication remains commit `e448b58`, which passed all ten
 jobs under v16 in [GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
-and is bound by tag `evidence-drop-01-adaptive-v2-result`. The current dossier is
+and is bound by tag `evidence-drop-01-adaptive-v2-result`. Its
+result-publication dossier is
 `release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`
 with GitHub-reported digest `sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`.
 Earlier v15, v14, v13, and
@@ -309,21 +313,26 @@ Definition of Done for every implementation card:
 - [x] Recount the workspace after those tests and deliberately advance the
   exact test-count policy without weakening any release gate.
 - [x] Run the complete local workspace and qualification gates.
-- [ ] Commit and push the clean freeze source, require all ten hosted CI jobs to
+- [x] Commit and push the clean freeze source, require all ten hosted CI jobs to
   pass, then create and push an annotated Drop 02 protocol tag.
-- [ ] Only after that tag exists, run the complete 30-block schedule without
+- [x] Only after that tag exists, run the complete 30-block schedule without
   early stopping, favorable reruns, or reuse of a Drop 01 attempt.
 - [ ] Publish every result under the predeclared rule. Describe it as a
   complete-interface fixture comparison—not raw DOM, a pure representation
   ablation, or unseen-site generalization.
 
-Current state: oracle hardening and local manifest preflight are green. The
-provisional `docs/evidence-drops/drop-02/sealed.protocol.json` has SHA-256
+Current state: freeze commit `1b4f78a` passed all ten hosted v17 jobs in run
+`31616555262`; `evidence-drop-02-protocol-v1` binds the protocol before the
+first scored call. The sealed
+`docs/evidence-drops/drop-02/sealed.protocol.json` has SHA-256
 `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
-The complete local v17 gate is green at 754 declared cases, 735 executed, and
-19 intentional opt-in skips. The candidate is not committed or tag-bound, and
-there is no model call, score, result, or hosted-CI freeze binding. Every
-unchecked step above remains mandatory.
+The complete 30-block schedule produced BrowserIR 21/30 versus control 20/30:
+1 treatment win, 0 control wins, 20 both pass, 9 both fail, and 0 invalid. The
++3.33-point estimate has a 95% bound of −46.26 to +52.92 points, so the result
+is **inconclusive**. The final nine both-failed pairs are provider-contaminated
+and best explained by exhausted OpenRouter credit; they remain scored and will
+not be selectively rerun. The unchanged result publication, hosted CI, and
+result tag remain open.
 
 ### BIR-099 — Evidence Drop 01: paired Playwright MCP comparison
 
@@ -780,6 +789,15 @@ The entries below are umbrella milestones. Several have implemented slices
 listed under Done or the audit history above; unchecked acceptance gates denote
 the remaining general-purpose coverage and must not be read as saying that no
 part of the milestone exists.
+
+### BIR-101 — Provider-budget safety for sealed evidence
+
+- [ ] Preflight provider credit/quota against a declared campaign spend ceiling
+  before the first scored call, without publishing private account amounts.
+- [ ] Freeze the classification of provider credit/quota failures and the
+  permitted stop behavior before execution.
+- [ ] Preserve completed schedules without post-hoc invalidation, shortened
+  prefixes, or favorable reruns.
 
 ### M2 — Sensors and canonical graph
 

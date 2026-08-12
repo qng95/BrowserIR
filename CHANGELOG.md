@@ -96,6 +96,15 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   with zero invalids: BrowserIR passed 30/30 and official Playwright MCP passed
   27/30. Its +10.00-point paired estimate had a 95% bound of −39.59 to +59.59
   points, making the predeclared result inconclusive.
+- Evidence Drop 02 completed its full sealed 30-block schedule on the
+  real-model-unexposed `query-three-conditions` fixture workflow with the
+  frozen Qwen3.8-Max configuration. BrowserIR passed 21/30 and official
+  Playwright MCP passed 20/30: 1 BrowserIR win, 0 control wins, 20 both pass,
+  9 both fail, and 0 invalid. The +3.33-point paired estimate has a 95% paired
+  Hoeffding interval of −46.26 to +52.92 points, so the predeclared verdict is
+  inconclusive. The shared tail is provider-contaminated and best explained by
+  exhausted OpenRouter credit; the frozen score remains unchanged.
+  Result-publication CI and the result tag remain pending.
 
 ### Changed
 
@@ -107,17 +116,12 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Retained public-safe partial agent telemetry when a run times out or fails,
   including model turns and usage already observed plus pre-broker adapter
   rejection counts. Raw model messages and tool arguments remain excluded.
-- Recorded the prospective Evidence Drop 02 boundary: fixed Qwen3.8-Max on the
-  real-model-unexposed `query-three-conditions` fixture workflow, 30 new matched
-  pairs with new seeds, and no adaptive lineage to Drop 01. The discovered
-  direct-navigation oracle bypass was fixed test-first; the regenerated
-  bindings and provisional local manifest pass preflight. The manifest SHA-256
-  is `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
-  The complete local v17 gate is green at 754 declared cases, 735 executed,
-  and 19 intentional opt-in skips. No model call or result exists; hosted
-  qualification, commit, push, and the annotated tag remain pending. This
-  cannot support raw-DOM,
-  pure-representation, or unseen-site claims.
+- Froze Evidence Drop 02 before its first scored call at protocol SHA-256
+  `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+  The clean freeze commit `1b4f78a` passed all ten hosted v17 jobs in run
+  `31616555262` and is bound by `evidence-drop-02-protocol-v1`. The sealed run
+  retained every scheduled attempt and does not support raw-DOM,
+  pure-representation, unseen-site, generalization, or superiority claims.
 - The first Drop 01 v1 execution was operator-stopped after nine complete
   matched blocks, with a tenth control arm complete and its treatment arm in
   flight. The prefix has no score or interval. Diagnosis showed the model
@@ -157,10 +161,11 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Chromium is the only supported browser backend.
 - Packages remain unpublished pending npm scope ownership, an alpha version/tag
   decision, public-package privacy changes, and the publication step itself.
-- The only completed paired real-model result is one inconclusive adaptive
-  complete-interface controlled-fixture pilot; no raw-DOM comparison,
-  independent confirmation, multi-workflow generalization, or broad
-  superiority result exists yet.
+- The two completed paired real-model results are inconclusive
+  complete-interface controlled-fixture pilots. Neither is a raw-DOM
+  comparison, multi-workflow generalization result, or broad superiority
+  result; Drop 01 is adaptive and Drop 02 is one new real-model slice within
+  the same known fixture.
 - Closed Shadow DOM, canvas-only interfaces, fully unannotated choices,
   higher-level table semantics such as general sort/filter/pagination ownership,
   persisted auth profiles, managed downloads, continuation views, historical

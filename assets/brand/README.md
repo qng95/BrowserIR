@@ -27,6 +27,8 @@ pass through a compile gate and emerge as a compact, structured representation.
 | [`browserir-benchmark.svg`](browserir-benchmark.svg) | Exact local qualification scorecard. |
 | [`browserir-evidence-drop-01-v2.svg`](browserir-evidence-drop-01-v2.svg) | Evidence Drop 01 adaptive v2 matched-comparison result card. |
 | [`browserir-evidence-drop-01-v2.png`](browserir-evidence-drop-01-v2.png) | Raster export of the Evidence Drop 01 adaptive v2 result card. |
+| [`browserir-evidence-drop-02.svg`](browserir-evidence-drop-02.svg) | Evidence Drop 02 matched-comparison result card. |
+| [`browserir-evidence-drop-02.png`](browserir-evidence-drop-02.png) | Raster export of the Evidence Drop 02 result card. |
 | [`browserir-scoring-method.svg`](browserir-scoring-method.svg) | Plain-English visual showing how a task earns a pass. |
 | [`browserir-representation.svg`](browserir-representation.svg) | Product visual showing a live UI compiled into model-ready IR. |
 | [`browserir-architecture.svg`](browserir-architecture.svg) | High-level product architecture visual. |
@@ -83,11 +85,11 @@ execution.
 
 Use this formulation for the latest hosted source qualification:
 
-> GitHub Actions reproduced BrowserIR's 14/14 deterministic fixture
-> qualification on clean, source-bound v16 result-publication commit `e448b58`
-> in run `31608404916`. The same run assembled the current source-evidence
-> dossier. This engineering qualification is separate from the adaptive
-> comparison and is not itself an LLM or competitor score.
+> GitHub Actions reproduced BrowserIR's deterministic fixture qualification on
+> clean, source-bound v17 Drop 02 freeze commit `1b4f78a` in run `31616555262`.
+> All ten required jobs passed and assembled a source-evidence dossier. This
+> engineering qualification is separate from the model comparison and is not
+> itself an LLM or competitor score.
 
 For the v13 scorecard's run-specific telemetry, use this exact scoped
 formulation:
@@ -104,8 +106,8 @@ formulation:
 > not an LLM or competitor score.
 
 Do not use `100% agent success`, `production-ready`, `fastest`, `most compact`,
-or superiority claims. The available paired result is inconclusive and does not
-support them.
+or superiority claims. Both available paired results are inconclusive and do
+not support them.
 
 The separate official-control compatibility result may be described only as:
 
@@ -130,6 +132,23 @@ Use this formulation for Evidence Drop 01:
 Do not describe the observed lift without the interval and inconclusive verdict.
 Do not present this adaptive complete-interface comparison as a raw-DOM result
 or independent confirmation.
+
+Use this formulation for Evidence Drop 02:
+
+> Evidence Drop 02 compared the complete BrowserIR interface with the official
+> Playwright MCP accessibility-snapshot control across 30 fresh matched
+> `query-three-conditions` blocks using Qwen3.8-Max. BrowserIR passed 21/30 and
+> the control passed 20/30: an observed lift of +3.33 percentage points, with a
+> 95% paired interval from −46.26 to +52.92 percentage points. Matched outcomes
+> were one BrowserIR win, zero control wins, 20 both pass, nine both fail, and
+> zero invalid. The result is **inconclusive**. The final nine both-failed pairs
+> are provider-contaminated and best explained by exhausted OpenRouter credit;
+> they remain scored and were not rerun. This is one complete-interface
+> workflow within a known fixture—not a
+> raw-DOM comparison, generalization result, or superiority claim.
+
+Do not omit the interval, inconclusive verdict, or provider-exhaustion caveat
+when describing Drop 02.
 
 ## Logo usage
 

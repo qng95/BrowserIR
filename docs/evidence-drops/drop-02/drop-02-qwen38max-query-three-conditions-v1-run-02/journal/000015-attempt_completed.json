@@ -1,0 +1,482 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 15,
+  "recordedAt": "2026-08-12T16:33:23.686Z",
+  "previousEventSha256": "84aa617a9b11c68e2d7b8cdca49fd1663e83409d4027c442a6c3e0ef3592c130",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:2",
+    "role": "treatment",
+    "attempt": {
+      "attemptId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:2:treatment",
+      "taskId": "query-three-conditions",
+      "taskVersion": "sha256:8534144f9f47037b0422f5d35a4e3240bca13e384824dbe86dedf94927573632",
+      "trialIndex": 2,
+      "outcome": "passed",
+      "targetId": "fixture:query-three-conditions:2",
+      "targetVersion": "sha256:5609bf1a1e9286c14a85eb8be641104f124b7e830e6b182789de6fcb9eb7fdec",
+      "agentStatus": "completed",
+      "finalTextSha256": "fb5e659cc8fadf479e0194596b8b96a18b99144b35f457d3ab792451f2a93a71",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 1,
+      "modelTurns": 24,
+      "usage": {
+        "output_tokens": 4539,
+        "input_tokens": 670600,
+        "total_tokens": 675139
+      },
+      "durationMs": 108388,
+      "agentRunDurationMs": 107954,
+      "tools": {
+        "calls": 23,
+        "errors": 0,
+        "byTool": {
+          "browser_act": 15,
+          "browser_create": 1,
+          "browser_inspect": 2,
+          "browser_navigate": 2,
+          "browser_observe": 2,
+          "benchmark_submit_result": 1
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "6257d7619f5ae3d5c4199fc2fb604cbde24886991519f173b503e75a2e64465e",
+        "toolCatalogToolCount": 10,
+        "responseBytes": 121584,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 15
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_create",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 216,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "page_id",
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 156,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 131,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 159,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 559,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_observe",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "max_tokens",
+            "page_id"
+          ],
+          "outcome": "returned",
+          "durationMs": 390,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "page_id",
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 165,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 200,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 220,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_inspect",
+          "inputKeys": [
+            "browser_id",
+            "entity_ids",
+            "expected_revision",
+            "page_id"
+          ],
+          "outcome": "returned",
+          "durationMs": 39,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 280,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 315,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 185,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 239,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 318,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 15,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 243,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 16,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 368,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 17,
+          "tool": "browser_inspect",
+          "inputKeys": [
+            "browser_id",
+            "entity_ids",
+            "expected_revision",
+            "page_id"
+          ],
+          "outcome": "returned",
+          "durationMs": 5,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 18,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 357,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 19,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref",
+            "value"
+          ],
+          "actionKind": "fill",
+          "outcome": "returned",
+          "durationMs": 267,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 20,
+          "tool": "browser_act",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "kind",
+            "page_id",
+            "target_ref"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 658,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 21,
+          "tool": "browser_observe",
+          "inputKeys": [
+            "browser_id",
+            "expected_revision",
+            "max_tokens",
+            "page_id"
+          ],
+          "outcome": "returned",
+          "durationMs": 599,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 22,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+          }
+        ],
+        "reasonSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+      },
+      "judge": {
+        "outcome": "passed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "17038155e14277aa35ede5c3e762d83c6f75f1d8af3c639bfbb852ed3f2b67b0",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bd1d6cc939b11342b2e13a72fd9c4973cdede4c115a2ae56248ba87da7087a80",
+            "evidenceSha256": "edcb403843ac83f025da4e46efd788e5fc714e40203b9f01026e8075501a771e"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "83e87d0d670a0d40e922dba4a7ccbb11c64acf3f54479e7c69e7fc68b85a5bd0"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "3645f4ab4a21feffd4d962f76ffeeee5b336b3710e21a5cceb4a99ea8207511e"
+          }
+        ],
+        "evidenceSha256": "edcb403843ac83f025da4e46efd788e5fc714e40203b9f01026e8075501a771e",
+        "reasonSha256": "bd1d6cc939b11342b2e13a72fd9c4973cdede4c115a2ae56248ba87da7087a80"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "1d44a2ea178a6d706ad0684cb97ce2f0fc83560975673330ca1fa0f0bebf50bc",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "54573e0ab4e8fba210214f04e4a68b1cbd0238013c682474e46be83bac728236"
+}

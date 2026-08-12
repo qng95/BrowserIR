@@ -30,12 +30,16 @@ score-excluded control qualification has now completed: one selected OpenRouter
 of official Playwright MCP `0.0.78` and produced 5 passed, 0 failed, and 0
 invalid outcomes. This is a compatibility result, not a score. The separately
 frozen adaptive v2 schedule is the first completed sealed paired real-model
-run. In that 30-block complete-interface comparison, BrowserIR passed
-30/30 and official Playwright MCP passed 27/30; the +10.00-point paired estimate
-had a 95% bound of −39.59 to +59.59 points, so the predeclared result is
-inconclusive. It is an adaptive controlled-fixture result, not raw-DOM evidence,
-independent confirmation, generalization, or a superiority claim. Drop 01 v1
-remains an aborted diagnostic with no score or interval. The deterministic
+run. In that 30-block complete-interface comparison, BrowserIR passed 30/30
+and official Playwright MCP passed 27/30; the +10.00-point paired estimate had
+a 95% bound of −39.59 to +59.59 points, so the predeclared result is
+inconclusive. Drop 02 then ran a fresh 30-block schedule on the
+real-model-unexposed `query-three-conditions` slice. BrowserIR passed 21/30 and
+the same control passed 20/30; the +3.33-point estimate had a 95% paired bound
+of −46.26 to +52.92 points, so that result is also **inconclusive**. Both are
+complete-interface known-fixture results—not raw-DOM evidence, generalization,
+or superiority claims. Drop 01 v1 remains an aborted diagnostic with no score
+or interval. The deterministic
 fake-model test validates benchmark wiring and grading, not model capability or
 generalization. The current CLI is suitable for local development and
 characterization; it is not yet a hardened public scoring service. See the
@@ -306,30 +310,48 @@ previously unmeasured slice.
 [Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
 [Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
 
-### Drop 02 prospective independence boundary
+### Drop 02 independent-schedule boundary and result
 
-Drop 02 prospectively selects `query-three-conditions`. No retained real-model
-development, compatibility, or scored run has used that workflow. The
-deterministic reference qualification has exercised it, so the intended claim
-is a new real-model slice within the known fixture—not unseen-site
-generalization.
+Drop 02 prospectively selected `query-three-conditions`. No retained real-model
+development, compatibility, or scored run had used that workflow. The
+deterministic reference qualification had exercised it, so the claim is a new
+real-model slice within the known fixture—not unseen-site generalization.
 
-The planned comparison fixes the same Qwen3.8-Max configuration and neutral
+The comparison fixed the same Qwen3.8-Max configuration and neutral
 LangChain agent across the complete BrowserIR and official Playwright MCP
-interfaces. It uses 30 fresh matched blocks, a new counterbalancing seed, and
+interfaces. It used 30 fresh matched blocks, a new counterbalancing seed, and
 30 new paired model seeds. No Drop 01 attempt is reused and no adaptive lineage
 is declared. The comparison is not raw-DOM evidence or a pure representation
 ablation.
 
-The direct-navigation oracle bypass was fixed test-first, and the regenerated
-task/oracle bindings now pass the local manifest preflight. The provisional
-manifest is
+The direct-navigation oracle bypass was fixed test-first. The frozen manifest is
 [`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json), SHA-256
 `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
-The complete local v17 gate is green at 754 declared cases, 735 executed, and
-19 intentional opt-in skips. The candidate is not committed or tag-bound, and
-no model call or result exists. The first scored call must wait for a committed
-and pushed source, successful hosted CI, and the new annotated freeze tag.
+Freeze commit `1b4f78a` passed all ten hosted v17 jobs in
+[run `31616555262`](https://github.com/qng95/BrowserIR/actions/runs/31616555262)
+and is bound by `evidence-drop-02-protocol-v1`.
+
+All 30 valid blocks completed: BrowserIR passed **21/30** and official
+Playwright MCP passed **20/30**, with 1 BrowserIR win, 0 control wins, 20 both
+pass, 9 both fail, and 0 invalid. The paired estimate is **+3.33 percentage
+points**, with a conservative 95% paired Hoeffding interval of **−46.26 to
++52.92 points**. The interval crosses zero, so the predeclared verdict is
+**inconclusive**. The final nine pairs were provider-contaminated failures, not
+clean interface outcomes. Exhausted OpenRouter credit is the best
+explanation for this provider-contaminated tail; the recorded pattern and a
+post-run account check support but do not independently prove that diagnosis.
+The blocks remain scored under the frozen rule; there is no selective rerun or
+post-hoc invalidation. That operational tail prevents clean interpretation of
+the absolute 21/30 and 20/30 rates as capability under continuously available
+model service.
+
+Future sealed protocols must preflight available provider credit, bind a
+campaign spend ceiling, and declare how provider quota/credit failures are
+classified before execution. Those safeguards apply prospectively and cannot
+rewrite Drop 02.
+
+[Inspect the completed result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
+[Read the outcome analysis](evidence-drops/drop-02/analysis.md)
 
 ## Score-excluded official-control qualification
 

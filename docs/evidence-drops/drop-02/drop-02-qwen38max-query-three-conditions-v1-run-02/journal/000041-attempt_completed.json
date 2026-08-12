@@ -1,0 +1,447 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 41,
+  "recordedAt": "2026-08-12T16:48:28.612Z",
+  "previousEventSha256": "30538cc8cb19c5d94df7bebb681405dd3da1132f5c08b97bb4fd77cf63a510c7",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:6",
+    "role": "control",
+    "attempt": {
+      "attemptId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:6:control",
+      "taskId": "query-three-conditions",
+      "taskVersion": "sha256:8534144f9f47037b0422f5d35a4e3240bca13e384824dbe86dedf94927573632",
+      "trialIndex": 6,
+      "outcome": "passed",
+      "targetId": "fixture:query-three-conditions:6",
+      "targetVersion": "sha256:5609bf1a1e9286c14a85eb8be641104f124b7e830e6b182789de6fcb9eb7fdec",
+      "agentStatus": "completed",
+      "finalTextSha256": "6f99a455fd5e92f5fbcf2c609c8902f7ca0fb4ca5ab7fbf72c2f7363b40dd5f9",
+      "submittedResultSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "submissionAttempts": 1,
+      "modelTurns": 28,
+      "usage": {
+        "output_tokens": 2474,
+        "input_tokens": 460089,
+        "total_tokens": 462563
+      },
+      "durationMs": 84942,
+      "agentRunDurationMs": 84292,
+      "tools": {
+        "calls": 27,
+        "errors": 1,
+        "byTool": {
+          "browser_click": 7,
+          "browser_fill_form": 1,
+          "browser_navigate": 1,
+          "browser_select_option": 5,
+          "browser_snapshot": 10,
+          "browser_type": 2,
+          "benchmark_submit_result": 1
+        },
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75",
+        "toolCatalogToolCount": 17,
+        "responseBytes": 179013,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 15
+      },
+      "toolTrace": [
+        {
+          "index": 0,
+          "tool": "browser_navigate",
+          "inputKeys": [
+            "url"
+          ],
+          "outcome": "returned",
+          "durationMs": 1367,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 1,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 5,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 2,
+          "tool": "browser_fill_form",
+          "inputKeys": [
+            "fields"
+          ],
+          "actionKind": "fill_form",
+          "outcome": "returned",
+          "durationMs": 108,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 3,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 683,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 4,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 5,
+          "result": {
+            "isError": true
+          }
+        },
+        {
+          "index": 5,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 21,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 6,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 709,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 7,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 12,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 8,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 656,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 9,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 15,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 10,
+          "tool": "browser_select_option",
+          "inputKeys": [
+            "element",
+            "target",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 36,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 11,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 12,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 12,
+          "tool": "browser_select_option",
+          "inputKeys": [
+            "element",
+            "target",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 15,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 13,
+          "tool": "browser_type",
+          "inputKeys": [
+            "element",
+            "target",
+            "text"
+          ],
+          "actionKind": "type",
+          "outcome": "returned",
+          "durationMs": 19,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 14,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 530,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 15,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 8,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 16,
+          "tool": "browser_select_option",
+          "inputKeys": [
+            "element",
+            "target",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 15,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 17,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 11,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 18,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 566,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 19,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 12,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 20,
+          "tool": "browser_select_option",
+          "inputKeys": [
+            "element",
+            "target",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 21,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 21,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 12,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 22,
+          "tool": "browser_select_option",
+          "inputKeys": [
+            "element",
+            "target",
+            "values"
+          ],
+          "actionKind": "select",
+          "outcome": "returned",
+          "durationMs": 20,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 23,
+          "tool": "browser_type",
+          "inputKeys": [
+            "element",
+            "target",
+            "text"
+          ],
+          "actionKind": "type",
+          "outcome": "returned",
+          "durationMs": 25,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 24,
+          "tool": "browser_click",
+          "inputKeys": [
+            "element",
+            "target"
+          ],
+          "actionKind": "click",
+          "outcome": "returned",
+          "durationMs": 752,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 25,
+          "tool": "browser_snapshot",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 30,
+          "result": {
+            "isError": false
+          }
+        },
+        {
+          "index": 26,
+          "tool": "benchmark_submit_result",
+          "inputKeys": [],
+          "outcome": "returned",
+          "durationMs": 0,
+          "result": {
+            "isError": false
+          }
+        }
+      ],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+          }
+        ],
+        "reasonSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+      },
+      "judge": {
+        "outcome": "passed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "2dec0f36ce32e636ac9926e180c09f8ed3b5127b2833ceb76135ebcf39ef9977",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "bd1d6cc939b11342b2e13a72fd9c4973cdede4c115a2ae56248ba87da7087a80",
+            "evidenceSha256": "edcb403843ac83f025da4e46efd788e5fc714e40203b9f01026e8075501a771e"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "c4a5a84cdfe7e1fd42776803cb756cfb55fd3684f1989b1ade2b9701a8a747fe",
+            "evidenceSha256": "83e87d0d670a0d40e922dba4a7ccbb11c64acf3f54479e7c69e7fc68b85a5bd0"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": true,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "3645f4ab4a21feffd4d962f76ffeeee5b336b3710e21a5cceb4a99ea8207511e"
+          }
+        ],
+        "evidenceSha256": "edcb403843ac83f025da4e46efd788e5fc714e40203b9f01026e8075501a771e",
+        "reasonSha256": "bd1d6cc939b11342b2e13a72fd9c4973cdede4c115a2ae56248ba87da7087a80"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "48ab796446485eaa4ad784481183ebd88454b150fcbdf80adafec194548384bb",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "8bc0893ad0022af06dc8cbd71e6527d010219664c0ffa7c4d9a665358547a64e"
+}

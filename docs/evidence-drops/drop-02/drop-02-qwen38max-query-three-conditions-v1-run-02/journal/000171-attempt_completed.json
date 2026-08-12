@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "1.0.0",
+  "sequence": 171,
+  "recordedAt": "2026-08-12T17:36:53.757Z",
+  "previousEventSha256": "2d825c639f9ac88180440a34cc33818314865cda2f315e33e2ed2122118dde85",
+  "event": {
+    "type": "attempt_completed",
+    "blockId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:28",
+    "role": "treatment",
+    "attempt": {
+      "attemptId": "drop-02-sealed-2026-08-12T16-24-31-532Z:query-three-conditions:28:treatment",
+      "taskId": "query-three-conditions",
+      "taskVersion": "sha256:8534144f9f47037b0422f5d35a4e3240bca13e384824dbe86dedf94927573632",
+      "trialIndex": 28,
+      "outcome": "failed",
+      "failureKind": "agent_error",
+      "targetId": "fixture:query-three-conditions:28",
+      "targetVersion": "sha256:5609bf1a1e9286c14a85eb8be641104f124b7e830e6b182789de6fcb9eb7fdec",
+      "agentStatus": "errored",
+      "agentErrorSha256": "a8004610c26791b262391a4c109f06b0b2385d12e276f9e1832c9140cd1977db",
+      "submissionAttempts": 0,
+      "modelTurns": 0,
+      "durationMs": 298,
+      "agentRunDurationMs": 19,
+      "tools": {
+        "calls": 0,
+        "errors": 0,
+        "byTool": {},
+        "budgetExceeded": false,
+        "policyViolationCount": 0,
+        "policyViolationsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "toolCatalogSha256": "6257d7619f5ae3d5c4199fc2fb604cbde24886991519f173b503e75a2e64465e",
+        "toolCatalogToolCount": 10,
+        "responseBytes": 0,
+        "screenshots": 0,
+        "dispatchedBrowserActions": 0
+      },
+      "toolTrace": [],
+      "baseline": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+          }
+        ],
+        "reasonSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+      },
+      "judge": {
+        "outcome": "failed",
+        "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768",
+        "stateFingerprint": "1db112a65807ee0f5eca8fe54ba3765949d88ac9bbf7d1c34ebf54c2b9d6990a",
+        "criteria": [
+          {
+            "id": "database-and-audit-oracle",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+          },
+          {
+            "id": "no-collateral-audited-mutations",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "383a90fe9975b15627873fc62b96bfc0891f31216c761e5453cb3943eb439bfb",
+            "evidenceSha256": "df9dc19316cd982e27b8cfa03e47ca27f47b08e996331f0f9f064467f6d4fd6b"
+          },
+          {
+            "id": "structured-result",
+            "required": true,
+            "passed": false,
+            "descriptionSha256": "2c5dca2918c52d3bd7b170ee6fbf4d126b10b5c611c69f6f33f64620a6b3ebfc",
+            "evidenceSha256": "b72bf7f2b8b153709fdfc5ac6626f1945eb4f5a039252a58ae0fa4ca5195dce2"
+          }
+        ],
+        "reasonSha256": "05fd443c39cc8b46cdbbc6dd5fd1b3219ec8819dc21b1ebda6a77124f707212c"
+      },
+      "agent": {
+        "adapterId": "shared-langchain-agent",
+        "framework": "langchain-create-agent",
+        "frameworkVersion": "1.5.5",
+        "model": "qwen/qwen3.8-max",
+        "modelConfigurationSha256": "83dd0bd4db1fd012bc97efefa63237cc024871487241256a98da07b809e1a385",
+        "adapterConfigurationSha256": "3c7269f8e9a83614292453ec2d7a648312e1983621b1a9f823c1a3ab35f916a4",
+        "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+      }
+    }
+  },
+  "eventSha256": "f6aa378944ec088e437eade3ca05d937929142ae110b3098205d763aa0bbe48d"
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "1.0.0",
+  "state": "complete",
+  "runId": "drop-02-sealed-2026-08-12T16-24-31-532Z",
+  "protocolId": "drop-02-qwen38max-query-three-conditions-v1",
+  "protocolSha256": "a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3",
+  "journalFinalEventSha256": "4bdaa1cc940f10ae71514131ef862c773ad706efa492b7d5e3f41db1cb5f5dda",
+  "artifactManifestSha256": "ca4f5ea763362a53a35314cc2b15995338c9813cefd5c4177899680e290c8c27"
+}
