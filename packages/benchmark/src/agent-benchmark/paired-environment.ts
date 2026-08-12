@@ -13,9 +13,15 @@ import {
 import { z } from 'zod';
 
 import { stableJson } from '../environment.js';
+import {
+  OPENROUTER_REQUIRED_CONTROL_PARAMETERS,
+  openRouterControlModelFingerprint,
+  verifyOpenRouterControlModelBinding,
+  type OpenRouterControlModelSnapshot,
+} from '../control-capability-model-metadata.js';
 import { FIXTURE_AGENT_BROWSER_PROFILE } from './fixture-target.js';
 
-export const PAIRED_EXECUTION_ENVIRONMENT_SCHEMA_VERSION = '1.1.0' as const;
+export const PAIRED_EXECUTION_ENVIRONMENT_SCHEMA_VERSION = '1.2.0' as const;
 export const PAIRED_EXECUTION_INTEGRITY_BINDING_SCHEMA_VERSION = '1.0.0' as const;
 
 const execFile = promisify(execFileCallback);
@@ -100,29 +106,55 @@ const armSchema = z
   })
   .strict();
 
-const modelSchema = z
+const modelConfigurationSchema = z
   .object({
-    provider: z.enum(['ollama', 'openai']),
+    contextWindowTokens: z.number().int().positive().optional(),
+    temperature: z.number().finite().min(0).max(2),
+    maxRetries: z.number().int().nonnegative(),
+    imageMode: z.enum(['text-only', 'multimodal']),
+  })
+  .strict();
+
+const openRouterRequiredParametersSchema = z.custom<
+  typeof OPENROUTER_REQUIRED_CONTROL_PARAMETERS
+>(
+  (value) =>
+    Array.isArray(value) &&
+    value.length === OPENROUTER_REQUIRED_CONTROL_PARAMETERS.length &&
+    value.every(
+      (parameter, index) => parameter === OPENROUTER_REQUIRED_CONTROL_PARAMETERS[index],
+    ),
+  'must contain the exact required OpenRouter parameter list',
+);
+
+const openRouterMetadataSchema = z
+  .object({
+    schemaVersion: z.literal('1.0.0'),
+    modelId: boundedPrintable,
+    canonicalModelSlug: boundedPrintable,
+    contextWindowTokens: z.number().int().positive(),
+    providerRoute: boundedPrintable,
+    providerName: boundedPrintable,
+    endpointName: boundedPrintable,
+    endpointModelId: boundedPrintable,
+    maxCompletionTokens: z.number().int().positive(),
+    requiredParameters: openRouterRequiredParametersSchema,
+  })
+  .strict();
+
+const ollamaModelSchema = z
+  .object({
+    provider: z.literal('ollama'),
     modelId: boundedPrintable,
     artifactDigest: prefixedDigestSchema,
-    verification: z.enum([
-      'ollama-endpoint-reported-digest',
-      'protocol-declared-unverified',
-    ]),
+    verification: z.literal('ollama-endpoint-reported-digest'),
     runtime: z
       .object({
         name: boundedPrintable,
         version: boundedPrintable,
       })
       .strict(),
-    configuration: z
-      .object({
-        contextWindowTokens: z.number().int().positive().optional(),
-        temperature: z.number().finite().min(0).max(2),
-        maxRetries: z.number().int().nonnegative(),
-        imageMode: z.enum(['text-only', 'multimodal']),
-      })
-      .strict(),
+    configuration: modelConfigurationSchema,
     capabilities: z
       .array(z.string().regex(/^[a-z][a-z0-9_-]{0,63}$/))
       .superRefine((capabilities, context) => {
@@ -134,6 +166,94 @@ const modelSchema = z
       .optional(),
   })
   .strict();
+
+const openAiModelSchema = z
+  .object({
+    provider: z.literal('openai'),
+    modelId: boundedPrintable,
+    artifactDigest: prefixedDigestSchema,
+    verification: z.literal('protocol-declared-unverified'),
+    runtime: z
+      .object({
+        name: boundedPrintable,
+        version: boundedPrintable,
+      })
+      .strict(),
+    configuration: modelConfigurationSchema,
+  })
+  .strict();
+
+const openRouterModelSchema = z
+  .object({
+    provider: z.literal('openrouter'),
+    modelId: boundedPrintable,
+    canonicalModelSlug: boundedPrintable,
+    modelMetadataSha256: digestSchema,
+    providerRoute: boundedPrintable,
+    verification: z.literal('openrouter-endpoint-metadata-fingerprint'),
+    metadata: openRouterMetadataSchema,
+    configuration: modelConfigurationSchema.extend({
+      contextWindowTokens: z.number().int().positive(),
+      maxOutputTokens: z.number().int().positive(),
+    }),
+  })
+  .strict()
+  .superRefine((model, context) => {
+    if (
+      model.modelId !== model.metadata.modelId ||
+      model.modelId !== model.metadata.endpointModelId ||
+      model.canonicalModelSlug !== model.metadata.canonicalModelSlug ||
+      model.providerRoute !== model.metadata.providerRoute
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'OpenRouter model identity differs from its exact endpoint metadata',
+      });
+    }
+    if (model.configuration.contextWindowTokens !== model.metadata.contextWindowTokens) {
+      context.addIssue({
+        code: 'custom',
+        message: 'OpenRouter context window differs from its exact endpoint metadata',
+      });
+    }
+    if (model.configuration.maxOutputTokens > model.metadata.maxCompletionTokens) {
+      context.addIssue({
+        code: 'custom',
+        message: 'OpenRouter output budget exceeds the selected endpoint limit',
+      });
+    }
+    if (
+      model.modelMetadataSha256 !==
+      openRouterControlModelFingerprint(model.metadata as OpenRouterControlModelSnapshot)
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'OpenRouter model metadata fingerprint is invalid',
+      });
+    }
+  });
+
+const modelSchema = z.discriminatedUnion('provider', [
+  ollamaModelSchema,
+  openAiModelSchema,
+  openRouterModelSchema,
+]);
+
+const ollamaMetadataSchema = z
+  .object({
+    schemaVersion: z.literal('1.0.0'),
+    provider: z.literal('ollama'),
+    modelId: boundedPrintable,
+    artifactDigest: prefixedDigestSchema,
+    contextWindowTokens: z.number().int().positive().optional(),
+    capabilities: z.array(z.string().regex(/^[a-z][a-z0-9_-]{0,63}$/)),
+  })
+  .strict();
+
+const pairedModelMetadataSchema = z.union([
+  openRouterMetadataSchema,
+  ollamaMetadataSchema,
+]);
 
 const targetSchema = z
   .object({
@@ -177,19 +297,33 @@ export type PairedExecutionEnvironment = z.output<typeof environmentSchema>;
 export type PairedExecutionHost = z.input<typeof hostSchema>;
 export type PairedExecutionHarness = z.input<typeof harnessSchema>;
 export type PairedExecutionModel = z.input<typeof modelSchema>;
+export type PairedExecutionModelMetadata = z.output<typeof pairedModelMetadataSchema>;
 export type PairedExecutionArm = z.input<typeof armSchema>;
 
 export interface PairedExecutionEnvironmentProtocol {
-  agent: {
-    provider: 'ollama' | 'openai';
-    baseUrl?: string | undefined;
-    modelId: string;
-    modelDigest: string;
-    contextWindowTokens?: number | undefined;
-    temperature: number;
-    maxRetries: number;
-    imageMode: 'text-only' | 'multimodal';
-  };
+  agent:
+    | {
+        provider: 'ollama' | 'openai';
+        baseUrl?: string | undefined;
+        modelId: string;
+        modelDigest: string;
+        contextWindowTokens?: number | undefined;
+        temperature: number;
+        maxRetries: number;
+        imageMode: 'text-only' | 'multimodal';
+      }
+    | {
+        provider: 'openrouter';
+        baseUrl: 'https://openrouter.ai/api/v1';
+        modelId: string;
+        canonicalModelSlug: string;
+        modelMetadataSha256: string;
+        providerRoute: string;
+        temperature: number;
+        maxOutputTokens: number;
+        maxRetries: number;
+        imageMode: 'text-only' | 'multimodal';
+      };
   target: {
     expectedVersion: string;
     headless: boolean;
@@ -214,6 +348,10 @@ export interface PairedExecutionEnvironmentProbe {
     role: 'control' | 'treatment',
     protocol: PairedExecutionEnvironmentProtocol,
   ): Promise<PairedExecutionArm>;
+}
+
+export interface CreateDefaultPairedExecutionEnvironmentProbeOptions {
+  fetch?: typeof fetch | undefined;
 }
 
 interface PlaywrightBrowser {
@@ -381,6 +519,9 @@ const configuredContext = (parameters: unknown): number | undefined => {
 async function ollamaModel(
   protocol: PairedExecutionEnvironmentProtocol,
 ): Promise<PairedExecutionModel> {
+  if (protocol.agent.provider !== 'ollama') {
+    throw new Error('Ollama model probe received a non-Ollama protocol.');
+  }
   if (protocol.agent.baseUrl === undefined) {
     throw new Error('Ollama environment capture requires an explicit endpoint.');
   }
@@ -444,8 +585,39 @@ async function ollamaModel(
   };
 }
 
+async function openRouterModel(
+  protocol: PairedExecutionEnvironmentProtocol,
+  request: typeof fetch,
+): Promise<PairedExecutionModel> {
+  if (protocol.agent.provider !== 'openrouter') {
+    throw new Error('OpenRouter model probe received a non-OpenRouter protocol.');
+  }
+  const metadata = await verifyOpenRouterControlModelBinding({
+    binding: protocol.agent,
+    fetch: request,
+  });
+  return {
+    provider: 'openrouter',
+    modelId: protocol.agent.modelId,
+    canonicalModelSlug: protocol.agent.canonicalModelSlug,
+    modelMetadataSha256: protocol.agent.modelMetadataSha256,
+    providerRoute: protocol.agent.providerRoute,
+    verification: 'openrouter-endpoint-metadata-fingerprint',
+    metadata,
+    configuration: {
+      contextWindowTokens: metadata.contextWindowTokens,
+      temperature: protocol.agent.temperature,
+      maxOutputTokens: protocol.agent.maxOutputTokens,
+      maxRetries: protocol.agent.maxRetries,
+      imageMode: protocol.agent.imageMode,
+    },
+  };
+}
+
 export const createDefaultPairedExecutionEnvironmentProbe =
-  (): PairedExecutionEnvironmentProbe => {
+  (
+    options: CreateDefaultPairedExecutionEnvironmentProbeOptions = {},
+  ): PairedExecutionEnvironmentProbe => {
   const executableDigests = new Map<string, Promise<string>>();
   const executableDigest = (path: string): Promise<string> => {
     let pending = executableDigests.get(path);
@@ -490,21 +662,23 @@ export const createDefaultPairedExecutionEnvironmentProbe =
     model: async (protocol) =>
       protocol.agent.provider === 'ollama'
         ? ollamaModel(protocol)
-        : {
-            provider: 'openai',
-            modelId: protocol.agent.modelId,
-            artifactDigest: protocol.agent.modelDigest,
-            verification: 'protocol-declared-unverified',
-            runtime: { name: 'openai-managed', version: 'unverified' },
-            configuration: {
-              ...(protocol.agent.contextWindowTokens === undefined
-                ? {}
-                : { contextWindowTokens: protocol.agent.contextWindowTokens }),
-              temperature: protocol.agent.temperature,
-              maxRetries: protocol.agent.maxRetries,
-              imageMode: protocol.agent.imageMode,
+        : protocol.agent.provider === 'openrouter'
+          ? openRouterModel(protocol, options.fetch ?? globalThis.fetch)
+          : {
+              provider: 'openai',
+              modelId: protocol.agent.modelId,
+              artifactDigest: protocol.agent.modelDigest,
+              verification: 'protocol-declared-unverified',
+              runtime: { name: 'openai-managed', version: 'unverified' },
+              configuration: {
+                ...(protocol.agent.contextWindowTokens === undefined
+                  ? {}
+                  : { contextWindowTokens: protocol.agent.contextWindowTokens }),
+                temperature: protocol.agent.temperature,
+                maxRetries: protocol.agent.maxRetries,
+                imageMode: protocol.agent.imageMode,
+              },
             },
-          },
     arm: async (role, protocol) =>
       role === 'control'
         ? controlArm(protocol, executableDigest)
@@ -529,6 +703,56 @@ export function parsePairedExecutionEnvironment(
 export function renderPairedExecutionEnvironment(input: unknown): string {
   const parsed = parsePairedExecutionEnvironment(input);
   return `${JSON.stringify(JSON.parse(stableJson(parsed)) as unknown, null, 2)}\n`;
+}
+
+export function pairedExecutionModelMetadata(
+  input: PairedExecutionEnvironment | PairedExecutionModel,
+): PairedExecutionModelMetadata {
+  const model = 'model' in input ? input.model : modelSchema.parse(input);
+  if (model.provider === 'openrouter') return model.metadata;
+  if (model.provider === 'openai') {
+    throw new Error(
+      'Legacy OpenAI execution has no verifiable endpoint metadata snapshot.',
+    );
+  }
+  return pairedModelMetadataSchema.parse({
+    schemaVersion: '1.0.0',
+    provider: 'ollama',
+    modelId: model.modelId,
+    artifactDigest: model.artifactDigest,
+    ...(model.configuration.contextWindowTokens === undefined
+      ? {}
+      : { contextWindowTokens: model.configuration.contextWindowTokens }),
+    capabilities: model.capabilities ?? [],
+  });
+}
+
+export function parsePairedExecutionModelMetadata(
+  input: unknown,
+): PairedExecutionModelMetadata {
+  const result = pairedModelMetadataSchema.safeParse(input);
+  if (!result.success) {
+    throw new Error(
+      `Invalid paired execution model metadata: ${result.error.issues
+        .map((issue) => `${issue.path.join('.') || 'root'}: ${issue.message}`)
+        .join('; ')}`,
+    );
+  }
+  return result.data;
+}
+
+export function renderPairedExecutionModelMetadata(
+  input: PairedExecutionEnvironment | PairedExecutionModel | PairedExecutionModelMetadata,
+): string {
+  const metadata =
+    typeof input === 'object' &&
+    input !== null &&
+    ('model' in input || 'verification' in input)
+      ? pairedExecutionModelMetadata(
+          input as PairedExecutionEnvironment | PairedExecutionModel,
+        )
+      : parsePairedExecutionModelMetadata(input);
+  return `${JSON.stringify(JSON.parse(stableJson(metadata)) as unknown, null, 2)}\n`;
 }
 
 export function pairedExecutionEnvironmentFingerprint(input: unknown): string {
@@ -625,10 +849,20 @@ export async function collectPairedExecutionEnvironment(
   ]);
   if (
     model.provider !== options.protocol.agent.provider ||
-    model.modelId !== options.protocol.agent.modelId ||
-    model.artifactDigest !== options.protocol.agent.modelDigest
+    model.modelId !== options.protocol.agent.modelId
   ) {
     throw new Error('Model probe metadata drifted from the protocol.');
+  }
+  const modelBindingDrifted =
+    options.protocol.agent.provider === 'openrouter'
+      ? model.provider !== 'openrouter' ||
+        model.canonicalModelSlug !== options.protocol.agent.canonicalModelSlug ||
+        model.modelMetadataSha256 !== options.protocol.agent.modelMetadataSha256 ||
+        model.providerRoute !== options.protocol.agent.providerRoute
+      : model.provider !== options.protocol.agent.provider ||
+        model.artifactDigest !== options.protocol.agent.modelDigest;
+  if (modelBindingDrifted) {
+    throw new Error('Model metadata drifted from the protocol.');
   }
   if (
     control.interfaceVersion !== options.protocol.arms.control.interfaceVersion ||

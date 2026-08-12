@@ -1,5 +1,7 @@
 export * from './contracts.js';
 export * from './control-capability-runtime-provenance.js';
+export * from './browserir-playwright-runtime-boundary.js';
+export * from './browserir-mcp-runtime-boundary.js';
 export * from './control-capability-protocol.js';
 export * from './control-capability-report.js';
 export * from './evidence-drop-protocol.js';
@@ -14,6 +16,8 @@ export * from './paired-environment-lifecycle.js';
 export * from './paired-journal.js';
 export * from './paired-model-seed.js';
 export * from './paired-report.js';
+export * from './paired-runtime-provenance.js';
+export * from './paired-runtime-provenance-lifecycle.js';
 export * from './paired-runner.js';
 export * from './paired-statistics.js';
 export * from './policy-broker.js';

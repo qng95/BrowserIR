@@ -8,12 +8,16 @@ import type {
   JournalSafeAgentTrialResult,
   JournalSafeJudgeResult,
   PairedAgentBenchmarkBlock,
+  PairedAgentBenchmarkClaimPolicy,
   PairedAgentBenchmarkOptions,
   PairedAgentBenchmarkReport,
   PairedArmSummary,
   PairedBlockOutcome,
 } from './paired-contracts.js';
-import { PAIRED_AGENT_BENCHMARK_SCHEMA_VERSION } from './paired-contracts.js';
+import {
+  PAIRED_AGENT_BENCHMARK_SCHEMA_VERSION,
+  SEALED_PAIRED_AGENT_BENCHMARK_CLAIM_POLICY,
+} from './paired-contracts.js';
 import {
   pairedHoeffdingLiftInterval,
   pairedLiftInterval,
@@ -302,6 +306,34 @@ async function runArmAttempt(input: {
 
 const noEvents = async (): Promise<void> => {};
 
+const validatedClaimPolicy = (
+  options: PairedAgentBenchmarkOptions,
+): PairedAgentBenchmarkClaimPolicy | undefined => {
+  if (options.claimPolicy === undefined) {
+    if (options.phase === 'sealed') {
+      throw new Error('A sealed paired benchmark requires the exact frozen claim policy.');
+    }
+    return undefined;
+  }
+  if (
+    stableJson(options.claimPolicy) !==
+    stableJson(SEALED_PAIRED_AGENT_BENCHMARK_CLAIM_POLICY)
+  ) {
+    throw new Error('Paired benchmark claim policy differs from the approved frozen policy.');
+  }
+  return {
+    decisionRule: {
+      minimumScheduledBlocks: options.claimPolicy.decisionRule.minimumScheduledBlocks,
+      maximumInvalidBlocks: options.claimPolicy.decisionRule.maximumInvalidBlocks,
+      positive: { ...options.claimPolicy.decisionRule.positive },
+      negative: { ...options.claimPolicy.decisionRule.negative },
+      otherwise: options.claimPolicy.decisionRule.otherwise,
+    },
+    publicationRule: options.claimPolicy.publicationRule,
+    estimand: options.claimPolicy.estimand,
+  };
+};
+
 export async function runPairedAgentBenchmark(
   options: PairedAgentBenchmarkOptions,
 ): Promise<PairedAgentBenchmarkReport> {
@@ -316,6 +348,7 @@ export async function runPairedAgentBenchmark(
   ) {
     throw new Error('Protocol binding does not match the benchmark phase.');
   }
+  const claimPolicy = validatedClaimPolicy(options);
   positiveInteger(options.trialsPerTask, 'trialsPerTask');
   positiveInteger(options.bootstrapResamples, 'bootstrapResamples');
   if (options.tasks.length === 0) throw new Error('tasks must not be empty.');
@@ -491,6 +524,7 @@ export async function runPairedAgentBenchmark(
     protocolSha256: options.protocolSha256,
     protocolBinding: options.protocolBinding,
     phase: options.phase,
+    ...(claimPolicy === undefined ? {} : { claimPolicy }),
     expectedTargetVersion: options.expectedTargetVersion,
     scheduleSeed: options.scheduleSeed,
     budgets: { ...options.budgets },

@@ -10,6 +10,7 @@ import { BROWSERIR_PROTOCOL_VERSION, BROWSERIR_VERSION } from '@browserir/mcp';
 import { stableJson } from './environment.js';
 import {
   capturePairedExecutionEnvironmentEnd,
+  capturePairedRuntimeProvenanceEnd,
   captureSealedExecutionBuildEnd,
   createPairedAgentBenchmarkCompletionMarker,
   createFixtureAgentTargetFactory,
@@ -19,6 +20,7 @@ import {
   fixtureAgentTasks,
   inspectModelFacingCatalog,
   PLAYWRIGHT_MCP_VERSION,
+  preparePairedRuntimeProvenanceStart,
   preparePairedExecutionEnvironmentStart,
   prepareSealedExecutionBuildStart,
   readPairedAgentBenchmarkCompletionMarker,
@@ -33,13 +35,17 @@ import {
   type ModelFacingCatalogSnapshot,
   type PreparedPairedExecutionEnvironmentStart,
   type PreparedSealedExecutionBuildStart,
+  type PreparedPairedRuntimeProvenanceStart,
 } from './agent-benchmark/index.js';
 import {
   PAIRED_UPLIFT_CLI_USAGE,
   parsePairedUpliftCliOptions,
   resolvePairedUpliftOutputDirectory,
 } from './uplift-cli-options.js';
-import { createPairedUpliftAgentFactory } from './paired-uplift-agent.js';
+import {
+  capturePairedUpliftProviderEnvironment,
+  createPairedUpliftAgentFactory,
+} from './paired-uplift-agent.js';
 import { finalizePairedUpliftEvidence } from './uplift-cli-finalization.js';
 import {
   assertPairedUpliftSourceBinding,
@@ -180,11 +186,6 @@ function assertRuntimeVersions(protocol: EvidenceDropProtocol): void {
   if (protocol.arms.treatment.interfaceVersion !== browserIrInterfaceVersion()) {
     throw new Error('BrowserIR interface version drifted from the protocol.');
   }
-  if (protocol.phase === 'sealed' && protocol.agent.provider === 'openai') {
-    throw new Error(
-      'This alpha runner cannot yet verify an OpenAI model artifact for sealed evidence.',
-    );
-  }
 }
 
 function assertTaskContracts(
@@ -266,12 +267,42 @@ async function main(): Promise<void> {
         });
   const runId = resumeDisposition?.runId ?? generatedRunId;
   assertRuntimeVersions(protocol);
+  // Capture the model credential and remove it from process.env before any
+  // provenance probe, catalog inspection, MCP server, or browser child starts.
+  const providerEnvironment = capturePairedUpliftProviderEnvironment(protocol.agent);
   await verifyOllamaModel(protocol);
   const { protocolBinding, ...source } = await sourceState({
     phase: protocol.phase,
     freezeRef: protocol.freezeRef,
     manifestPath,
     manifestSource: sourceText,
+  });
+  if (retainedBeforeResume === undefined) {
+    await mkdir(dirname(outputDirectory), { recursive: true });
+    await mkdir(outputDirectory);
+  }
+  // Bind both role-specific package payloads and selected Chromium binaries
+  // before either catalog preflight is allowed to launch a browser.
+  const runtimeProvenanceStart: PreparedPairedRuntimeProvenanceStart =
+    await preparePairedRuntimeProvenanceStart({
+      outputDirectory,
+      mode: retainedBeforeResume === undefined ? 'create' : 'resume',
+    });
+  let environmentStart: PreparedPairedExecutionEnvironmentStart;
+  let buildStart: PreparedSealedExecutionBuildStart | undefined;
+  const environmentCollectionOptions = { workspaceRoot, protocol } as const;
+  if (protocol.phase === 'sealed') {
+    buildStart = await prepareSealedExecutionBuildStart({
+      outputDirectory,
+      mode: retainedBeforeResume === undefined ? 'create' : 'resume',
+    });
+  }
+  // Capture or verify every immutable start boundary before a catalog preflight
+  // starts either arm's MCP server or browser.
+  environmentStart = await preparePairedExecutionEnvironmentStart({
+    outputDirectory,
+    mode: retainedBeforeResume === undefined ? 'create' : 'resume',
+    collectionOptions: environmentCollectionOptions,
   });
   const tasks = fixtureAgentTasks(protocol.taskIds);
   const controlTargetFactory = createFixtureAgentTargetFactory({
@@ -304,6 +335,9 @@ async function main(): Promise<void> {
     }
   }
 
+  const journalDirectory = join(outputDirectory, 'journal');
+  let journal;
+  let resume;
   const executionStart = {
     schemaVersion: '1.0.0',
     stage: 'started',
@@ -311,6 +345,9 @@ async function main(): Promise<void> {
     protocolId: protocol.protocolId,
     protocolSha256,
     source,
+    runtimeProvenance: {
+      startSha256: runtimeProvenanceStart.snapshot.sha256,
+    },
     toolCatalogs: {
       control: { sha256: controlCatalog.sha256, toolCount: controlCatalog.toolCount },
       treatment: {
@@ -326,32 +363,13 @@ async function main(): Promise<void> {
     'treatment-tool-catalog.json': prettyStableJson(treatmentCatalog.catalog),
     'execution-start.json': prettyStableJson(executionStart),
   } as const;
-  const journalDirectory = join(outputDirectory, 'journal');
-  let journal;
-  let resume;
-  let environmentStart: PreparedPairedExecutionEnvironmentStart;
-  let buildStart: PreparedSealedExecutionBuildStart | undefined;
-  const environmentCollectionOptions = { workspaceRoot, protocol } as const;
   if (retainedBeforeResume === undefined) {
-    await mkdir(dirname(outputDirectory), { recursive: true });
-    await mkdir(outputDirectory);
     for (const [name, content] of Object.entries(preflightArtifacts)) {
       await writeFile(join(outputDirectory, name), content, {
         encoding: 'utf8',
         flag: 'wx',
       });
     }
-    if (protocol.phase === 'sealed') {
-      buildStart = await prepareSealedExecutionBuildStart({
-        outputDirectory,
-        mode: 'create',
-      });
-    }
-    environmentStart = await preparePairedExecutionEnvironmentStart({
-      outputDirectory,
-      mode: 'create',
-      collectionOptions: environmentCollectionOptions,
-    });
     journal = await createPairedJournal(journalDirectory);
   } else {
     for (const [name, content] of Object.entries(preflightArtifacts)) {
@@ -367,35 +385,37 @@ async function main(): Promise<void> {
         throw new Error(`Resume preflight differs from retained evidence: ${name}`);
       }
     }
-    if (protocol.phase === 'sealed') {
-      buildStart = await prepareSealedExecutionBuildStart({
-        outputDirectory,
-        mode: 'resume',
-      });
-    }
-    // Verify the immutable start snapshot against live runtime metadata before
-    // reopening the journal or allowing a benchmark attempt to start.
-    environmentStart = await preparePairedExecutionEnvironmentStart({
-      outputDirectory,
-      mode: 'resume',
-      collectionOptions: environmentCollectionOptions,
-    });
     const recovery = await resumePairedJournal(journalDirectory);
     journal = recovery.journal;
     resume = recovery.state;
   }
   const agentFactory: AgentBenchmarkArm['agentFactory'] =
-    createPairedUpliftAgentFactory(protocol);
+    createPairedUpliftAgentFactory(protocol, providerEnvironment);
 
   process.stderr.write(
     `${resumeStatus(resumeDisposition?.mode)} ${protocol.trialsPerTask} matched ${protocol.phase} block(s) for ${tasks.map((task) => task.id).join(', ')}.\n`,
   );
+  const claimPolicy =
+    protocol.phase === 'sealed' &&
+    protocol.analysis.decisionRule !== undefined &&
+    protocol.analysis.publicationRule !== undefined &&
+    protocol.analysis.estimand !== undefined
+      ? {
+          decisionRule: protocol.analysis.decisionRule,
+          publicationRule: protocol.analysis.publicationRule,
+          estimand: protocol.analysis.estimand,
+        }
+      : undefined;
+  if (protocol.phase === 'sealed' && claimPolicy === undefined) {
+    throw new Error('Sealed protocol did not provide its required frozen claim policy.');
+  }
   const report = await runPairedAgentBenchmark({
     runId,
     protocolId: protocol.protocolId,
     protocolSha256,
     protocolBinding,
     phase: protocol.phase,
+    ...(claimPolicy === undefined ? {} : { claimPolicy }),
     scheduleSeed: protocol.schedule.orderSeed,
     bootstrapSeed: protocol.schedule.bootstrapSeed,
     bootstrapResamples: protocol.schedule.bootstrapResamples,
@@ -466,6 +486,9 @@ async function main(): Promise<void> {
         journalFinalEventSha256: finalJournalEventSha256,
       }),
     async writeArtifacts({ sourceEnd, buildEnd, environmentEnd }) {
+      const runtimeProvenanceEnd = await capturePairedRuntimeProvenanceEnd({
+        start: runtimeProvenanceStart.snapshot,
+      });
       let buildProvenance:
         | { startSha256: string; endSha256: string }
         | undefined;
@@ -486,6 +509,21 @@ async function main(): Promise<void> {
         protocolSha256,
         source,
         sourceEnd,
+        ...(environmentEnd.renderedModelMetadataStart === undefined ||
+        environmentEnd.renderedModelMetadataEnd === undefined
+          ? {}
+          : {
+              modelMetadata: {
+                startSha256: sha256(
+                  environmentEnd.renderedModelMetadataStart,
+                ),
+                endSha256: sha256(environmentEnd.renderedModelMetadataEnd),
+              },
+            }),
+        runtimeProvenance: {
+          startSha256: runtimeProvenanceStart.snapshot.sha256,
+          endSha256: runtimeProvenanceEnd.end.sha256,
+        },
         ...(buildProvenance === undefined ? {} : { buildProvenance }),
         toolCatalogs: {
           control: { sha256: controlCatalog.sha256, toolCount: controlCatalog.toolCount },
@@ -506,6 +544,16 @@ async function main(): Promise<void> {
         ...preflightArtifacts,
         'environment-start.json': environmentEnd.renderedStart,
         'environment-end.json': environmentEnd.renderedEnd,
+        ...(environmentEnd.renderedModelMetadataStart === undefined ||
+        environmentEnd.renderedModelMetadataEnd === undefined
+          ? {}
+          : {
+              'model-metadata-start.json':
+                environmentEnd.renderedModelMetadataStart,
+              'model-metadata-end.json': environmentEnd.renderedModelMetadataEnd,
+            }),
+        'runtime-provenance-start.json': runtimeProvenanceEnd.renderedStart,
+        'runtime-provenance-end.json': runtimeProvenanceEnd.renderedEnd,
         ...(buildEnd === undefined
           ? {}
           : {

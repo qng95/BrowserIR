@@ -272,7 +272,7 @@ It is deliberately outside the Drop 01 score and has these fixed boundaries:
 
 - it runs only official Playwright MCP, with no BrowserIR treatment arm;
 - it uses `create-customer`, an already-seen development task, while the
-  reserved `validation-recovery` task remains untouched;
+  reserved `validation-recovery` task remains outside real-model scoring;
 - it runs all five precommitted attempts, with no early stop, favorable rerun,
   or invalid-attempt replacement;
 - `demonstrated` requires five completed attempts, zero invalid attempts, and
@@ -297,7 +297,9 @@ This establishes only that the selected control configuration demonstrated the
 predeclared capability on one already-seen workflow. There was no BrowserIR arm,
 so raw 5/5 is not a score, pass-rate estimate, uplift measurement,
 generalization result, or competitor-superiority claim. The reserved
-`validation-recovery` task remains unexecuted and unexposed.
+`validation-recovery` task was exercised by the deterministic reference
+qualification, but remains unexposed to a real model and has no scored paired
+attempt.
 
 [Inspect the checksummed qualification summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
 
@@ -391,7 +393,9 @@ non-zero stochastic temperature. Both arms in a matched task/trial block
 receive the same derived seed, and a regression test checks the actual
 OpenAI-compatible invocation parameters rather than metadata alone.
 
-Sealed runs use the outer launcher rather than the development command:
+Sealed runs use the outer launcher rather than the development command. Drop
+01 is frozen to 30 matched blocks, one fixed workflow, and the exact
+OpenRouter model, route, and configuration retained in the manifest:
 
 ```sh
 pnpm benchmark:uplift:sealed -- \
@@ -402,11 +406,13 @@ pnpm benchmark:uplift:sealed -- \
 The launcher checks out the manifest's freeze tag into a fresh detached
 temporary clone, installs the frozen lockfile, builds before the benchmark CLI
 can import BrowserIR, and keeps the evidence directory outside that checkout.
-Child processes receive an isolated home/config/cache and a small allowlisted
-environment; ambient Node loader/preload variables and API secrets are not
-inherited. Sealed Ollama endpoints must be literal HTTP loopback URLs and
-redirects are rejected. The retained digest is explicitly an endpoint report,
-not an independent proof of model weights.
+Clone, install, and build processes receive an isolated home/config/cache and a
+small allowlisted, secret-free environment; ambient Node loader/preload
+variables and API secrets are not inherited. Only the final benchmark child
+receives the one credential named by the frozen protocol. Redirects are
+rejected. Start/end endpoint metadata and exact executed package/Chromium
+provenance are retained and compared; the metadata fingerprint is explicitly
+an endpoint/configuration binding, not proof of model weights.
 The inner runner then requires a clean tagged source tree, exact start/end Git
 identity, and byte-identical start/end manifests for the built core,
 Playwright-driver, and MCP packages. Resume repeats those checks before another

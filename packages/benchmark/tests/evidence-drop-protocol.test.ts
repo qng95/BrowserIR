@@ -80,12 +80,85 @@ const developmentProtocol = () => ({
   },
 });
 
+const strictOpenRouterAgent = () => ({
+  framework: 'langchain-create-agent' as const,
+  frameworkVersion: '1.5.5' as const,
+  provider: 'openrouter' as const,
+  baseUrl: 'https://openrouter.ai/api/v1' as const,
+  apiKeyEnv: 'OPENROUTER_API_KEY' as const,
+  modelId: 'qwen/qwen3.8-max',
+  canonicalModelSlug: 'qwen/qwen3.8-max-20260803',
+  modelMetadataSha256: '4'.repeat(64),
+  providerRoute: 'alibaba',
+  reasoningEffort: 'low' as const,
+  providerPolicy: {
+    allowFallbacks: false as const,
+    requireParameters: true as const,
+    dataCollection: 'deny' as const,
+  },
+  modelCapabilities: {
+    tools: true as const,
+    seed: true as const,
+    temperature: true as const,
+  },
+  temperature: 0.2,
+  maxOutputTokens: 4096 as const,
+  maxRetries: 0 as const,
+  imageMode: 'text-only' as const,
+  systemPrompt: prompt,
+  systemPromptSha256: promptSha256,
+});
+
+const sealedProtocol = () => ({
+  ...developmentProtocol(),
+  phase: 'sealed' as const,
+  status: 'frozen' as const,
+  taskIds: ['validation-recovery'],
+  taskContracts: [
+    {
+      ...developmentProtocol().taskContracts[0]!,
+      id: 'validation-recovery',
+    },
+  ],
+  trialsPerTask: 30,
+  freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
+  schedule: {
+    ...developmentProtocol().schedule,
+    modelSeedBase: 8675309,
+  },
+  agent: strictOpenRouterAgent(),
+  analysis: {
+    ...developmentProtocol().analysis,
+    decisionRule: {
+      minimumScheduledBlocks: 30 as const,
+      maximumInvalidBlocks: 1 as const,
+      positive: { lowerBoundAbove: 0 as const },
+      negative: { upperBoundBelow: 0 as const },
+      otherwise: 'inconclusive' as const,
+    },
+    publicationRule: 'publish-regardless-of-sign' as const,
+    estimand: 'fixed-workflow-precommitted-seed-schedule' as const,
+  },
+  arms: {
+    control: {
+      ...developmentProtocol().arms.control,
+      expectedToolCatalogSha256: 'c'.repeat(64),
+    },
+    treatment: {
+      ...developmentProtocol().arms.treatment,
+      expectedToolCatalogSha256: 'd'.repeat(64),
+    },
+  },
+});
+
 describe('evidence-drop protocol', () => {
   it('accepts a strict development protocol and preserves its typed values', () => {
     const parsed = parseEvidenceDropProtocol(developmentProtocol());
 
     expect(parsed.protocolId).toBe('drop-01-development-qwen3-4b-001');
     expect(parsed.taskIds).toEqual(['create-customer']);
+    expect(parsed.agent.provider).toBe('ollama');
+    if (parsed.agent.provider !== 'ollama') throw new Error('test setup');
     expect(parsed.agent.modelDigest).toMatch(/^sha256:[a-f0-9]{64}$/);
   });
 
@@ -103,84 +176,130 @@ describe('evidence-drop protocol', () => {
   });
 
   it('binds a frozen sealed protocol to a freeze ref and exact tool catalogs', () => {
-    const protocol = {
-      ...developmentProtocol(),
-      phase: 'sealed',
-      status: 'frozen',
-      taskIds: ['validation-recovery'],
-      taskContracts: [
-        {
-          ...developmentProtocol().taskContracts[0]!,
-          id: 'validation-recovery',
-        },
-      ],
-      trialsPerTask: 30,
-      freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
-      schedule: {
-        ...developmentProtocol().schedule,
-        modelSeedBase: 8675309,
-      },
-      agent: {
-        ...developmentProtocol().agent,
-        temperature: 0.2,
-      },
-      arms: {
-        control: {
-          ...developmentProtocol().arms.control,
-          expectedToolCatalogSha256: 'c'.repeat(64),
-        },
-        treatment: {
-          ...developmentProtocol().arms.treatment,
-          expectedToolCatalogSha256: 'd'.repeat(64),
-        },
-      },
-    };
+    const protocol = sealedProtocol();
 
-    expect(parseEvidenceDropProtocol(protocol).phase).toBe('sealed');
+    expect(parseEvidenceDropProtocol(protocol).agent).toMatchObject({
+      provider: 'openrouter',
+      frameworkVersion: '1.5.5',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      apiKeyEnv: 'OPENROUTER_API_KEY',
+      maxOutputTokens: 4096,
+      modelCapabilities: { tools: true, seed: true, temperature: true },
+      providerPolicy: {
+        allowFallbacks: false,
+        requireParameters: true,
+        dataCollection: 'deny',
+      },
+    });
 
     expect(() =>
       parseEvidenceDropProtocol({
         ...protocol,
-        agent: {
-          ...protocol.agent,
-          baseUrl: 'https://models.example.com/v1?proxy=true',
-        },
+        agent: developmentProtocol().agent,
       }),
-    ).toThrow(/loopback|local.*Ollama|endpoint/i);
+    ).toThrow(/sealed.*OpenRouter|OpenRouter.*sealed/i);
 
     delete (protocol as { freezeRef?: unknown }).freezeRef;
     expect(() => parseEvidenceDropProtocol(protocol)).toThrow(/freeze.*frozen/i);
+  });
+
+  it.each([
+    ['endpoint', { baseUrl: 'https://models.example.com/v1' }],
+    ['key binding', { apiKeyEnv: 'SOME_OTHER_KEY' }],
+    ['framework version', { frameworkVersion: '1.5.6' }],
+    ['output ceiling', { maxOutputTokens: 8192 }],
+    [
+      'capability declaration',
+      { modelCapabilities: { tools: true, seed: false, temperature: true } },
+    ],
+    [
+      'fallback policy',
+      {
+        providerPolicy: {
+          allowFallbacks: true,
+          requireParameters: true,
+          dataCollection: 'deny',
+        },
+      },
+    ],
+    [
+      'parameter policy',
+      {
+        providerPolicy: {
+          allowFallbacks: false,
+          requireParameters: false,
+          dataCollection: 'deny',
+        },
+      },
+    ],
+    [
+      'data policy',
+      {
+        providerPolicy: {
+          allowFallbacks: false,
+          requireParameters: true,
+          dataCollection: 'allow',
+        },
+      },
+    ],
+  ])('rejects sealed OpenRouter %s drift', (_label, drift) => {
+    const protocol = sealedProtocol();
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        agent: { ...protocol.agent, ...drift },
+      }),
+    ).toThrow(/invalid evidence-drop protocol/i);
+  });
+
+  it('requires sealed claim rules, minimum schedule, fixed estimand, and publication regardless of sign', () => {
+    const protocol = sealedProtocol();
+    expect(parseEvidenceDropProtocol(protocol).analysis).toMatchObject({
+      decisionRule: {
+        minimumScheduledBlocks: 30,
+        maximumInvalidBlocks: 1,
+        positive: { lowerBoundAbove: 0 },
+        negative: { upperBoundBelow: 0 },
+        otherwise: 'inconclusive',
+      },
+      publicationRule: 'publish-regardless-of-sign',
+      estimand: 'fixed-workflow-precommitted-seed-schedule',
+    });
+
+    const { decisionRule: _decisionRule, ...analysisWithoutDecision } =
+      protocol.analysis;
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        analysis: analysisWithoutDecision,
+      }),
+    ).toThrow(/decision rule/i);
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        analysis: { ...protocol.analysis, publicationRule: undefined },
+      }),
+    ).toThrow(/publication/i);
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        analysis: { ...protocol.analysis, estimand: undefined },
+      }),
+    ).toThrow(/estimand/i);
+    expect(() =>
+      parseEvidenceDropProtocol({
+        ...protocol,
+        trialsPerTask: 29,
+      }),
+    ).toThrow(/30 scheduled matched blocks/i);
   });
 
   it('requires a precommitted model seed base only for sealed protocols', () => {
     expect(parseEvidenceDropProtocol(developmentProtocol()).schedule.modelSeedBase).toBeUndefined();
 
     const sealed = {
-      ...developmentProtocol(),
-      phase: 'sealed',
-      status: 'frozen',
-      taskIds: ['validation-recovery'],
-      taskContracts: [
-        {
-          ...developmentProtocol().taskContracts[0]!,
-          id: 'validation-recovery',
-        },
-      ],
-      freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
-      agent: {
-        ...developmentProtocol().agent,
-        temperature: 0.2,
-      },
-      arms: {
-        control: {
-          ...developmentProtocol().arms.control,
-          expectedToolCatalogSha256: 'c'.repeat(64),
-        },
-        treatment: {
-          ...developmentProtocol().arms.treatment,
-          expectedToolCatalogSha256: 'd'.repeat(64),
-        },
-      },
+      ...sealedProtocol(),
+      schedule: developmentProtocol().schedule,
     };
 
     expect(() => parseEvidenceDropProtocol(sealed)).toThrow(/modelSeedBase/i);
@@ -188,32 +307,8 @@ describe('evidence-drop protocol', () => {
 
   it('rejects greedy temperature-zero pseudo-replication for sealed inference', () => {
     const sealed = {
-      ...developmentProtocol(),
-      phase: 'sealed',
-      status: 'frozen',
-      taskIds: ['validation-recovery'],
-      taskContracts: [
-        {
-          ...developmentProtocol().taskContracts[0]!,
-          id: 'validation-recovery',
-        },
-      ],
-      trialsPerTask: 30,
-      freezeRef: 'refs/tags/evidence-drop-01-protocol-v1',
-      schedule: {
-        ...developmentProtocol().schedule,
-        modelSeedBase: 8675309,
-      },
-      arms: {
-        control: {
-          ...developmentProtocol().arms.control,
-          expectedToolCatalogSha256: 'c'.repeat(64),
-        },
-        treatment: {
-          ...developmentProtocol().arms.treatment,
-          expectedToolCatalogSha256: 'd'.repeat(64),
-        },
-      },
+      ...sealedProtocol(),
+      agent: { ...strictOpenRouterAgent(), temperature: 0 },
     };
 
     expect(() => parseEvidenceDropProtocol(sealed)).toThrow(

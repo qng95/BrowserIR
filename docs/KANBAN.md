@@ -12,10 +12,11 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current v14 policy declares 689 cases: 670
+implemented. The current local v15 policy declares 735 cases: 716
 executed and 19 intentional opt-in cases skipped. By package, that is core
-60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189
-declared with 170 executed and 19 skipped. The latest qualified public evidence
+60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189
+declared with 170 executed and 19 skipped. This v15 working-tree policy is not
+hosted evidence. The latest qualified public evidence
 is v14 [GitHub Actions run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205)
 for commit `6a122a2`; every required job passed and the run assembled a
 checksummed dossier. Earlier v13 and
@@ -362,13 +363,21 @@ already-seen `create-customer` workflow. The full precommitted schedule produced
 turns, with zero tool errors and five exact database/audit/structured
 submissions. There was no BrowserIR arm, so raw 5/5 is not a score, pass-rate
 estimate, uplift result, generalization result, or competitor-superiority
-claim. The `validation-recovery` candidate remains unexecuted and unexposed.
+claim. The `validation-recovery` candidate was exercised by the deterministic
+reference qualification, but remains unexposed to a real model and has no
+scored paired attempt.
 [Inspect the retained summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md).
 
-- [ ] Create and review a clean Git `HEAD`, then create a freeze tag resolving
-  to the selected release commit.
-- [ ] Freeze the exact real-model manifest before any scored
-  `validation-recovery` call.
+- [x] Add a fail-closed sealed OpenRouter path that binds the qualified model
+  slug, Alibaba route, endpoint-metadata fingerprint, sampling/output policy,
+  start/end metadata, executed runtime provenance, and final-child-only secret
+  injection without exposing the key to clone/install/build.
+- [x] Freeze the exact 30-pair real-model manifest and decision rule before any
+  scored `validation-recovery` call; bind it to
+  `refs/tags/evidence-drop-01-protocol-v1`.
+- [ ] Create and review a clean Git `HEAD`, then create the freeze tag resolving
+  to that exact protocol commit. This is the final step of the current freeze
+  milestone and remains unchecked until the remote tag exists.
 - [ ] Run 30 complete sealed blocks without early stopping or favorable rerun.
 - [ ] Classify discordant failures from retained evidence; add test-first,
   technology-neutral BrowserIR fixes only when a general defect is proven.
@@ -486,10 +495,10 @@ unaffected document loses valid references.
   per-task and pooled 95% Wilson intervals, micro pass rate, macro task pass
   rate, invalid rate, tool metrics, versions, and fingerprints.
 - [x] Pass the deterministic fake-model real-Chromium/MCP vertical slice and the
-  current 235/235 benchmark package gate. Local Ollama development diagnostics
+  current 281/281 benchmark package gate. Local Ollama development diagnostics
   exist, including one BrowserIR treatment-path signal whose official control
-  failed; no official-control qualification, sealed run, or public real-model
-  score has been completed.
+  failed; the separate score-excluded official-control qualification completed
+  5/5, while no sealed paired run or public uplift score has been completed.
 
 This completes the local benchmark mechanism, not a hosted scoring service.
 Canonical public scoring still requires a disposable process/container and

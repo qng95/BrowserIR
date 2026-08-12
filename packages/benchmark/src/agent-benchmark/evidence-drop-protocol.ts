@@ -8,7 +8,61 @@ export const EVIDENCE_DROP_PROTOCOL_SCHEMA_VERSION = '1.0.0' as const;
 const safeId = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const sha256 = /^[a-f0-9]{64}$/;
 const prefixedSha256 = /^sha256:[a-f0-9]{64}$/;
+const safeProviderRoute = /^[a-z0-9][a-z0-9._/-]{0,127}$/;
 const unsigned32 = z.number().int().min(0).max(0xffff_ffff);
+
+const strictModelCapabilitiesSchema = z
+  .object({
+    tools: z.literal(true),
+    seed: z.literal(true),
+    temperature: z.literal(true),
+  })
+  .strict();
+
+const legacyAgentSchema = z
+  .object({
+    framework: z.literal('langchain-create-agent'),
+    provider: z.enum(['ollama', 'openai']),
+    baseUrl: z.string().url().optional(),
+    modelId: z.string().trim().min(1).max(256),
+    modelDigest: z.string().regex(prefixedSha256),
+    contextWindowTokens: z.number().int().positive().optional(),
+    temperature: z.number().finite().min(0).max(2),
+    maxRetries: z.literal(0),
+    imageMode: z.enum(['text-only', 'multimodal']),
+    systemPrompt: z.string().trim().min(1).max(10_000),
+    systemPromptSha256: z.string().regex(sha256),
+  })
+  .strict();
+
+const openRouterAgentSchema = z
+  .object({
+    framework: z.literal('langchain-create-agent'),
+    frameworkVersion: z.literal('1.5.5'),
+    provider: z.literal('openrouter'),
+    baseUrl: z.literal('https://openrouter.ai/api/v1'),
+    apiKeyEnv: z.literal('OPENROUTER_API_KEY'),
+    modelId: z.string().trim().min(1).max(256),
+    canonicalModelSlug: z.string().trim().min(1).max(256),
+    modelMetadataSha256: z.string().regex(sha256),
+    providerRoute: z.string().regex(safeProviderRoute),
+    reasoningEffort: z.enum(['minimal', 'low', 'medium', 'high', 'xhigh']),
+    providerPolicy: z
+      .object({
+        allowFallbacks: z.literal(false),
+        requireParameters: z.literal(true),
+        dataCollection: z.literal('deny'),
+      })
+      .strict(),
+    modelCapabilities: strictModelCapabilitiesSchema,
+    temperature: z.number().finite().min(0).max(2),
+    maxOutputTokens: z.literal(4096),
+    maxRetries: z.literal(0),
+    imageMode: z.enum(['text-only', 'multimodal']),
+    systemPrompt: z.string().trim().min(1).max(10_000),
+    systemPromptSha256: z.string().regex(sha256),
+  })
+  .strict();
 
 const armSchema = z
   .object({
@@ -61,21 +115,7 @@ const protocolSchema = z
         maxModelTurns: z.number().int().positive(),
       })
       .strict(),
-    agent: z
-      .object({
-        framework: z.literal('langchain-create-agent'),
-        provider: z.enum(['ollama', 'openai']),
-        baseUrl: z.string().url().optional(),
-        modelId: z.string().trim().min(1).max(256),
-        modelDigest: z.string().regex(prefixedSha256),
-        contextWindowTokens: z.number().int().positive().optional(),
-        temperature: z.number().min(0).max(2),
-        maxRetries: z.literal(0),
-        imageMode: z.enum(['text-only', 'multimodal']),
-        systemPrompt: z.string().trim().min(1).max(10_000),
-        systemPromptSha256: z.string().regex(sha256),
-      })
-      .strict(),
+    agent: z.union([legacyAgentSchema, openRouterAgentSchema]),
     target: z
       .object({
         expectedVersion: z.string().regex(prefixedSha256),
@@ -94,6 +134,18 @@ const protocolSchema = z
         interval: z.enum(['paired-percentile-bootstrap', 'paired-hoeffding-bound']),
         invalidBlockHeadlineThreshold: z.literal(0.05),
         primaryMetric: z.literal('paired-treatment-minus-control-pass-rate'),
+        decisionRule: z
+          .object({
+            minimumScheduledBlocks: z.literal(30),
+            maximumInvalidBlocks: z.literal(1),
+            positive: z.object({ lowerBoundAbove: z.literal(0) }).strict(),
+            negative: z.object({ upperBoundBelow: z.literal(0) }).strict(),
+            otherwise: z.literal('inconclusive'),
+          })
+          .strict()
+          .optional(),
+        publicationRule: z.literal('publish-regardless-of-sign').optional(),
+        estimand: z.literal('fixed-workflow-precommitted-seed-schedule').optional(),
       })
       .strict(),
   })
@@ -154,6 +206,12 @@ const protocolSchema = z
         );
       }
     } else {
+      if (protocol.agent.provider !== 'openrouter') {
+        add(
+          ['agent', 'provider'],
+          'A sealed protocol requires the strict OpenRouter provider configuration.',
+        );
+      }
       if (protocol.schedule.modelSeedBase === undefined) {
         add(
           ['schedule', 'modelSeedBase'],
@@ -165,26 +223,6 @@ const protocolSchema = z
           ['agent', 'temperature'],
           'A sealed protocol requires a stochastic temperature greater than zero so precommitted model seeds can define distinct sampling trials.',
         );
-      }
-      if (protocol.agent.provider === 'ollama' && protocol.agent.baseUrl !== undefined) {
-        const endpoint = new URL(protocol.agent.baseUrl);
-        const loopbackHost =
-          endpoint.hostname === '127.0.0.1' || endpoint.hostname === '[::1]';
-        if (
-          endpoint.protocol !== 'http:' ||
-          !loopbackHost ||
-          endpoint.port.length === 0 ||
-          endpoint.username.length > 0 ||
-          endpoint.password.length > 0 ||
-          endpoint.search.length > 0 ||
-          endpoint.hash.length > 0 ||
-          (endpoint.pathname !== '/v1' && endpoint.pathname !== '/v1/')
-        ) {
-          add(
-            ['agent', 'baseUrl'],
-            'A sealed Ollama protocol requires an explicit http://127.0.0.1:PORT/v1 or http://[::1]:PORT/v1 loopback endpoint without credentials, query, or fragment.',
-          );
-        }
       }
       if (protocol.status !== 'frozen') {
         add(['status'], 'A sealed protocol must be frozen.');
@@ -217,13 +255,26 @@ const protocolSchema = z
           );
         }
       }
-      if (
-        protocol.agent.provider === 'ollama' &&
-        protocol.agent.contextWindowTokens === undefined
-      ) {
+      if (protocol.analysis.decisionRule === undefined) {
         add(
-          ['agent', 'contextWindowTokens'],
-          'A frozen Ollama protocol must bind the configured context window.',
+          ['analysis', 'decisionRule'],
+          'Frozen evidence requires the precommitted decision rule.',
+        );
+      }
+      if (protocol.analysis.publicationRule === undefined) {
+        add(
+          ['analysis', 'publicationRule'],
+          'Frozen evidence must commit to publication regardless of result sign.',
+        );
+      }
+      if (protocol.analysis.estimand === undefined) {
+        add(['analysis', 'estimand'], 'Frozen evidence requires an explicit estimand.');
+      }
+      const scheduledBlocks = protocol.taskIds.length * protocol.trialsPerTask;
+      if (scheduledBlocks < 30) {
+        add(
+          ['trialsPerTask'],
+          'Frozen evidence requires at least 30 scheduled matched blocks.',
         );
       }
     }

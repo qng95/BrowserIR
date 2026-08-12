@@ -14,7 +14,10 @@ export interface SealedUpliftCommand {
 export interface SealedUpliftDependencies {
   sourceRoot?: string;
   temporaryParentDirectory?: string;
-  runCommand?: (command: SealedUpliftCommand) => Promise<void>;
+  runCommand?: (
+    command: SealedUpliftCommand,
+    environment: Readonly<Record<string, string>>,
+  ) => Promise<void>;
 }
 
 export const SEALED_UPLIFT_USAGE: string;

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import {
   capturePairedExecutionEnvironmentEnd,
+  PAIRED_EXECUTION_MODEL_METADATA_START_ARTIFACT,
   preparePairedExecutionEnvironmentStart,
   type PairedExecutionEnvironmentCollector,
 } from '../src/agent-benchmark/paired-environment-lifecycle.js';
@@ -13,12 +14,15 @@ import type {
   PairedExecutionEnvironment,
   PairedExecutionEnvironmentCollectionOptions,
 } from '../src/agent-benchmark/paired-environment.js';
-import { renderPairedExecutionEnvironment } from '../src/agent-benchmark/paired-environment.js';
+import {
+  renderPairedExecutionEnvironment,
+  renderPairedExecutionModelMetadata,
+} from '../src/agent-benchmark/paired-environment.js';
 
 const digest = (character: string): string => character.repeat(64);
 
 const environment = (): PairedExecutionEnvironment => ({
-  schemaVersion: '1.1.0',
+  schemaVersion: '1.2.0',
   host: {
     platform: 'darwin',
     release: '25.0.0',
@@ -140,6 +144,15 @@ describe('paired environment artifact lifecycle', () => {
     expect(await readFile(join(outputDirectory, 'environment-start.json'), 'utf8')).toBe(
       prepared.rendered,
     );
+    expect(
+      await readFile(
+        join(outputDirectory, PAIRED_EXECUTION_MODEL_METADATA_START_ARTIFACT),
+        'utf8',
+      ),
+    ).toBe(prepared.renderedModelMetadata);
+    expect(prepared.renderedModelMetadata).toBe(
+      renderPairedExecutionModelMetadata(prepared.snapshot),
+    );
     expect(prepared.rendered).not.toContain('/Users/private');
     expect(prepared.rendered).not.toContain('password');
     await expect(
@@ -172,6 +185,34 @@ describe('paired environment artifact lifecycle', () => {
     expect(collectCalled).toBe(false);
   });
 
+  it('parses retained model metadata and cross-links it before probing on resume', async () => {
+    const outputDirectory = await mkdtemp(join(tmpdir(), 'browserir-model-metadata-invalid-'));
+    temporaryDirectories.push(outputDirectory);
+    const retained = environment();
+    await writeFile(
+      join(outputDirectory, 'environment-start.json'),
+      renderPairedExecutionEnvironment(retained),
+    );
+    await writeFile(
+      join(outputDirectory, PAIRED_EXECUTION_MODEL_METADATA_START_ARTIFACT),
+      '{"model":"forged"}\n',
+    );
+    let collectCalled = false;
+
+    await expect(
+      preparePairedExecutionEnvironmentStart({
+        outputDirectory,
+        mode: 'resume',
+        collectionOptions: collectionOptions(),
+        collect: async () => {
+          collectCalled = true;
+          return environment();
+        },
+      }),
+    ).rejects.toThrow(/model-metadata-start|model metadata/i);
+    expect(collectCalled).toBe(false);
+  });
+
   it('rejects resume environment drift before an attempt can begin', async () => {
     const outputDirectory = await mkdtemp(join(tmpdir(), 'browserir-environment-drift-'));
     temporaryDirectories.push(outputDirectory);
@@ -180,7 +221,12 @@ describe('paired environment artifact lifecycle', () => {
       join(outputDirectory, 'environment-start.json'),
       renderPairedExecutionEnvironment(retained),
     );
+    await writeFile(
+      join(outputDirectory, PAIRED_EXECUTION_MODEL_METADATA_START_ARTIFACT),
+      renderPairedExecutionModelMetadata(retained),
+    );
     const current = environment();
+    if (current.model.provider !== 'ollama') throw new Error('test setup');
     current.model.runtime.version = '0.11.5';
 
     await expect(
@@ -210,5 +256,8 @@ describe('paired environment artifact lifecycle', () => {
       bindingSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
     });
     expect(completed.renderedStart).toBe(completed.renderedEnd);
+    expect(completed.renderedModelMetadataStart).toBe(
+      completed.renderedModelMetadataEnd,
+    );
   });
 });

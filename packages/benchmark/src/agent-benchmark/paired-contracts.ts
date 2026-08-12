@@ -16,6 +16,32 @@ export const PAIRED_AGENT_BENCHMARK_SCHEMA_VERSION = '1.0.0' as const;
 
 export type AgentBenchmarkArmRole = 'control' | 'treatment';
 export type PairedBenchmarkPhase = 'development' | 'sealed';
+
+/** The exact public-claim contract copied from a frozen protocol's analysis block. */
+export interface PairedAgentBenchmarkClaimPolicy {
+  decisionRule: {
+    minimumScheduledBlocks: 30;
+    maximumInvalidBlocks: 1;
+    positive: { lowerBoundAbove: 0 };
+    negative: { upperBoundBelow: 0 };
+    otherwise: 'inconclusive';
+  };
+  publicationRule: 'publish-regardless-of-sign';
+  estimand: 'fixed-workflow-precommitted-seed-schedule';
+}
+
+export const SEALED_PAIRED_AGENT_BENCHMARK_CLAIM_POLICY = {
+  decisionRule: {
+    minimumScheduledBlocks: 30,
+    maximumInvalidBlocks: 1,
+    positive: { lowerBoundAbove: 0 },
+    negative: { upperBoundBelow: 0 },
+    otherwise: 'inconclusive',
+  },
+  publicationRule: 'publish-regardless-of-sign',
+  estimand: 'fixed-workflow-precommitted-seed-schedule',
+} as const satisfies PairedAgentBenchmarkClaimPolicy;
+
 export type PairedBlockOutcome =
   | 'treatment_win'
   | 'control_win'
@@ -237,6 +263,8 @@ export interface PairedAgentBenchmarkReport {
   protocolSha256: string;
   protocolBinding: 'development' | 'frozen_verified';
   phase: PairedBenchmarkPhase;
+  /** Required and exactly validated for sealed reports; optional for development. */
+  claimPolicy?: PairedAgentBenchmarkClaimPolicy | undefined;
   expectedTargetVersion: string;
   scheduleSeed: number;
   budgets: AgentBenchmarkBudgets;
@@ -277,6 +305,8 @@ export interface PairedAgentBenchmarkOptions {
   protocolSha256: string;
   protocolBinding: 'development' | 'frozen_verified';
   phase: PairedBenchmarkPhase;
+  /** Frozen analysis policy copied into the score-bearing report. */
+  claimPolicy?: PairedAgentBenchmarkClaimPolicy | undefined;
   scheduleSeed: number;
   bootstrapSeed: number;
   bootstrapResamples: number;

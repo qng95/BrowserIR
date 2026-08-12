@@ -13,7 +13,20 @@ import {
 
 const protocolPath = 'docs/evidence-drops/drop-01/sealed.protocol.json';
 const freezeRef = 'refs/tags/evidence-drop-01-protocol-v1';
-const protocolSource = `${JSON.stringify({ phase: 'sealed', freezeRef }, null, 2)}\n`;
+const protocolSource = `${JSON.stringify(
+  { phase: 'sealed', freezeRef, agent: { provider: 'ollama' } },
+  null,
+  2,
+)}\n`;
+const openRouterProtocolSource = `${JSON.stringify(
+  {
+    phase: 'sealed',
+    freezeRef,
+    agent: { provider: 'openrouter', apiKeyEnv: 'OPENROUTER_API_KEY' },
+  },
+  null,
+  2,
+)}\n`;
 
 const roots: string[] = [];
 
@@ -21,7 +34,7 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
 });
 
-async function fixture(): Promise<{
+async function fixture(source = protocolSource): Promise<{
   root: string;
   sourceRoot: string;
   temporaryParentDirectory: string;
@@ -34,18 +47,23 @@ async function fixture(): Promise<{
   const outputDirectory = join(root, 'retained', 'drop-01');
   await mkdir(join(sourceRoot, dirname(protocolPath)), { recursive: true });
   await mkdir(temporaryParentDirectory, { recursive: true });
-  await writeFile(join(sourceRoot, protocolPath), protocolSource, 'utf8');
+  await writeFile(join(sourceRoot, protocolPath), source, 'utf8');
   return { root, sourceRoot, temporaryParentDirectory, outputDirectory };
 }
 
 function recordingRunner(options: {
   sourceRoot: string;
   calls: SealedUpliftCommand[];
+  environments?: Readonly<Record<string, string>>[];
   frozenProtocolSource?: string;
   failPnpmScript?: string;
 }) {
-  return async (command: SealedUpliftCommand): Promise<void> => {
+  return async (
+    command: SealedUpliftCommand,
+    environment: Readonly<Record<string, string>>,
+  ): Promise<void> => {
     options.calls.push(command);
+    options.environments?.push(environment);
     if (command.command === 'git' && command.args[0] === 'clone') {
       const checkout = command.args.at(-1)!;
       await mkdir(join(checkout, dirname(protocolPath)), { recursive: true });
@@ -102,22 +120,155 @@ describe('sealed uplift launcher', () => {
     expect(environment).not.toHaveProperty('NODE_PATH');
     expect(environment).not.toHaveProperty('DYLD_INSERT_LIBRARIES');
     expect(environment).not.toHaveProperty('OPENAI_API_KEY');
+    expect(environment).not.toHaveProperty('OPENROUTER_API_KEY');
+  });
+
+  it('forwards the declared OpenRouter key only to the final benchmark command', async () => {
+    const setup = await fixture(openRouterProtocolSource);
+    const calls: SealedUpliftCommand[] = [];
+    const environments: Readonly<Record<string, string>>[] = [];
+    const previousOpenRouterKey = process.env['OPENROUTER_API_KEY'];
+    const previousOpenAiKey = process.env['OPENAI_API_KEY'];
+    process.env['OPENROUTER_API_KEY'] = 'sealed-launcher-test-key';
+    process.env['OPENAI_API_KEY'] = 'unrelated-test-key';
+
+    try {
+      await launchSealedUplift(
+        ['--protocol', protocolPath, '--output', setup.outputDirectory],
+        {
+          sourceRoot: setup.sourceRoot,
+          temporaryParentDirectory: setup.temporaryParentDirectory,
+          runCommand: recordingRunner({
+            sourceRoot: setup.sourceRoot,
+            calls,
+            environments,
+            frozenProtocolSource: openRouterProtocolSource,
+          }),
+        },
+      );
+    } finally {
+      if (previousOpenRouterKey === undefined) delete process.env['OPENROUTER_API_KEY'];
+      else process.env['OPENROUTER_API_KEY'] = previousOpenRouterKey;
+      if (previousOpenAiKey === undefined) delete process.env['OPENAI_API_KEY'];
+      else process.env['OPENAI_API_KEY'] = previousOpenAiKey;
+    }
+
+    expect(calls).toHaveLength(5);
+    expect(environments).toHaveLength(5);
+    for (const setupEnvironment of environments.slice(0, -1)) {
+      expect(setupEnvironment).not.toHaveProperty('OPENROUTER_API_KEY');
+      expect(setupEnvironment).not.toHaveProperty('OPENAI_API_KEY');
+    }
+    const benchmarkCommand = calls.at(-1)!;
+    const benchmarkEnvironment = environments.at(-1)!;
+    expect(benchmarkCommand.args[1]).toBe('benchmark:uplift');
+    expect(benchmarkEnvironment['OPENROUTER_API_KEY']).toBe('sealed-launcher-test-key');
+    expect(benchmarkEnvironment).not.toHaveProperty('OPENAI_API_KEY');
+    expect(benchmarkCommand.args).not.toContain('sealed-launcher-test-key');
+    expect(benchmarkCommand).not.toHaveProperty('environment');
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['blank', '   '],
+  ] as const)(
+    'fails after build and before benchmark when the declared OpenRouter key is %s',
+    async (_case, providedKey) => {
+      const setup = await fixture(openRouterProtocolSource);
+      const calls: SealedUpliftCommand[] = [];
+      const environments: Readonly<Record<string, string>>[] = [];
+      const previousOpenRouterKey = process.env['OPENROUTER_API_KEY'];
+      if (providedKey === undefined) delete process.env['OPENROUTER_API_KEY'];
+      else process.env['OPENROUTER_API_KEY'] = providedKey;
+
+      try {
+        await expect(
+          launchSealedUplift(
+            ['--protocol', protocolPath, '--output', setup.outputDirectory],
+            {
+              sourceRoot: setup.sourceRoot,
+              temporaryParentDirectory: setup.temporaryParentDirectory,
+              runCommand: recordingRunner({
+                sourceRoot: setup.sourceRoot,
+                calls,
+                environments,
+                frozenProtocolSource: openRouterProtocolSource,
+              }),
+            },
+          ),
+        ).rejects.toThrow(/OPENROUTER_API_KEY.*required|requires.*OPENROUTER_API_KEY/i);
+      } finally {
+        if (previousOpenRouterKey === undefined) delete process.env['OPENROUTER_API_KEY'];
+        else process.env['OPENROUTER_API_KEY'] = previousOpenRouterKey;
+      }
+
+      expect(calls.map(({ command, args }) => [command, ...args])).toEqual([
+        [
+          'git',
+          'clone',
+          '--no-checkout',
+          '--local',
+          '--no-hardlinks',
+          '--',
+          setup.sourceRoot,
+          expect.stringContaining('browserir-sealed-uplift-'),
+        ],
+        ['git', '-c', 'advice.detachedHead=false', 'checkout', '--detach', freezeRef],
+        ['corepack', 'pnpm', 'install', '--frozen-lockfile'],
+        ['corepack', 'pnpm', 'build'],
+      ]);
+      expect(environments).toHaveLength(4);
+      for (const setupEnvironment of environments) {
+        expect(setupEnvironment).not.toHaveProperty('OPENROUTER_API_KEY');
+      }
+    },
+  );
+
+  it('refuses to source an arbitrary secret name from an OpenRouter manifest', async () => {
+    const wrongSecretSource = `${JSON.stringify({
+      phase: 'sealed',
+      freezeRef,
+      agent: { provider: 'openrouter', apiKeyEnv: 'OTHER_API_KEY' },
+    })}\n`;
+    const setup = await fixture(wrongSecretSource);
+    const calls: SealedUpliftCommand[] = [];
+
+    await expect(
+      launchSealedUplift(
+        ['--protocol', protocolPath, '--output', setup.outputDirectory],
+        {
+          sourceRoot: setup.sourceRoot,
+          temporaryParentDirectory: setup.temporaryParentDirectory,
+          runCommand: recordingRunner({ sourceRoot: setup.sourceRoot, calls }),
+        },
+      ),
+    ).rejects.toThrow(/must declare OPENROUTER_API_KEY/i);
+    expect(calls).toEqual([]);
   });
 
   it('uses a fresh detached frozen checkout, frozen install, build, then the inner CLI', async () => {
     const setup = await fixture();
     const calls: SealedUpliftCommand[] = [];
+    const environments: Readonly<Record<string, string>>[] = [];
 
     await launchSealedUplift(
       ['--protocol', protocolPath, '--output', setup.outputDirectory],
       {
         sourceRoot: setup.sourceRoot,
         temporaryParentDirectory: setup.temporaryParentDirectory,
-        runCommand: recordingRunner({ sourceRoot: setup.sourceRoot, calls }),
+        runCommand: recordingRunner({
+          sourceRoot: setup.sourceRoot,
+          calls,
+          environments,
+        }),
       },
     );
 
     expect(calls).toHaveLength(5);
+    expect(environments).toHaveLength(5);
+    for (const environment of environments) {
+      expect(environment).not.toHaveProperty('OPENROUTER_API_KEY');
+    }
     const checkout = calls[0]!.args.at(-1)!;
     expect(calls).toEqual([
       {

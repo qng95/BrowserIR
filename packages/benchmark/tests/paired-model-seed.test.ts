@@ -1,10 +1,12 @@
+import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { deterministicModelSeed } from '../src/agent-benchmark/paired-model-seed.js';
 import {
+  capturePairedUpliftProviderEnvironment,
   createPairedUpliftAgentFactory,
   createPairedUpliftModel,
 } from '../src/paired-uplift-agent.js';
@@ -12,6 +14,35 @@ import type {
   AgentBenchmarkTask,
   EvidenceDropProtocol,
 } from '../src/agent-benchmark/index.js';
+
+const openRouterProtocol = (): EvidenceDropProtocol =>
+  ({
+    phase: 'sealed',
+    schedule: { modelSeedBase: 8675309 },
+    agent: {
+      framework: 'langchain-create-agent',
+      frameworkVersion: '1.5.5',
+      provider: 'openrouter',
+      baseUrl: 'https://openrouter.ai/api/v1',
+      apiKeyEnv: 'OPENROUTER_API_KEY',
+      modelId: 'qwen/qwen3.8-max',
+      canonicalModelSlug: 'qwen/qwen3.8-max-20260803',
+      modelMetadataSha256: 'a'.repeat(64),
+      providerRoute: 'alibaba',
+      reasoningEffort: 'low',
+      providerPolicy: {
+        allowFallbacks: false,
+        requireParameters: true,
+        dataCollection: 'deny',
+      },
+      modelCapabilities: { tools: true, seed: true, temperature: true },
+      temperature: 0.2,
+      maxOutputTokens: 4096,
+      maxRetries: 0,
+      imageMode: 'text-only',
+      systemPrompt: 'Use only the provided browser tools.',
+    },
+  }) as EvidenceDropProtocol;
 
 describe('paired model seed schedule', () => {
   it('derives one stable uint32 seed for both arms in the same matched block', () => {
@@ -94,7 +125,178 @@ describe('paired model seed schedule', () => {
     expect(invocation.seed).toBe(seed);
   });
 
-  it('rejects redirects from the actual sealed Ollama chat-completions request', async () => {
+  it('fails closed when the sealed OpenRouter key is absent', () => {
+    expect(() => createPairedUpliftModel(openRouterProtocol(), 42, {})).toThrow(
+      /OPENROUTER_API_KEY is required/i,
+    );
+    expect(() => createPairedUpliftAgentFactory(openRouterProtocol(), {})).toThrow(
+      /OPENROUTER_API_KEY is required/i,
+    );
+  });
+
+  it('hands the OpenRouter key to the model only and removes it from ambient child setup', async () => {
+    const protocol = openRouterProtocol();
+    const ambientEnvironment: Record<string, string | undefined> = {
+      PATH: process.env['PATH'],
+      OPENROUTER_API_KEY: 'secret-handoff-sentinel',
+      UNRELATED_VALUE: 'retained',
+    };
+
+    const providerEnvironment = capturePairedUpliftProviderEnvironment(
+      protocol.agent,
+      ambientEnvironment,
+    );
+
+    expect(Object.isFrozen(providerEnvironment)).toBe(true);
+    expect(providerEnvironment).toEqual({
+      OPENROUTER_API_KEY: 'secret-handoff-sentinel',
+    });
+    expect(ambientEnvironment).not.toHaveProperty('OPENROUTER_API_KEY');
+    expect(ambientEnvironment['UNRELATED_VALUE']).toBe('retained');
+
+    const child = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        "process.stdout.write(process.env.OPENROUTER_API_KEY === undefined ? 'absent' : 'present')",
+      ],
+      { encoding: 'utf8', env: ambientEnvironment as NodeJS.ProcessEnv },
+    );
+    expect(child.status).toBe(0);
+    expect(child.stdout).toBe('absent');
+
+    const factory = createPairedUpliftAgentFactory(protocol, providerEnvironment);
+    const agent = await factory(
+      { id: 'validation-recovery', prompt: 'Complete the task.' },
+      0,
+    );
+    const model = createPairedUpliftModel(protocol, 42, providerEnvironment);
+    expect(model.invocationParams()).toMatchObject({ seed: 42 });
+    expect(JSON.stringify(agent.metadata)).not.toContain('secret-handoff-sentinel');
+    expect(JSON.stringify(model.invocationParams())).not.toContain(
+      'secret-handoff-sentinel',
+    );
+    await agent.close();
+  });
+
+  it.each([
+    ['missing', undefined],
+    ['blank', '   '],
+  ] as const)(
+    'does not mutate the ambient environment when the OpenRouter key is %s',
+    (_case, key) => {
+      const ambientEnvironment: Record<string, string | undefined> = {
+        OPENROUTER_API_KEY: key,
+      };
+
+      expect(() =>
+        capturePairedUpliftProviderEnvironment(
+          openRouterProtocol().agent,
+          ambientEnvironment,
+        ),
+      ).toThrow(/OPENROUTER_API_KEY is required/i);
+      expect(ambientEnvironment).toHaveProperty('OPENROUTER_API_KEY', key);
+    },
+  );
+
+  it('leaves legacy provider environments unchanged', () => {
+    const ambientEnvironment: Record<string, string | undefined> = {
+      OPENAI_API_KEY: 'legacy-development-key',
+      UNRELATED_VALUE: 'retained',
+    };
+    const legacyAgent = {
+      provider: 'ollama',
+    } as EvidenceDropProtocol['agent'];
+
+    expect(
+      capturePairedUpliftProviderEnvironment(legacyAgent, ambientEnvironment),
+    ).toBe(ambientEnvironment);
+    expect(ambientEnvironment).toEqual({
+      OPENAI_API_KEY: 'legacy-development-key',
+      UNRELATED_VALUE: 'retained',
+    });
+  });
+
+  it('pins output, seed, reasoning, provider route, and provider policy', () => {
+    const invocation = createPairedUpliftModel(openRouterProtocol(), 42, {
+      OPENROUTER_API_KEY: 'private-test-key',
+    }).invocationParams() as {
+      seed?: number;
+      max_tokens?: number;
+      reasoning?: { effort?: string };
+      provider?: Record<string, unknown>;
+    };
+
+    expect(invocation).toMatchObject({
+      seed: 42,
+      max_tokens: 4096,
+      reasoning: { effort: 'low' },
+      provider: {
+        only: ['alibaba'],
+        allow_fallbacks: false,
+        require_parameters: true,
+        data_collection: 'deny',
+      },
+    });
+    expect(JSON.stringify(invocation)).not.toContain('private-test-key');
+  });
+
+  it('forces redirect rejection without making a request', async () => {
+    const underlyingFetch = vi.fn(async () => new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', underlyingFetch);
+    try {
+      const model = createPairedUpliftModel(openRouterProtocol(), 42, {
+        OPENROUTER_API_KEY: 'private-test-key',
+      });
+      const configuredFetch = model.clientConfig.fetch;
+      expect(configuredFetch).toBeTypeOf('function');
+
+      await configuredFetch?.('https://openrouter.ai/api/v1/chat/completions', {
+        redirect: 'follow',
+      });
+
+      expect(underlyingFetch).toHaveBeenCalledWith(
+        'https://openrouter.ai/api/v1/chat/completions',
+        expect.objectContaining({ redirect: 'error' }),
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('binds the same strict OpenRouter metadata and seed to both paired arms', async () => {
+    const protocol = openRouterProtocol();
+    const environment = { OPENROUTER_API_KEY: 'private-test-key' };
+    const task: AgentBenchmarkTask = {
+      id: 'validation-recovery',
+      prompt: 'Complete the task.',
+    };
+    const factory = createPairedUpliftAgentFactory(protocol, environment);
+    const control = await factory(task, 3);
+    const treatment = await factory(task, 3);
+
+    expect(control.metadata.modelConfiguration).toMatchObject({
+      provider: 'openrouter',
+      canonicalModelSlug: 'qwen/qwen3.8-max-20260803',
+      modelMetadataSha256: 'a'.repeat(64),
+      providerRoute: 'alibaba',
+      reasoningEffort: 'low',
+      maxOutputTokens: 4096,
+      seed: deterministicModelSeed(8675309, task.id, 3),
+      providerPolicy: {
+        allowFallbacks: false,
+        requireParameters: true,
+        dataCollection: 'deny',
+      },
+    });
+    expect(treatment.metadata.modelConfiguration).toEqual(
+      control.metadata.modelConfiguration,
+    );
+    expect(JSON.stringify(control.metadata)).not.toContain('private-test-key');
+    await Promise.all([control.close(), treatment.close()]);
+  });
+
+  it('rejects redirects from the actual development Ollama chat-completions request', async () => {
     const requests: string[] = [];
     const server = createServer((request, response) => {
       requests.push(request.url ?? '');
@@ -152,4 +354,5 @@ describe('paired model seed schedule', () => {
       });
     }
   });
+
 });

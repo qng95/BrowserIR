@@ -14,6 +14,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
+| Current local v15 working-tree verification | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. This row is local and not yet qualified by hosted CI. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Previous qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
 | Earlier direct workspace run | 487 declared cases and 468 executed passes with 19 skips; now stale because it predates the latest product and benchmark changes and must not be presented as the current total. |
@@ -59,9 +60,9 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current policy is `2026-08-11-v14`, requiring 689 declared, 670 executed,
-and 19 skipped cases. GitHub Actions run `31540028205` qualified that policy on
-commit `6a122a2`.
+The current local policy is `2026-08-12-v15`, requiring 735 declared, 716
+executed, and 19 skipped cases. It is not yet hosted evidence. GitHub Actions
+run `31540028205` qualified the prior v14 policy on commit `6a122a2`.
 
 The qualified public source release-evidence dossier for the hardening commit is
 `release-evidence-dossier-31540028205-1-6a122a2bfd0c1f684e1eec350659db3c7d1eadeb`,
@@ -113,8 +114,9 @@ checksum; they are not signatures or proof of release authorization. See
 
 ## Benchmark evidence
 
-Evidence Drop 01 is in pre-seal development. Its comparison infrastructure is
-implemented and tested. The official Playwright MCP control is pinned at
+Evidence Drop 01 has a frozen protocol; its sealed comparison has not run. Its
+comparison infrastructure is implemented and tested. The official Playwright
+MCP control is pinned at
 `0.0.78`; broker injection, the
 neutral agent prompt, counterbalanced matched runner, paired interval,
 model-facing tool traces, and create-only comparison artifacts have focused
@@ -151,8 +153,10 @@ journals, checksums, and atomic completion markers. They still record
 different pnpm runtime than v6. They are not source-bound release evidence and
 cannot prove which code change caused the result.
 
-No sealed score has been run or published. The candidate
-`validation-recovery` schedule remains unexecuted and unexposed. The separate
+No sealed score has been run or published. The frozen 30-pair
+`validation-recovery` schedule has not been exposed to a real model and no
+scored paired attempt has run; the task was previously exercised only by the
+deterministic reference qualification. The separate
 score-excluded official-control qualification completed from clean source at
 commit `6a122a2` on the already-seen `create-customer` task. One selected
 OpenRouter `qwen/qwen3.8-max` configuration ran the full five-attempt schedule
@@ -172,9 +176,19 @@ The retained bundle's `SHA256SUMS` file has SHA-256
 `35457e6cc2846c4b57e1392df0bcd68982d4369ad017058b9c7eef35653561f6`;
 this is a content-integrity identifier, not standalone authentication without
 trusted Git source context.
-Sealed-entry approval has not been recorded. Therefore there is still no
+The frozen schedule has not been launched. Therefore there is still no
 BrowserIR uplift, competitor-superiority, or general agent-quality claim. See
 [the evidence-drop protocol](EVIDENCE_DROPS.md).
+
+The Drop 01 manifest is frozen at
+[`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
+to `refs/tags/evidence-drop-01-protocol-v1`. It fixes the selected OpenRouter
+Qwen3.8-Max route/configuration, both tool-catalog hashes, one reserved
+workflow, 30 counterbalanced matched pairs, shared precommitted per-pair seeds,
+the full schedule/no-replacement policy, and sign-independent publication.
+With the conservative bound used here, 30 pairs can only support a positive or
+negative headline for a large observed effect; otherwise the declared result
+is inconclusive. Freezing this infrastructure is not a benchmark result.
 
 The representation report passed all 11 release tasks in its complete checked
 corpus. Its JSON report has SHA-256

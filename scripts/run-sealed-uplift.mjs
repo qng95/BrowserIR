@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 const defaultSourceRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const freezeRefPattern = /^refs\/tags\/[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$/;
 const temporaryPrefix = 'browserir-sealed-uplift-';
+const openRouterApiKeyEnvironmentName = 'OPENROUTER_API_KEY';
 const inheritedEnvironmentNames = [
   'CI',
   'FORCE_COLOR',
@@ -37,6 +38,7 @@ Usage:
 The protocol path is repository-relative. Evidence must use an explicit absolute
 directory outside the source checkout. The launcher clones the protocol freezeRef,
 installs with the frozen lockfile, builds, and only then invokes the uplift CLI.
+For an OpenRouter protocol, OPENROUTER_API_KEY is passed only to that final CLI.
 `;
 
 const valueAfter = (args, index, option) => {
@@ -178,7 +180,22 @@ async function readSealedManifest(path) {
   if (typeof parsed.freezeRef !== 'string' || !freezeRefPattern.test(parsed.freezeRef)) {
     throw new Error('Sealed protocol manifest requires a canonical refs/tags/... freezeRef.');
   }
-  return { source, freezeRef: parsed.freezeRef };
+  const agent = parsed.agent;
+  let apiKeyEnvironmentName;
+  if (
+    agent !== null &&
+    typeof agent === 'object' &&
+    !Array.isArray(agent) &&
+    agent.provider === 'openrouter'
+  ) {
+    if (agent.apiKeyEnv !== openRouterApiKeyEnvironmentName) {
+      throw new Error(
+        `Sealed OpenRouter protocol must declare ${openRouterApiKeyEnvironmentName} as apiKeyEnv.`,
+      );
+    }
+    apiKeyEnvironmentName = openRouterApiKeyEnvironmentName;
+  }
+  return { source, freezeRef: parsed.freezeRef, apiKeyEnvironmentName };
 }
 
 async function pathExists(path) {
@@ -212,8 +229,20 @@ async function defaultRunCommand({ command, args, cwd, stdio }, environment) {
   });
 }
 
-const command = (runCommand, executable, args, cwd) =>
-  runCommand({ command: executable, args, cwd, stdio: 'inherit' });
+const command = (runCommand, executable, args, cwd, environment) =>
+  runCommand({ command: executable, args, cwd, stdio: 'inherit' }, environment);
+
+const benchmarkEnvironment = (manifest, parentEnvironment, isolatedEnvironment) => {
+  if (manifest.apiKeyEnvironmentName === undefined) return isolatedEnvironment;
+  const apiKey = parentEnvironment[manifest.apiKeyEnvironmentName];
+  if (typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+    throw new Error(`${manifest.apiKeyEnvironmentName} is required by the sealed protocol.`);
+  }
+  return Object.freeze({
+    ...isolatedEnvironment,
+    [manifest.apiKeyEnvironmentName]: apiKey,
+  });
+};
 
 export async function launchSealedUplift(args, dependencies = {}) {
   const options = parseSealedUpliftArguments(args);
@@ -278,9 +307,7 @@ export async function launchSealedUplift(args, dependencies = {}) {
       mkdir(environment.COREPACK_HOME, { recursive: true }),
     ]);
     await writeFile(environment.NPM_CONFIG_USERCONFIG, '', { flag: 'wx' });
-    const runCommand =
-      injectedRunCommand ??
-      ((sealedCommand) => defaultRunCommand(sealedCommand, environment));
+    const runCommand = injectedRunCommand ?? defaultRunCommand;
     const checkout = join(temporaryRoot, 'source');
     await command(
       runCommand,
@@ -295,12 +322,14 @@ export async function launchSealedUplift(args, dependencies = {}) {
         checkout,
       ],
       sourceRoot,
+      environment,
     );
     await command(
       runCommand,
       'git',
       ['-c', 'advice.detachedHead=false', 'checkout', '--detach', launchManifest.freezeRef],
       checkout,
+      environment,
     );
     const frozenManifest = await readSealedManifest(join(checkout, options.protocolPath));
     if (
@@ -314,8 +343,14 @@ export async function launchSealedUplift(args, dependencies = {}) {
       'corepack',
       ['pnpm', 'install', '--frozen-lockfile'],
       checkout,
+      environment,
     );
-    await command(runCommand, 'corepack', ['pnpm', 'build'], checkout);
+    await command(runCommand, 'corepack', ['pnpm', 'build'], checkout, environment);
+    const finalEnvironment = benchmarkEnvironment(
+      frozenManifest,
+      process.env,
+      environment,
+    );
     const evidenceOption = options.outputDirectory === undefined ? '--resume' : '--output';
     await command(
       runCommand,
@@ -330,6 +365,7 @@ export async function launchSealedUplift(args, dependencies = {}) {
         evidenceDirectory,
       ],
       checkout,
+      finalEnvironment,
     );
   } catch (error) {
     primaryError = error;

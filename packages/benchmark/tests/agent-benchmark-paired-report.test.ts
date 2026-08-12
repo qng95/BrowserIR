@@ -52,6 +52,17 @@ const report = (): PairedAgentBenchmarkReport => ({
   protocolSha256: 'a'.repeat(64),
   protocolBinding: 'frozen_verified',
   phase: 'sealed',
+  claimPolicy: {
+    decisionRule: {
+      minimumScheduledBlocks: 30,
+      maximumInvalidBlocks: 1,
+      positive: { lowerBoundAbove: 0 },
+      negative: { upperBoundBelow: 0 },
+      otherwise: 'inconclusive',
+    },
+    publicationRule: 'publish-regardless-of-sign',
+    estimand: 'fixed-workflow-precommitted-seed-schedule',
+  },
   expectedTargetVersion: 'fixture-v1',
   scheduleSeed: 20260811,
   budgets: { maxDurationMs: 120_000, maxToolCalls: 100, maxModelTurns: 30 },
@@ -117,6 +128,11 @@ describe('paired agent benchmark artifacts', () => {
   it('renders canonical machine evidence and a scope-honest human summary', () => {
     expect(JSON.parse(renderPairedAgentBenchmarkJson(report()))).toMatchObject({
       protocolId: 'drop-01-sealed-v1',
+      claimPolicy: {
+        decisionRule: { minimumScheduledBlocks: 30, maximumInvalidBlocks: 1 },
+        publicationRule: 'publish-regardless-of-sign',
+        estimand: 'fixed-workflow-precommitted-seed-schedule',
+      },
       summary: { treatmentWins: 1, pairedLift: { estimate: 1 } },
     });
     const attempts = renderPairedAgentBenchmarkAttemptsNdjson(report())
@@ -129,6 +145,84 @@ describe('paired agent benchmark artifacts', () => {
     expect(markdown).toContain('Insufficient evidence');
     expect(markdown).toContain('+100.00 percentage points');
     expect(markdown).toContain('Playwright MCP 0.0.78');
+    expect(markdown).toContain('fixed-workflow-precommitted-seed-schedule');
+    expect(markdown).toContain('publish-regardless-of-sign');
+    expect(markdown).toContain('no more than 1 invalid');
+  });
+
+  it('uses the frozen invalid-block ceiling and zero-bound thresholds exactly', () => {
+    const candidate = report();
+    candidate.blocks = Array.from({ length: 30 }, (_, trialIndex) => ({
+      ...candidate.blocks[0]!,
+      blockId: `drop-01:validation-recovery:${trialIndex}`,
+      trialIndex,
+      outcome: trialIndex < 2 ? 'invalid' as const : 'treatment_win' as const,
+      attempts: {
+        control: { ...attempt('control', false), trialIndex },
+        treatment: { ...attempt('treatment', true), trialIndex },
+      },
+    }));
+    candidate.summary = {
+      ...candidate.summary,
+      trialsPerTask: 30,
+      scheduledBlocks: 30,
+      validBlocks: 28,
+      invalidBlocks: 2,
+      treatmentWins: 28,
+      pairedLift: {
+        ...candidate.summary.pairedLift,
+        lower: 0.5,
+        upper: 1,
+        pairs: 28,
+      },
+    };
+    expect(renderPairedAgentBenchmarkMarkdown(candidate)).toContain(
+      'more than 1 matched block was invalid',
+    );
+
+    candidate.summary = {
+      ...candidate.summary,
+      validBlocks: 29,
+      invalidBlocks: 1,
+      treatmentWins: 29,
+      pairedLift: {
+        ...candidate.summary.pairedLift,
+        lower: 0.5,
+        pairs: 29,
+      },
+    };
+    candidate.blocks[1] = {
+      ...candidate.blocks[1]!,
+      outcome: 'treatment_win',
+    };
+    expect(renderPairedAgentBenchmarkMarkdown(candidate)).toContain(
+      'BrowserIR had higher success',
+    );
+
+    candidate.summary.pairedLift = {
+      ...candidate.summary.pairedLift,
+      lower: 0,
+    };
+    expect(renderPairedAgentBenchmarkMarkdown(candidate)).toContain(
+      '95% paired interval crosses zero',
+    );
+
+    candidate.summary.pairedLift = {
+      ...candidate.summary.pairedLift,
+      lower: -1,
+      upper: -0.01,
+    };
+    expect(renderPairedAgentBenchmarkMarkdown(candidate)).toContain(
+      'BrowserIR had lower success',
+    );
+
+    candidate.summary.pairedLift = {
+      ...candidate.summary.pairedLift,
+      upper: 0,
+    };
+    expect(renderPairedAgentBenchmarkMarkdown(candidate)).toContain(
+      '95% paired interval crosses zero',
+    );
   });
 
   it('allows the frozen positive rule only after the declared minimum schedule', () => {

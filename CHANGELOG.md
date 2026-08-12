@@ -86,6 +86,13 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   5/5 attempts on the already-seen `create-customer` workflow with zero failed
   or invalid attempts. It contains no BrowserIR arm and is not an uplift,
   pass-rate, generalization, or competitor-superiority result.
+- A frozen Drop 01 paired protocol for 30 counterbalanced
+  `validation-recovery` blocks comparing BrowserIR with official Playwright MCP
+  `0.0.78` in accessibility-snapshot mode. Sealed execution now binds the
+  qualified OpenRouter model route/configuration, precommitted shared seeds,
+  sign-independent decision rule, start/end endpoint metadata, exact runtime
+  package and Chromium provenance, and final-child-only credential access. No
+  scored paired run or uplift result is included in this change.
 
 ### Security
 

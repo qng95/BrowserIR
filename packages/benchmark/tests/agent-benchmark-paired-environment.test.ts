@@ -3,18 +3,25 @@ import { describe, expect, it } from 'vitest';
 import {
   assertPairedExecutionEnvironmentStable,
   collectPairedExecutionEnvironment,
+  createDefaultPairedExecutionEnvironmentProbe,
   createPairedExecutionIntegrityBinding,
   pairedExecutionEnvironmentFingerprint,
   parsePairedExecutionEnvironment,
+  renderPairedExecutionModelMetadata,
   renderPairedExecutionEnvironment,
   type PairedExecutionEnvironment,
   type PairedExecutionEnvironmentProbe,
 } from '../src/agent-benchmark/paired-environment.js';
+import {
+  OPENROUTER_REQUIRED_CONTROL_PARAMETERS,
+  openRouterControlModelFingerprint,
+  type OpenRouterControlModelSnapshot,
+} from '../src/control-capability-model-metadata.js';
 
 const digest = (character: string): string => character.repeat(64);
 
 const environment = (): PairedExecutionEnvironment => ({
-  schemaVersion: '1.1.0',
+  schemaVersion: '1.2.0',
   host: {
     platform: 'darwin',
     release: '25.0.0',
@@ -92,6 +99,158 @@ const environment = (): PairedExecutionEnvironment => ({
 });
 
 describe('paired evidence execution environment', () => {
+  it('binds exact OpenRouter endpoint metadata without claiming a model-weight digest', async () => {
+    const metadata: OpenRouterControlModelSnapshot = {
+      schemaVersion: '1.0.0',
+      modelId: 'qwen/qwen3.8-max',
+      canonicalModelSlug: 'qwen/qwen3.8-max-20260803',
+      contextWindowTokens: 262_144,
+      providerRoute: 'alibaba',
+      providerName: 'Alibaba',
+      endpointName: 'Qwen3.8 Max',
+      endpointModelId: 'qwen/qwen3.8-max',
+      maxCompletionTokens: 65_536,
+      requiredParameters: OPENROUTER_REQUIRED_CONTROL_PARAMETERS,
+    };
+    const request: typeof fetch = async (input) => {
+      const url = String(input);
+      return url.endsWith('/models')
+        ? new Response(
+            JSON.stringify({
+              data: [
+                {
+                  id: metadata.modelId,
+                  canonical_slug: metadata.canonicalModelSlug,
+                  context_length: metadata.contextWindowTokens,
+                },
+              ],
+            }),
+            { status: 200 },
+          )
+        : new Response(
+            JSON.stringify({
+              data: {
+                endpoints: [
+                  {
+                    tag: metadata.providerRoute,
+                    provider_name: metadata.providerName,
+                    name: metadata.endpointName,
+                    model_id: metadata.endpointModelId,
+                    max_completion_tokens: metadata.maxCompletionTokens,
+                    supported_parameters: [...metadata.requiredParameters],
+                  },
+                ],
+              },
+            }),
+            { status: 200 },
+          );
+    };
+    const protocol = {
+      agent: {
+        provider: 'openrouter' as const,
+        baseUrl: 'https://openrouter.ai/api/v1' as const,
+        modelId: metadata.modelId,
+        canonicalModelSlug: metadata.canonicalModelSlug,
+        modelMetadataSha256: openRouterControlModelFingerprint(metadata),
+        providerRoute: metadata.providerRoute,
+        temperature: 0.2,
+        maxOutputTokens: 4_096,
+        maxRetries: 0,
+        imageMode: 'text-only' as const,
+      },
+      target: { expectedVersion: `sha256:${digest('3')}`, headless: true },
+      arms: {
+        control: { interfaceVersion: '0.0.78' },
+        treatment: { interfaceVersion: '0.1.0+mcp-2026-07-28' },
+      },
+    };
+
+    const model = await createDefaultPairedExecutionEnvironmentProbe({ fetch: request }).model(
+      protocol,
+    );
+
+    expect(model).toMatchObject({
+      provider: 'openrouter',
+      modelId: metadata.modelId,
+      canonicalModelSlug: metadata.canonicalModelSlug,
+      modelMetadataSha256: openRouterControlModelFingerprint(metadata),
+      providerRoute: metadata.providerRoute,
+      verification: 'openrouter-endpoint-metadata-fingerprint',
+      metadata,
+      configuration: {
+        contextWindowTokens: metadata.contextWindowTokens,
+        maxOutputTokens: 4_096,
+      },
+    });
+    expect(model).not.toHaveProperty('artifactDigest');
+    expect(renderPairedExecutionModelMetadata(model)).toContain(
+      '"canonicalModelSlug": "qwen/qwen3.8-max-20260803"',
+    );
+  });
+
+  it('fails OpenRouter endpoint metadata drift closed during environment collection', async () => {
+    const expected = environment();
+    const modelMetadataSha256 = digest('9');
+    const protocol = {
+      agent: {
+        provider: 'openrouter' as const,
+        baseUrl: 'https://openrouter.ai/api/v1' as const,
+        modelId: 'qwen/qwen3.8-max',
+        canonicalModelSlug: 'qwen/qwen3.8-max-20260803',
+        modelMetadataSha256,
+        providerRoute: 'alibaba',
+        temperature: 0.2,
+        maxOutputTokens: 4_096,
+        maxRetries: 0,
+        imageMode: 'text-only' as const,
+      },
+      target: { expectedVersion: expected.target.expectedVersion, headless: true },
+      arms: {
+        control: { interfaceVersion: expected.arms.control.interfaceVersion },
+        treatment: { interfaceVersion: expected.arms.treatment.interfaceVersion },
+      },
+    };
+    const probe: PairedExecutionEnvironmentProbe = {
+      host: async () => expected.host,
+      harness: async () => expected.harness,
+      model: async () => ({
+        provider: 'openrouter',
+        modelId: protocol.agent.modelId,
+        canonicalModelSlug: protocol.agent.canonicalModelSlug,
+        modelMetadataSha256: digest('8'),
+        providerRoute: protocol.agent.providerRoute,
+        verification: 'openrouter-endpoint-metadata-fingerprint',
+        metadata: {
+          schemaVersion: '1.0.0',
+          modelId: protocol.agent.modelId,
+          canonicalModelSlug: protocol.agent.canonicalModelSlug,
+          contextWindowTokens: 262_144,
+          providerRoute: protocol.agent.providerRoute,
+          providerName: 'Alibaba',
+          endpointName: 'Qwen3.8 Max',
+          endpointModelId: protocol.agent.modelId,
+          maxCompletionTokens: 65_536,
+          requiredParameters: OPENROUTER_REQUIRED_CONTROL_PARAMETERS,
+        },
+        configuration: {
+          contextWindowTokens: 262_144,
+          temperature: 0.2,
+          maxOutputTokens: 4_096,
+          maxRetries: 0,
+          imageMode: 'text-only',
+        },
+      }),
+      arm: async (role) => expected.arms[role],
+    };
+
+    await expect(
+      collectPairedExecutionEnvironment(
+        { workspaceRoot: '/not-published', protocol },
+        probe,
+      ),
+    ).rejects.toThrow(/model.*metadata.*drift/i);
+  });
+
   it('canonicalizes metadata and fingerprints semantic content independent of key order', () => {
     const left = environment();
     const right = JSON.parse(JSON.stringify(left)) as Record<string, unknown>;
@@ -138,6 +297,7 @@ describe('paired evidence execution environment', () => {
   it('detects start/end drift and reports only bounded field paths', () => {
     const start = environment();
     const end = environment();
+    if (end.model.provider !== 'ollama') throw new Error('test setup');
     end.model.runtime.version = '0.11.5';
     end.arms.control.browser.version = '145.0.0.0';
 
@@ -185,6 +345,7 @@ describe('paired evidence execution environment', () => {
 
   it('collects only the strict allowlisted projection returned by real probes', async () => {
     const expected = environment();
+    if (expected.model.provider !== 'ollama') throw new Error('test setup');
     const probe: PairedExecutionEnvironmentProbe = {
       host: async () => expected.host,
       harness: async () => expected.harness,
@@ -227,6 +388,7 @@ describe('paired evidence execution environment', () => {
 
   it('rejects a pnpm runtime that differs from the workspace package-manager pin', async () => {
     const expected = environment();
+    if (expected.model.provider !== 'ollama') throw new Error('test setup');
     const probe: PairedExecutionEnvironmentProbe = {
       host: async () => expected.host,
       harness: async () => ({ ...expected.harness, pnpmVersion: '11.16.0' }),

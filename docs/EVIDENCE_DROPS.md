@@ -142,8 +142,8 @@ are fixed at their own layer.
 ## Evidence Drop 01
 
 Status: **BrowserIR treatment-path signal observed; score-excluded official-
-control capability demonstrated; sealed paired protocol not frozen and no Drop
-01 comparison result exists**.
+control capability demonstrated; sealed paired protocol frozen; no Drop 01
+comparison result has been run**.
 
 The intended first public question is deliberately narrow:
 
@@ -151,7 +151,7 @@ The intended first public question is deliberately narrow:
 > LangChain agent succeed more often with BrowserIR than with pinned official
 > Playwright MCP?
 
-The candidate sealed schedule is 30 matched blocks, text-only, with alternating
+The frozen sealed schedule is 30 matched blocks, text-only, with alternating
 arm order from a committed order seed, a precommitted model-seed base, and a
 non-zero frozen sampling temperature. Each task/trial coordinate
 deterministically derives one model seed shared by both arms; temperature-zero
@@ -161,10 +161,22 @@ and is excluded from the Drop 01 score. The first public result must be labelled
 a **controlled fixture pilot**, never a general browser-agent benchmark or an
 independent-samples population estimate.
 
-The control is pinned to official `@playwright/mcp` `0.0.78`. The exact model
-for the sealed paired run will be frozen only after the separate
-official-control compatibility qualification. Selecting it after seeing any
-`validation-recovery` result is forbidden.
+The control is pinned to official `@playwright/mcp` `0.0.78` in its text-only
+accessibility-snapshot interface. The model is the separately qualified
+OpenRouter `qwen/qwen3.8-max` configuration, pinned to the Alibaba route,
+canonical slug, endpoint-metadata fingerprint, neutral prompt, 4,096-token
+output ceiling, temperature `0.2`, and no-fallback/data-deny policy. The
+endpoint fingerprint is not a model-weight digest. The complete browser
+interface is the intervention, so this is not a pure representation ablation.
+
+The schedule and decision rule are retained in
+[`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
+to `refs/tags/evidence-drop-01-protocol-v1`. All 30 blocks must run, with no
+replacement. At most one invalid block is allowed for a headline; the result
+is positive only when the conservative 95% lower bound is above zero, negative
+only when the upper bound is below zero, and otherwise inconclusive. It will be
+published regardless of sign. With 30 pairs, the implemented bound is roughly
+±49.6 percentage points, so this first pilot can detect only a large effect.
 
 Development is manifest-driven through `pnpm benchmark:uplift`. The original
 failed artifacts remain retained; a development failure is an input to the
@@ -177,7 +189,9 @@ The dedicated compatibility gate completed from clean source at commit
 safe browser-tool subset exposed by official Playwright MCP `0.0.78` on the
 already-seen development task `create-customer`. It had no BrowserIR arm and
 cannot produce a score or uplift result. The sealed candidate
-`validation-recovery` remains unexecuted and was not exposed to the model.
+`validation-recovery` was exercised by the deterministic reference
+qualification, but it has not been exposed to a real model and no scored paired
+attempt has run.
 
 The qualification precommits exactly five attempts and runs the entire
 schedule. It permits no early stop, favorable rerun, or invalid-attempt
@@ -224,15 +238,16 @@ Git publication provides the source context.
 > superiority.
 
 These development changes include BrowserIR production inference changes. The
-reserved `validation-recovery` task has not been executed, exposed to a model,
-or used to select or tune a fix, model, prompt, or budget. Development success
-does not satisfy the public claim rule.
+reserved `validation-recovery` task has not been exposed to a real model or
+used to select or tune a real-model fix, model, prompt, or budget. Its existing
+deterministic reference-planner qualification is not a scored paired attempt
+and does not satisfy the public claim rule.
 
 ## Drop registry
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
-| 01 | Playwright MCP vs BrowserIR on one database-judged validation-recovery workflow | Pre-seal development; score-excluded control capability demonstrated; paired protocol not frozen | Paired result not run |
+| 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Sealed 30-pair protocol frozen; score-excluded control capability demonstrated | Paired result not run |
 | 02 | External representation slice | Planned | Not run |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |

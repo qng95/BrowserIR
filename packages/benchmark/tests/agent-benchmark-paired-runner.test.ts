@@ -15,6 +15,7 @@ import {
   type AgentTrialTarget,
   type BrowserAgentAdapter,
   type DeterministicJudgeResult,
+  type PairedAgentBenchmarkClaimPolicy,
   type PairedBenchmarkLifecycleEvent,
 } from '../src/agent-benchmark/index.js';
 
@@ -32,6 +33,18 @@ const task: AgentBenchmarkTask = {
   id: 'paired-task',
   prompt: 'Complete the requested change.',
   version: 'task-v1',
+};
+
+const sealedClaimPolicy: PairedAgentBenchmarkClaimPolicy = {
+  decisionRule: {
+    minimumScheduledBlocks: 30,
+    maximumInvalidBlocks: 1,
+    positive: { lowerBoundAbove: 0 },
+    negative: { upperBoundBelow: 0 },
+    otherwise: 'inconclusive',
+  },
+  publicationRule: 'publish-regardless-of-sign',
+  estimand: 'fixed-workflow-precommitted-seed-schedule',
 };
 
 const broker = (): AgentToolBroker => ({
@@ -177,9 +190,31 @@ describe('paired agent benchmark runner', () => {
       runPairedAgentBenchmark({ ...sealed, protocolBinding: 'development' }),
     ).rejects.toThrow(/binding.*phase|phase.*binding/i);
 
+    await expect(
+      runPairedAgentBenchmark({
+        ...sealed,
+        protocolBinding: 'frozen_verified',
+      }),
+    ).rejects.toThrow(/claim policy/i);
+
+    await expect(
+      runPairedAgentBenchmark({
+        ...sealed,
+        protocolBinding: 'frozen_verified',
+        claimPolicy: {
+          ...sealedClaimPolicy,
+          decisionRule: {
+            ...sealedClaimPolicy.decisionRule,
+            maximumInvalidBlocks: 2,
+          },
+        } as unknown as PairedAgentBenchmarkClaimPolicy,
+      }),
+    ).rejects.toThrow(/claim policy/i);
+
     const report = await runPairedAgentBenchmark({
       ...sealed,
       protocolBinding: 'frozen_verified',
+      claimPolicy: sealedClaimPolicy,
       async eventSink(event) {
         events.push(event);
       },
@@ -187,6 +222,7 @@ describe('paired agent benchmark runner', () => {
     expect(report).toMatchObject({
       phase: 'sealed',
       protocolBinding: 'frozen_verified',
+      claimPolicy: sealedClaimPolicy,
     });
     expect(events[0]).toMatchObject({
       type: 'run_started',

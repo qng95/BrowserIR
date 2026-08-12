@@ -188,21 +188,31 @@ const claim = (report: PairedAgentBenchmarkReport): string => {
   if (report.summary.pairedLift.method !== 'paired-hoeffding-bound') {
     return 'Insufficient evidence: the interval method is not approved for a sealed headline.';
   }
+  const policy = report.claimPolicy;
+  if (policy === undefined) {
+    return 'Insufficient evidence: the sealed result does not retain its frozen claim policy.';
+  }
   if (
-    report.summary.scheduledBlocks < 30 ||
+    report.summary.scheduledBlocks < policy.decisionRule.minimumScheduledBlocks ||
     report.blocks.length !== report.summary.scheduledBlocks ||
     report.summary.validBlocks !== report.summary.pairedLift.pairs
   ) {
     return 'Insufficient evidence: the frozen minimum schedule was not completed.';
   }
-  if (report.summary.invalidBlocks / report.summary.scheduledBlocks > 0.05) {
-    return 'Operationally inconclusive: more than 5% of matched blocks were invalid.';
+  if (report.summary.invalidBlocks > policy.decisionRule.maximumInvalidBlocks) {
+    return `Operationally inconclusive: more than ${policy.decisionRule.maximumInvalidBlocks} matched block was invalid.`;
   }
   const { lower, upper } = report.summary.pairedLift;
-  if (lower !== null && lower > 0) {
+  if (
+    lower !== null &&
+    lower > policy.decisionRule.positive.lowerBoundAbove
+  ) {
     return 'BrowserIR had higher success across this precommitted workflow/seed schedule.';
   }
-  if (upper !== null && upper < 0) {
+  if (
+    upper !== null &&
+    upper < policy.decisionRule.negative.upperBoundBelow
+  ) {
     return 'BrowserIR had lower success across this precommitted workflow/seed schedule.';
   }
   return 'Pilot was inconclusive for this precommitted schedule; the 95% paired interval crosses zero.';
@@ -238,6 +248,13 @@ export function renderPairedAgentBenchmarkMarkdown(
     `- Schedule seed: ${ordered.scheduleSeed}`,
     `- Target version: ${markdownText(ordered.expectedTargetVersion)}`,
     `- Budgets: ${ordered.budgets.maxDurationMs} ms, ${ordered.budgets.maxToolCalls} tool calls, ${ordered.budgets.maxModelTurns} model turns per attempt`,
+    ...(ordered.claimPolicy === undefined
+      ? []
+      : [
+          `- Estimand: ${ordered.claimPolicy.estimand}`,
+          `- Publication rule: ${ordered.claimPolicy.publicationRule}`,
+          `- Decision rule: at least ${ordered.claimPolicy.decisionRule.minimumScheduledBlocks} scheduled matched blocks, no more than ${ordered.claimPolicy.decisionRule.maximumInvalidBlocks} invalid; positive only when the 95% lower bound is above ${ordered.claimPolicy.decisionRule.positive.lowerBoundAbove}, negative only when the upper bound is below ${ordered.claimPolicy.decisionRule.negative.upperBoundBelow}, otherwise ${ordered.claimPolicy.decisionRule.otherwise}`,
+        ]),
     '',
     '## Primary result',
     '',
