@@ -31,11 +31,12 @@ semantic entities, relationships, state, available actions, and revision-bound
 references, then exposes them through a TypeScript core and MCP.
 
 Playwright remains underneath for reliable browser mechanics. Arbitrary
-page-code execution is absent by default. The latest hosted source
-qualification is v17 Drop 02 freeze commit `1b4f78a`, reproduced by GitHub
-Actions run `31616555262`; all ten required jobs passed and assembled a
-source-evidence dossier. That engineering qualification is not itself an LLM
-or competitor score. The separate v13 scorecard records its own
+page-code execution is absent by default. The latest hosted result publication
+is v17 Drop 02 commit `294fd82`, reproduced by GitHub Actions run
+`31625678956`; all ten required jobs passed and assembled a source-evidence
+dossier. Annotated tag `evidence-drop-02-v1-result` binds the publication. That
+engineering qualification is not itself an LLM or competitor score. The
+separate v13 scorecard records its own
 302-call/one-stale-refusal telemetry.
 
 A separate score-excluded compatibility gate first established that the selected
@@ -65,18 +66,18 @@ generalization, or a superiority result.
 
 ## Current source-bound engineering evidence
 
-The latest hosted source qualification was reproduced on v17 Drop 02 freeze
-commit `1b4f78a` by GitHub Actions run `31616555262`. The same run assembled a
-source-evidence dossier, and annotated tag `evidence-drop-02-protocol-v1`
-resolves to that freeze commit. Drop 02 result-publication CI and its result tag
-remain pending.
+The latest hosted result publication was reproduced on v17 Drop 02 commit
+`294fd82` by GitHub Actions run `31625678956`. The same run assembled a
+source-evidence dossier, and annotated tag `evidence-drop-02-v1-result`
+resolves to that publication commit. The immutable protocol tag continues to
+resolve to the earlier freeze commit.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Latest hosted v17 Drop 02 freeze qualification: all ten required CI jobs
-  passed; protocol tag `evidence-drop-02-protocol-v1` binds the source.
+- Latest hosted v17 Drop 02 result publication: all ten required CI jobs passed;
+  result tag `evidence-drop-02-v1-result` binds the publication.
 - Previous v13 run-specific telemetry: 302 MCP calls and one stale action
   refused before dispatch, then recovered by the reference planner.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
@@ -144,12 +145,12 @@ relationships, available actions, revisions, and explicit omissions. Playwright
 handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
-The clean, source-bound v16 result-publication CI run passed all 14 controlled,
-database-judged fixture tasks through real Chromium and assembled the current
-source-evidence dossier. The previous v13 scorecard separately records 302 MCP
-calls and one stale action refused by BrowserIR before dispatch, then recovered
-by the deterministic reference planner. Those are system-qualification
-results.
+The clean, source-bound v17 Drop 02 result-publication CI run passed all 14
+controlled, database-judged fixture tasks through real Chromium and assembled
+the current source-evidence dossier. The previous v13 scorecard separately
+records 302 MCP calls and one stale action refused by BrowserIR before dispatch,
+then recovered by the deterministic reference planner. Those are
+system-qualification results.
 
 Evidence Drop 01 adaptive v2 separately ran a matched real-model comparison on
 30 validation-recovery blocks with Qwen3.8-Max. BrowserIR passed 30/30; the

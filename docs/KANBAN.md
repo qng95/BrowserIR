@@ -16,16 +16,13 @@ implemented. The Drop 02 freeze advances the exact-count policy to
 v17 and declares 754 cases: 735 executed and 19 intentional opt-in cases
 skipped. By package, that is core 60/60, fixture 100/100, Playwright driver
 107/107, benchmark 292/292, and MCP 195 declared with 176 executed and 19
-skipped. Freeze commit `1b4f78a` passed all ten hosted jobs in
-[run `31616555262`](https://github.com/qng95/BrowserIR/actions/runs/31616555262)
-and is bound by tag `evidence-drop-02-protocol-v1`. Its dossier digest is
-`sha256:c2ecd2f7bfa07ba17c01dfd5cca7e15d3158a1f779ed78a160e015319226c479`.
-The latest qualified result publication remains commit `e448b58`, which passed all ten
-jobs under v16 in [GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
-and is bound by tag `evidence-drop-01-adaptive-v2-result`. Its
-result-publication dossier is
-`release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`
-with GitHub-reported digest `sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`.
+skipped. Drop 02 publication commit `294fd82` passed all ten hosted jobs in
+[run `31625678956`](https://github.com/qng95/BrowserIR/actions/runs/31625678956)
+and is bound by tag `evidence-drop-02-v1-result`; the earlier protocol tag still
+binds freeze commit `1b4f78a`. The current result-publication dossier is
+`release-evidence-dossier-31625678956-1-294fd8298eeb9b3e981f03b247e5a6c7ed58b114`
+with GitHub-reported digest
+`sha256:7474ace0b6350bce363f6d98e52bcc5e38634e40bca149fe4234ae80a7050412`.
 Earlier v15, v14, v13, and
 v11 dossiers remain valid for their own source trees; 487/468/19 and 439/420/19
 runs remain retained dirty/unbound history under stale exact-count policies.
@@ -293,7 +290,7 @@ Definition of Done for every implementation card:
 - package tests and type checking pass;
 - documentation is updated when a public contract changes.
 
-## In Progress
+## Completed evidence drops
 
 ### BIR-100 — Evidence Drop 02: independent query-three-conditions comparison
 
@@ -317,7 +314,7 @@ Definition of Done for every implementation card:
   pass, then create and push an annotated Drop 02 protocol tag.
 - [x] Only after that tag exists, run the complete 30-block schedule without
   early stopping, favorable reruns, or reuse of a Drop 01 attempt.
-- [ ] Publish every result under the predeclared rule. Describe it as a
+- [x] Publish every result under the predeclared rule. Describe it as a
   complete-interface fixture comparison—not raw DOM, a pure representation
   ablation, or unseen-site generalization.
 
@@ -331,8 +328,9 @@ The complete 30-block schedule produced BrowserIR 21/30 versus control 20/30:
 +3.33-point estimate has a 95% bound of −46.26 to +52.92 points, so the result
 is **inconclusive**. The final nine both-failed pairs are provider-contaminated
 and best explained by exhausted OpenRouter credit; they remain scored and will
-not be selectively rerun. The unchanged result publication, hosted CI, and
-result tag remain open.
+not be selectively rerun. Publication commit `294fd82` passed all ten jobs in
+run `31625678956`; annotated tag `evidence-drop-02-v1-result` resolves to it.
+The unchanged result bundle and canonical checksum boundary are retained in Git.
 
 ### BIR-099 — Evidence Drop 01: paired Playwright MCP comparison
 

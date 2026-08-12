@@ -294,9 +294,10 @@ fixed; independent confirmation moves to a previously unmeasured slice.
 
 ## Evidence Drop 02
 
-Status: **the full sealed schedule completed; the predeclared result is
-inconclusive. The unchanged result bundle is being prepared for hosted
-result-publication CI and an annotated result tag**.
+Status: **published. The full sealed schedule completed; the predeclared result
+is inconclusive. Publication commit `294fd82` passed all ten hosted jobs in
+[run `31625678956`](https://github.com/qng95/BrowserIR/actions/runs/31625678956),
+and annotated tag `evidence-drop-02-v1-result` binds that exact commit**.
 
 The intended question is:
 
@@ -350,7 +351,7 @@ multi-workflow generalization result, or superiority claim.
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
 | 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Adaptive v2 complete; v1 aborted diagnostic retained | **Inconclusive:** BrowserIR 30/30 vs control 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
-| 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Sealed schedule complete; result-publication CI/tag pending | **Inconclusive:** BrowserIR 21/30 vs control 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
+| 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Published; result tag and checksummed bundle retained | **Inconclusive:** BrowserIR 21/30 vs control 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |
 

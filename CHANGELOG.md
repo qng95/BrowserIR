@@ -103,8 +103,9 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   9 both fail, and 0 invalid. The +3.33-point paired estimate has a 95% paired
   Hoeffding interval of −46.26 to +52.92 points, so the predeclared verdict is
   inconclusive. The shared tail is provider-contaminated and best explained by
-  exhausted OpenRouter credit; the frozen score remains unchanged.
-  Result-publication CI and the result tag remain pending.
+  exhausted OpenRouter credit; the frozen score remains unchanged. Publication
+  commit `294fd82` passed all ten hosted jobs in run `31625678956`, and
+  `evidence-drop-02-v1-result` binds that exact commit.
 
 ### Changed
 

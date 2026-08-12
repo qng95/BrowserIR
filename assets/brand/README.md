@@ -86,10 +86,11 @@ execution.
 Use this formulation for the latest hosted source qualification:
 
 > GitHub Actions reproduced BrowserIR's deterministic fixture qualification on
-> clean, source-bound v17 Drop 02 freeze commit `1b4f78a` in run `31616555262`.
-> All ten required jobs passed and assembled a source-evidence dossier. This
-> engineering qualification is separate from the model comparison and is not
-> itself an LLM or competitor score.
+> clean, source-bound v17 Drop 02 result-publication commit `294fd82` in run
+> `31625678956`. All ten required jobs passed and assembled a source-evidence
+> dossier. Annotated tag `evidence-drop-02-v1-result` binds the publication.
+> This engineering qualification is separate from the model comparison and is
+> not itself an LLM or competitor score.
 
 For the v13 scorecard's run-specific telemetry, use this exact scoped
 formulation:

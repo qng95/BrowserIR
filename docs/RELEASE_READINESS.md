@@ -2,13 +2,12 @@
 
 Assessment updated: 2026-08-12 (Europe/Berlin)
 
-Status: **the Apache-2.0 source alpha and Evidence Drop 01 adaptive-v2 result
-are public. Result-publication commit `e448b58` passed all ten hosted v16 jobs
-in [run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
-and is bound by annotated tag `evidence-drop-01-adaptive-v2-result`. Evidence
-Drop 02 has completed its sealed schedule with an inconclusive result;
-result-publication CI and its result tag remain pending. npm packages and a
-product release remain unpublished.** Publication gates must
+Status: **the Apache-2.0 source alpha and Evidence Drops 01 and 02 are public.
+Drop 02 result-publication commit `294fd82` passed all ten hosted v17 jobs in
+[run `31625678956`](https://github.com/qng95/BrowserIR/actions/runs/31625678956)
+and is bound by annotated tag `evidence-drop-02-v1-result`. Its predeclared
+result is inconclusive. npm packages and a product release remain unpublished.**
+Publication gates must
 not be bypassed by weakening the release verifier or by presenting
 dirty/unbound local evidence as release evidence.
 
@@ -18,8 +17,9 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
+| Qualified v17 Drop 02 result publication (commit `294fd82`) | 754 declared cases: 735 executed and 19 explicitly opt-in qualification cases skipped. Hosted run `31625678956` passed all ten required jobs and assembled the current dossier with digest `sha256:7474ace0b6350bce363f6d98e52bcc5e38634e40bca149fe4234ae80a7050412`; `evidence-drop-02-v1-result` binds the publication. |
 | Qualified v17 Drop 02 freeze (commit `1b4f78a`) | 754 declared cases: 735 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 100/100, Playwright driver 107/107, benchmark 292/292, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31616555262` passed all ten required jobs and assembled a dossier with digest `sha256:c2ecd2f7bfa07ba17c01dfd5cca7e15d3158a1f779ed78a160e015319226c479`; `evidence-drop-02-protocol-v1` binds the freeze. |
-| Qualified v16 result-publication workspace verification (commit `e448b58`) | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31608404916` passed all ten required jobs and assembled the current dossier. |
+| Qualified v16 Drop 01 result publication (commit `e448b58`) | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31608404916` passed all ten required jobs and assembled its historical dossier. |
 | Qualified v15 workspace verification (commit `89c82ff`) | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Previous qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
@@ -29,10 +29,11 @@ Local development and clean hosted CI produced the following engineering evidenc
 | Workspace type checking | Passed for all five tested packages |
 | Capability qualification | 5/5 browser workflows passed |
 | Score-excluded official-control capability | One selected OpenRouter `qwen/qwen3.8-max` configuration completed the full five-attempt schedule through the safe subset of official Playwright MCP `0.0.78`: 5 passed, 0 failed, 0 invalid; 56 tool calls, 61 model turns, zero tool errors, and five exact database/audit/structured submissions. This raw 5/5 is not a score. |
-| Hosted v16 database-backed task qualification | 14/14 tasks passed through the official MCP client in result-publication run `31608404916`. |
+| Hosted v17 database-backed task qualification | 14/14 tasks passed through the official MCP client in result-publication run `31625678956`. |
 | Previous v13 task telemetry | 14/14 tasks passed in 302 MCP calls. BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. These exact call/refusal figures belong to v13 and are not silently relabelled as v14 telemetry. |
 | First public GitHub Actions run | Ran against `db39b82`; its failures were reproduced locally and traced to structured delta context being discarded by the qualification consumer, small visual-row offsets, a safe child environment omitting the CI browser path, Node 22 SQLite statement lifetime, and Ubuntu SVG font metrics. |
 | Earlier clean hosted qualification | [Run `31520630516`](https://github.com/qng95/BrowserIR/actions/runs/31520630516) passed every required v11 job on commit `0097f28`. It remains valid for that source tree. |
+| Qualified v17 result-publication source run | [Run `31625678956`](https://github.com/qng95/BrowserIR/actions/runs/31625678956) passed all ten required jobs on commit `294fd82`, including both Node matrices, both packed-consumer jobs, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. The annotated Drop 02 result tag resolves to this commit. |
 | Qualified v16 result-publication source run | [Run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916) passed all ten required jobs on commit `e448b58`, including both Node matrices, both packed-consumer jobs, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. The annotated result tag resolves to this commit. |
 | Hosted v16 freeze source run | [Run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043) is green on commit `5b7db58`, to which `evidence-drop-01-protocol-v2` resolves. It qualifies the exact source frozen before the adaptive run. |
 | Qualified v14 source run | [Run `31540028205`](https://github.com/qng95/BrowserIR/actions/runs/31540028205) passed every required v14 job on commit `6a122a2`, including Node 22/24 workspace and packed-consumer matrices, 5/5 capabilities, 14/14 task oracles, representation, performance, production audit, and dossier assembly. |
@@ -42,7 +43,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 | Public package verification | Passed exact package-file and manifest checks |
 | Packed-consumer smoke | Passed fresh tarball install, imports and declarations, Chromium install, stock stdio MCP negotiation, all nine safe tools, PNG capture, and cleanup |
 | Production dependency audit | Clean hosted audit passed with 0 vulnerabilities across 12 production dependencies and 0 muted advisories |
-| Release evidence dossier | Qualified for source-bound result-publication commit `e448b58`; the GitHub artifact is checksummed and retained until 2026-11-10 |
+| Release evidence dossier | Qualified for source-bound Drop 02 result-publication commit `294fd82`; the GitHub artifact is checksummed and retained until 2026-11-10 |
 | Public-release verifier | Apache-2.0 and repository checks pass. It now reports only six intentional npm-publication blockers: `private` and missing public `publishConfig` on each of the three product packages. |
 
 The qualification client used MCP protocol `2026-07-28`. Every isolated
@@ -70,19 +71,22 @@ source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
 The current qualified exact-count policy is `2026-08-12-v17`, requiring 754
-declared, 735 executed, and 19 skipped cases. Freeze commit `1b4f78a` passed all
-ten hosted jobs in run `31616555262`; its annotated protocol tag and source
-dossier bind the Drop 02 execution. The latest qualified *result-publication*
-dossier remains v16: hosted run `31608404916` on commit `e448b58` qualified the
-checked-in Drop 01 result, documentation, and visual. Drop 02 result-publication
-qualification remains pending.
+declared, 735 executed, and 19 skipped cases. Result-publication commit
+`294fd82` passed all ten hosted jobs in run `31625678956`; its annotated result
+tag and source dossier bind the checked-in Drop 02 result, documentation, and
+visual.
 
 The current qualified public source release-evidence dossier is
-`release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`,
-bound to commit `e448b58705944e35a1f2b7ff76d80c45afb3b70f` under policy `v16`.
+`release-evidence-dossier-31625678956-1-294fd8298eeb9b3e981f03b247e5a6c7ed58b114`,
+bound to commit `294fd8298eeb9b3e981f03b247e5a6c7ed58b114` under policy `v17`.
 GitHub reports the artifact digest as
-`sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`;
+`sha256:7474ace0b6350bce363f6d98e52bcc5e38634e40bca149fe4234ae80a7050412`;
 it is retained until 2026-11-10.
+
+The previous v16 Drop 01 result-publication dossier,
+`release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`,
+remains valid for its own source tree, with GitHub-reported digest
+`sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`.
 
 The previous v15 dossier,
 `release-evidence-dossier-31590339246-1-89c82ff4d89ec33c1311df65729306c579192357`,
@@ -174,9 +178,10 @@ fail, and 0 invalid. The +3.33-point paired estimate has a 95% paired Hoeffding
 interval of −46.26 to +52.92 points, so the predeclared verdict is
 **inconclusive**. The contiguous final nine both-failed pairs are
 provider-contaminated and best explained by exhausted OpenRouter credit; those
-failures remain scored, and the protocol permits no selective rerun. The
-unchanged bundle is awaiting hosted result-publication CI and an annotated
-result tag.
+failures remain scored, and the protocol permits no selective rerun.
+Publication commit `294fd82` passed all ten hosted jobs in run `31625678956`;
+annotated tag `evidence-drop-02-v1-result` resolves to it. The unchanged bundle
+and its canonical checksum boundary are retained in Git.
 
 [Inspect the Drop 02 result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
 [Read the analysis](evidence-drops/drop-02/analysis.md)
