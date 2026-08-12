@@ -297,6 +297,30 @@ describe('agent benchmark runner', () => {
     expect(JSON.stringify(report.trials[0]!.toolTrace)).not.toContain(sentinel);
   });
 
+  it('retains stable adapter-side rejection counts that occur before broker dispatch', async () => {
+    const report = await runAgentBenchmark({
+      runId: 'unit-safe-adapter-rejection',
+      tasks: [task],
+      trialsPerTask: 1,
+      expectedTargetVersion: 'fixture-v1',
+      budgets: { maxDurationMs: 1_000, maxToolCalls: 2, maxModelTurns: 4 },
+      targetFactory: targetFactory({ events: [] }),
+      agentFactory: agentFactory(async ({ tools }) => {
+        tools.recordAdapterRejection?.('input_schema_invalid');
+        return { finalText: 'done', modelTurns: 1 };
+      }),
+    });
+
+    expect(report.trials[0]).toMatchObject({
+      tools: {
+        calls: 0,
+        errors: 1,
+        adapterRejectedCalls: 1,
+        adapterRejectionsByCode: { input_schema_invalid: 1 },
+      },
+    });
+  });
+
   it('marks an already-passing baseline invalid and never runs the agent', async () => {
     const events: string[] = [];
     const run = vi.fn<BrowserAgentAdapter['run']>();
@@ -380,6 +404,70 @@ describe('agent benchmark runner', () => {
       failureKind: 'agent_timeout',
       agentStatus: 'timed_out',
       judge: { outcome: 'passed' },
+    });
+  });
+
+  it('retains the latest partial model metrics on timeout without model or page text', async () => {
+    const secret = 'SENTINEL-PARTIAL-MODEL-TEXT-2304';
+    const report = await runAgentBenchmark({
+      runId: 'unit-timeout-partial-model-metrics',
+      tasks: [task],
+      trialsPerTask: 1,
+      expectedTargetVersion: 'fixture-v1',
+      budgets: { maxDurationMs: 10, maxToolCalls: 2, maxModelTurns: 4 },
+      targetFactory: targetFactory({ events: [] }),
+      agentFactory: agentFactory(async ({ signal, onProgress }) => {
+        onProgress?.({
+          modelTurns: 2,
+          usage: { input_tokens: 91, output_tokens: 13, total_tokens: 104 },
+        });
+        onProgress?.({
+          modelTurns: 3,
+          usage: {
+            input_tokens: 152,
+            output_tokens: 21,
+            total_tokens: 173,
+            [secret]: 9_999,
+          },
+        });
+        void secret;
+        await new Promise<void>((resolve) =>
+          signal.addEventListener('abort', () => resolve(), { once: true }),
+        );
+        return { finalText: secret, modelTurns: 3 };
+      }),
+    });
+
+    expect(report.trials[0]).toMatchObject({
+      failureKind: 'agent_timeout',
+      modelTurns: 3,
+      usage: { input_tokens: 152, output_tokens: 21, total_tokens: 173 },
+    });
+    expect(JSON.stringify(report.trials[0])).not.toContain(secret);
+  });
+
+  it('classifies a stable adapter model-budget signal instead of a generic agent error', async () => {
+    const report = await runAgentBenchmark({
+      runId: 'unit-model-budget-signal',
+      tasks: [task],
+      trialsPerTask: 1,
+      expectedTargetVersion: 'fixture-v1',
+      budgets: { maxDurationMs: 1_000, maxToolCalls: 2, maxModelTurns: 4 },
+      targetFactory: targetFactory({ events: [] }),
+      agentFactory: agentFactory(async ({ onProgress }) => {
+        onProgress?.({ modelTurns: 4, usage: { total_tokens: 128 } });
+        throw Object.assign(new Error('provider-specific text must not drive classification'), {
+          code: 'model_budget_exceeded',
+        });
+      }),
+    });
+
+    expect(report.trials[0]).toMatchObject({
+      outcome: 'failed',
+      failureKind: 'model_budget_exceeded',
+      agentStatus: 'errored',
+      modelTurns: 4,
+      usage: { total_tokens: 128 },
     });
   });
 

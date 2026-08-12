@@ -146,7 +146,7 @@ const advanceEnvelope = (
 type ActionableContext = {
   page_id: string;
   revision: number;
-  targets: Array<{ entity_id: string; name?: string }>;
+  targets: Array<{ target_ref: string; name?: string }>;
   omitted: number;
 };
 
@@ -171,14 +171,15 @@ const actionableRef = (
   name: string,
 ): ModelEntity['ref'] | undefined => {
   const target = context.targets.find((candidate) => candidate.name === name);
-  return target === undefined
-    ? undefined
-    : {
-        page_id: context.page_id,
-        entity_id: target.entity_id,
-        revision: context.revision,
-      };
+  if (target === undefined) return undefined;
+  const parsed = /^([^@]+)@r(\d+)$/.exec(target.target_ref);
+  if (parsed === null || Number(parsed[2]) !== context.revision) {
+    throw new Error('delta receipt returned a malformed target_ref');
+  }
+  return { page_id: context.page_id, entity_id: parsed[1]!, revision: Number(parsed[2]) };
 };
+
+const targetRef = (ref: ModelEntity['ref']): string => `${ref.entity_id}@r${ref.revision}`;
 
 it(
   'drives the real fixture login through MCP using only BrowserIR references',
@@ -232,8 +233,11 @@ it(
         name: 'browser_act',
         arguments: {
           browser_id: current.browser_id,
+          page_id: current.page_id,
           expected_revision: current.revision,
-          action: { kind: 'fill', target: username.ref, value: 'test' },
+          kind: 'fill',
+          target_ref: targetRef(username.ref),
+          value: 'test',
         },
       });
       expect(usernameFilled.structuredContent).toMatchObject({ status: 'verified' });
@@ -244,8 +248,11 @@ it(
         name: 'browser_act',
         arguments: {
           browser_id: current.browser_id,
+          page_id: current.page_id,
           expected_revision: current.revision,
-          action: { kind: 'fill', target: password.ref, value: 'test' },
+          kind: 'fill',
+          target_ref: targetRef(password.ref),
+          value: 'test',
         },
       });
       expect(passwordFilled.structuredContent).toMatchObject({ status: 'verified' });
@@ -274,8 +281,10 @@ it(
         name: 'browser_act',
         arguments: {
           browser_id: current.browser_id,
+          page_id: current.page_id,
           expected_revision: current.revision,
-          action: { kind: 'click', target: signIn.ref },
+          kind: 'click',
+          target_ref: targetRef(signIn.ref),
         },
       });
 
@@ -365,7 +374,9 @@ it(
             page_id: current.page_id,
             expected_revision: current.revision,
             max_tokens: 4_000,
-            action: { kind: 'fill', target: entityNamed(current, name).ref, value },
+            kind: 'fill',
+            target_ref: targetRef(entityNamed(current, name).ref),
+            value,
           },
         });
         recordResponse(result);
@@ -380,10 +391,8 @@ it(
           page_id: current.page_id,
           expected_revision: current.revision,
           max_tokens: 4_000,
-          action: {
-            kind: 'click',
-            target: entityMatching(current, { name: 'Sign in', role: 'button' }).ref,
-          },
+          kind: 'click',
+          target_ref: targetRef(entityMatching(current, { name: 'Sign in', role: 'button' }).ref),
         },
       });
       recordResponse(signedIn);
@@ -396,7 +405,8 @@ it(
           page_id: current.page_id,
           expected_revision: current.revision,
           max_tokens: 4_000,
-          action: { kind: 'click', target: entityNamed(current, 'New customer').ref },
+          kind: 'click',
+          target_ref: targetRef(entityNamed(current, 'New customer').ref),
         },
       });
       recordResponse(openedForm);
@@ -431,7 +441,9 @@ it(
             page_id: current.page_id,
             expected_revision: current.revision,
             max_tokens: 4_000,
-            action: { kind: 'fill', target, value },
+            kind: 'fill',
+            target_ref: targetRef(target),
+            value,
           },
         });
         const responseSize = recordResponse(result);
@@ -470,7 +482,8 @@ it(
           page_id: current.page_id,
           expected_revision: current.revision,
           max_tokens: 4_000,
-          action: { kind: 'click', target: createTarget! },
+          kind: 'click',
+          target_ref: targetRef(createTarget!),
         },
       });
       recordResponse(submitted);
@@ -587,14 +600,12 @@ it(
             page_id: current.page_id,
             expected_revision: current.revision,
             max_tokens: 4_000,
-            action: {
-              kind,
-              target: entityMatching(current, {
+            kind,
+            target_ref: targetRef(entityMatching(current, {
                 name,
                 ...(role === undefined ? {} : { role }),
-              }).ref,
-              ...(value === undefined ? {} : { value }),
-            },
+              }).ref),
+            ...(value === undefined ? {} : { value }),
           },
         });
         expect(result.structuredContent).toMatchObject({ status: 'verified' });

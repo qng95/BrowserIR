@@ -581,6 +581,32 @@ the runtime service's `unsafeEvaluate` configuration with a required redacted
 audit callback and separately set the MCP server's enable flag; the server
 refuses an enabled registration when the service implementation is absent.
 
+The public model-facing `browser_act` contract is flat. The action `kind` and
+its fields share the top level with `browser_id`, optional `page_id`, and
+`expected_revision`; for example:
+
+```json
+{
+  "browser_id": "browser-1",
+  "page_id": "page-1",
+  "expected_revision": 7,
+  "kind": "fill",
+  "target_ref": "e15@r7",
+  "value": "Ada"
+}
+```
+
+Model views display refs as `[e15@r7]`, while tool calls copy the token without
+brackets. Most entity actions use `target_ref`; drag uses `source_ref` and
+`destination_ref`, plus optional `destination_page_id`. Page-scoped press and
+scroll may omit a target. The MCP boundary rejects nested or stringified
+actions, malformed refs, and fields unrelated to the selected kind, then
+translates a valid call into the core's typed action representation.
+
+`browser_wait` follows the same flat rule. Its kinds are `revision_change`,
+`text` with `value`, `entity_state` with `target_ref` and `state`, and
+`settled`. Nested or stringified conditions are rejected before dispatch.
+
 `browser_navigate`, `browser_inspect`, `browser_act`, `browser_wait`, and
 `browser_capture` require `expected_revision`; `browser_observe` and
 `browser_close` can optionally assert one. Results include applicable pre- and
@@ -591,9 +617,10 @@ covers the complete model result. BrowserIR reserves capacity for the compact
 delta and protocol metadata instead of allowing the page view to consume the
 entire allowance.
 
-An explicit top-level or nested action `page_id` always wins. If neither is
-present, BrowserIR infers a page only when exactly one page is open; multiple
-pages fail `ambiguous_page`, and zero pages fail `unknown_page`.
+An explicit top-level `page_id` selects the action or wait page. If it is
+absent, BrowserIR infers a page only when exactly one page is open; multiple
+pages fail `ambiguous_page`, and zero pages fail `unknown_page`. A drag may
+separately select its destination with `destination_page_id`.
 
 The `settled` wait is stateful: it returns only after two consecutive
 observations have no graph delta and no represented entity is busy. Any graph

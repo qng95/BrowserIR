@@ -118,6 +118,9 @@ describe('BrowserIR MCP tool discovery', () => {
     expect(act?.description).toContain(
       'entity-targeted or page-scoped typed action',
     );
+    expect(act?.inputSchema).not.toHaveProperty('properties.action');
+    expect(act?.inputSchema).toHaveProperty('properties.kind');
+    expect(act?.inputSchema).toHaveProperty('properties.target_ref');
   });
 
   it('advertises arbitrary page evaluation only after explicit opt-in', async () => {
@@ -302,16 +305,10 @@ describe('BrowserIR MCP tool discovery', () => {
     const tools = await client.listTools();
     const waitSchema = tools.tools.find((tool) => tool.name === 'browser_wait')?.inputSchema;
     const actSchema = tools.tools.find((tool) => tool.name === 'browser_act')?.inputSchema;
-    const waitVariants = (
-      (waitSchema as { properties?: { condition?: { anyOf?: unknown[] } } } | undefined)
-        ?.properties?.condition?.anyOf ?? []
-    ) as Array<{ properties?: { kind?: { const?: string }; state?: unknown } }>;
-    const textWait = waitVariants.find(
-      (variant) => variant.properties?.kind?.const === 'text',
-    );
-
     expect(JSON.stringify(waitSchema)).not.toContain('"url"');
-    expect(textWait?.properties?.state).toMatchObject({ const: 'visible' });
+    expect(waitSchema).not.toHaveProperty('properties.condition');
+    expect(waitSchema).toHaveProperty('properties.kind');
+    expect(waitSchema).toHaveProperty('properties.target_ref');
     expect(JSON.stringify(actSchema)).not.toContain('"delay_ms"');
 
     for (const condition of [
@@ -323,7 +320,7 @@ describe('BrowserIR MCP tool discovery', () => {
         arguments: {
           browser_id: 'br_test',
           expected_revision: 2,
-          condition,
+          ...condition,
         },
       });
       expect(result.isError).toBe(true);
@@ -334,13 +331,12 @@ describe('BrowserIR MCP tool discovery', () => {
       name: 'browser_act',
       arguments: {
         browser_id: 'br_test',
+        page_id: 'pg_test',
         expected_revision: 2,
-        action: {
-          kind: 'type',
-          target: { page_id: 'pg_test', entity_id: 'entity_search', revision: 2 },
-          text: 'query',
-          delay_ms: 20,
-        },
+        kind: 'type',
+        target_ref: 'e1@r2',
+        text: 'query',
+        delay_ms: 20,
       },
     });
     expect(delayedType.isError).toBe(true);
@@ -351,15 +347,106 @@ describe('BrowserIR MCP tool discovery', () => {
       arguments: {
         browser_id: 'br_test',
         expected_revision: 2,
-        condition: { kind: 'text', value: 'Complete', state: 'visible' },
+        kind: 'text',
+        value: 'Complete',
+        state: 'visible',
       },
     });
     expect(visibleText.isError).not.toBe(true);
     expect(service.wait).toHaveBeenCalledOnce();
   });
+
+  it('accepts flat waits and rejects nested or stringified wait conditions', async () => {
+    const service = fakeService();
+    const client = await connect(service);
+
+    const valid = await client.callTool({
+      name: 'browser_wait',
+      arguments: {
+        browser_id: 'br_test',
+        page_id: 'pg_test',
+        expected_revision: 2,
+        kind: 'entity_state',
+        target_ref: 'e1@r2',
+        state: 'enabled',
+      },
+    });
+    expect(valid.isError).not.toBe(true);
+    expect(service.wait).toHaveBeenCalledWith({
+      browser_id: 'br_test',
+      page_id: 'pg_test',
+      expected_revision: 2,
+      kind: 'entity_state',
+      target_ref: 'e1@r2',
+      state: 'enabled',
+    });
+
+    for (const invalidArguments of [
+      { condition: { kind: 'settled' } },
+      { condition: JSON.stringify({ kind: 'settled' }) },
+      { kind: 'entity_state', target_ref: '[e1@r2]', state: 'enabled' },
+      { kind: 'settled', value: 'not valid for settled' },
+    ]) {
+      const invalid = await client.callTool({
+        name: 'browser_wait',
+        arguments: {
+          browser_id: 'br_test',
+          expected_revision: 2,
+          ...invalidArguments,
+        },
+      });
+      expect(invalid.isError).toBe(true);
+    }
+    expect(service.wait).toHaveBeenCalledOnce();
+  });
 });
 
 describe('BrowserIR MCP calls', () => {
+  it('accepts a flat revision-bound action and rejects nested or stringified actions', async () => {
+    const service = fakeService();
+    const client = await connect(service);
+
+    const valid = await client.callTool({
+      name: 'browser_act',
+      arguments: {
+        browser_id: 'br_test',
+        page_id: 'pg_test',
+        expected_revision: 2,
+        kind: 'fill',
+        target_ref: 'e1@r2',
+        value: 'Ada Motors',
+      },
+    });
+
+    expect(valid.isError).not.toBe(true);
+    expect(service.act).toHaveBeenCalledWith({
+      browser_id: 'br_test',
+      page_id: 'pg_test',
+      expected_revision: 2,
+      kind: 'fill',
+      target_ref: 'e1@r2',
+      value: 'Ada Motors',
+    });
+
+    for (const invalidArguments of [
+      { action: { kind: 'click', target: { entity_id: 'entity_name', revision: 2 } } },
+      { action: JSON.stringify({ kind: 'click', target_ref: 'e1@r2' }) },
+      { kind: 'click', target_ref: '[e1@r2]' },
+      { kind: 'click', target_ref: 'e1@r2', value: 'not valid for click' },
+    ]) {
+      const invalid = await client.callTool({
+        name: 'browser_act',
+        arguments: {
+          browser_id: 'br_test',
+          expected_revision: 2,
+          ...invalidArguments,
+        },
+      });
+      expect(invalid.isError).toBe(true);
+    }
+    expect(service.act).toHaveBeenCalledOnce();
+  });
+
   it('returns explicit opaque browser state as structured content plus compact text', async () => {
     const service = fakeService();
     const client = await connect(service);
@@ -432,31 +519,21 @@ describe('BrowserIR MCP calls', () => {
       name: 'browser_act',
       arguments: {
         browser_id: 'br_test',
+        page_id: 'pg_test',
         expected_revision: 2,
         max_tokens: 256,
-        action: {
-          kind: 'click',
-          target: {
-            page_id: 'pg_test',
-            entity_id: 'entity_save',
-            revision: 2,
-          },
-        },
+        kind: 'click',
+        target_ref: 'e1@r2',
       },
     });
 
     expect(service.act).toHaveBeenCalledWith({
       browser_id: 'br_test',
+      page_id: 'pg_test',
       expected_revision: 2,
       max_tokens: 256,
-      action: {
-        kind: 'click',
-        target: {
-          page_id: 'pg_test',
-          entity_id: 'entity_save',
-          revision: 2,
-        },
-      },
+      kind: 'click',
+      target_ref: 'e1@r2',
     });
   });
 
@@ -471,7 +548,7 @@ describe('BrowserIR MCP calls', () => {
         page_id: 'pg_test',
         expected_revision: 2,
         max_tokens: 300,
-        condition: { kind: 'revision_change' },
+        kind: 'revision_change',
       },
     });
 
@@ -480,7 +557,7 @@ describe('BrowserIR MCP calls', () => {
       page_id: 'pg_test',
       expected_revision: 2,
       max_tokens: 300,
-      condition: { kind: 'revision_change' },
+      kind: 'revision_change',
     });
   });
 

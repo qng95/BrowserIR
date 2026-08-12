@@ -14,6 +14,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
+| Local v16 candidate workspace verification | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. The full local workspace suite and all package type checks passed. This is not hosted, clean-commit release evidence. |
 | Qualified v15 workspace verification (commit `89c82ff`) | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Previous qualified v13 workspace verification (commit `14f86f6`) | 632 declared cases: 613 executed passes and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 85/85, Playwright driver 107/107, benchmark 191/191, and MCP 170 passed with 19 skipped on both pinned Node versions. All five package type checks passed. |
@@ -61,9 +62,11 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current policy is `2026-08-12-v15`, requiring 735 declared, 716 executed,
-and 19 skipped cases. GitHub Actions run `31590339246` qualified it on commit
-`89c82ff`.
+The current local candidate policy is `2026-08-12-v16`, requiring 749 declared,
+730 executed, and 19 skipped cases. It passed locally but is not yet qualified
+release evidence. GitHub Actions run `31590339246` remains the latest hosted
+qualification: it qualified v15 on commit `89c82ff` with 735 declared, 716
+executed, and 19 skipped cases.
 
 The current qualified public source release-evidence dossier is
 `release-evidence-dossier-31590339246-1-89c82ff4d89ec33c1311df65729306c579192357`,
@@ -121,9 +124,9 @@ checksum; they are not signatures or proof of release authorization. See
 
 ## Benchmark evidence
 
-Evidence Drop 01 has a frozen protocol; its sealed comparison has not run. Its
-comparison infrastructure is implemented and tested. The official Playwright
-MCP control is pinned at
+Evidence Drop 01 v1 has a frozen protocol and an aborted execution diagnostic,
+but no completed comparison result. Its comparison infrastructure is
+implemented and tested. The official Playwright MCP control is pinned at
 `0.0.78`; broker injection, the
 neutral agent prompt, counterbalanced matched runner, paired interval,
 model-facing tool traces, and create-only comparison artifacts have focused
@@ -160,10 +163,13 @@ journals, checksums, and atomic completion markers. They still record
 different pnpm runtime than v6. They are not source-bound release evidence and
 cannot prove which code change caused the result.
 
-No sealed score has been run or published. The frozen 30-pair
-`validation-recovery` schedule has not been exposed to a real model and no
-scored paired attempt has run; the task was previously exercised only by the
-deterministic reference qualification. The separate
+No completed sealed score has been produced or published. The operator stopped
+v1 after nine complete matched blocks; a tenth control arm had completed while
+its treatment arm was in flight. The unplanned prefix has no arm-rate estimate,
+paired lift, interval, or result wording. It remains an aborted diagnostic, not
+a shortened run. The
+[checksummed aborted bundle](evidence-drops/drop-01/aborted-v1-diagnostic/README.md)
+contains no completion marker or scored summary. The separate
 score-excluded official-control qualification completed from clean source at
 commit `6a122a2` on the already-seen `create-customer` task. One selected
 OpenRouter `qwen/qwen3.8-max` configuration ran the full five-attempt schedule
@@ -183,11 +189,18 @@ The retained bundle's `SHA256SUMS` file has SHA-256
 `35457e6cc2846c4b57e1392df0bcd68982d4369ad017058b9c7eef35653561f6`;
 this is a content-integrity identifier, not standalone authentication without
 trusted Git source context.
-The frozen schedule has not been launched. Therefore there is still no
-BrowserIR uplift, competitor-superiority, or general agent-quality claim. See
+The v1 failure diagnosis found the model selecting `browser_act` but encoding
+the nested `action` object as a JSON string. LangChain rejected those calls
+before the BrowserIR broker, so no browser action could be dispatched. The
+model-facing action and wait schemas are now flat and strict, and failed runs
+retain bounded pre-broker rejection counts plus partial turn/usage metrics.
+Two score-excluded canaries passed the exact judge on the already-seen
+`create-customer` workflow after the fix. Those canaries are compatibility
+checks, not a score. Therefore there is still no BrowserIR uplift, competitor-
+superiority, or general agent-quality claim. See
 [the evidence-drop protocol](EVIDENCE_DROPS.md).
 
-The Drop 01 manifest is frozen at
+The historical v1 manifest is frozen at
 [`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
 to `refs/tags/evidence-drop-01-protocol-v1`. It fixes the selected OpenRouter
 Qwen3.8-Max route/configuration, both tool-catalog hashes, one reserved
@@ -195,7 +208,15 @@ workflow, 30 counterbalanced matched pairs, shared precommitted per-pair seeds,
 the full schedule/no-replacement policy, and sign-independent publication.
 With the conservative bound used here, 30 pairs can only support a positive or
 negative headline for a large observed effect; otherwise the declared result
-is inconclusive. Freezing this infrastructure is not a benchmark result.
+is inconclusive. Its aborted output cannot be resumed or finalized as a result.
+
+Adaptive v2 reuses those exact 30 seeds and arm orders to isolate the flat-tool
+contract change, but starts every control and treatment arm again in fresh
+state. Its
+[manifest candidate](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json)
+needs its own freeze tag before the first attempt. No v1 arm is reused, and v2
+is explicitly an adaptive recovery rather than independent confirmation.
+Freezing either protocol is not a benchmark result.
 
 The representation report passed all 11 release tasks in its complete checked
 corpus. Its JSON report has SHA-256

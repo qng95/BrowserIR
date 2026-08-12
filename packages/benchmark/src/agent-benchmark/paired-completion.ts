@@ -661,6 +661,21 @@ function verifyAttemptOutcomeEvidence(
   attempt: JournalSafeAgentTrialResult,
   role: AgentBenchmarkArmRole,
 ): void {
+  const adapterRejectionCount = Object.values(
+    attempt.tools.adapterRejectionsByCode ?? {},
+  ).reduce((sum, count) => sum + (count ?? 0), 0);
+  if (
+    (attempt.tools.adapterRejectedCalls === undefined) !==
+      (attempt.tools.adapterRejectionsByCode === undefined) ||
+    (attempt.tools.adapterRejectedCalls !== undefined &&
+      (attempt.tools.adapterRejectedCalls === 0 ||
+        attempt.tools.adapterRejectedCalls !== adapterRejectionCount ||
+        attempt.tools.errors < attempt.tools.adapterRejectedCalls))
+  ) {
+    throw new Error(
+      `Paired benchmark ${role} attempt has inconsistent adapter rejection metrics.`,
+    );
+  }
   if (attempt.outcome === 'invalid') {
     if (
       attempt.failureKind === undefined ||
@@ -768,6 +783,8 @@ function verifySealedAttemptStageBindings(input: {
       attempt.tools.errors !== 0 ||
       Object.keys(attempt.tools.byTool).length !== 0 ||
       attempt.tools.budgetExceeded ||
+      attempt.tools.adapterRejectedCalls !== undefined ||
+      attempt.tools.adapterRejectionsByCode !== undefined ||
       attempt.tools.policyViolationCount !== 0 ||
       attempt.tools.policyViolationsSha256 !== undefined ||
       (attempt.toolTrace !== undefined && attempt.toolTrace.length !== 0)

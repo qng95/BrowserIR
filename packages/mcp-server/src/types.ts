@@ -42,48 +42,67 @@ export interface EntityTarget {
   revision: number;
 }
 
+interface EntityRefField {
+  /** Canonical BrowserIR entity token without display brackets, for example e15@r7. */
+  target_ref: string;
+}
+
 export type BrowserAction =
-  | { kind: 'click' | 'double_click' | 'context_click' | 'focus' | 'hover'; target: EntityTarget }
-  | { kind: 'fill'; target: EntityTarget; value: string }
-  | { kind: 'type'; target: EntityTarget; text: string }
-  | { kind: 'select'; target: EntityTarget; values: string[] }
-  | { kind: 'check' | 'uncheck'; target: EntityTarget }
-  | { kind: 'press'; keys: string; target?: EntityTarget | undefined }
+  | ({ kind: 'click' | 'double_click' | 'context_click' | 'focus' | 'hover' } & EntityRefField)
+  | ({ kind: 'fill'; value: string } & EntityRefField)
+  | ({ kind: 'type'; text: string } & EntityRefField)
+  | ({ kind: 'select'; values: string[] } & EntityRefField)
+  | ({ kind: 'check' | 'uncheck' } & EntityRefField)
+  | { kind: 'press'; keys: string; target_ref?: undefined }
+  | ({ kind: 'press'; keys: string } & EntityRefField)
   | {
       kind: 'scroll';
-      target?: EntityTarget | undefined;
+      target_ref?: undefined;
       delta_x?: number | undefined;
       delta_y?: number | undefined;
     }
-  | { kind: 'drag'; source: EntityTarget; target: EntityTarget }
-  | { kind: 'upload'; target: EntityTarget; artifact_ids: string[] };
+  | ({ kind: 'scroll'; delta_x?: number | undefined; delta_y?: number | undefined } & EntityRefField)
+  | {
+      kind: 'drag';
+      destination_page_id?: string | undefined;
+      source_ref: string;
+      destination_ref: string;
+    }
+  | ({ kind: 'upload'; artifact_ids: string[] } & EntityRefField);
 
-export interface BrowserActInput {
+interface BrowserActBase {
   browser_id: string;
   page_id?: string | undefined;
   expected_revision: number;
-  action: BrowserAction;
   max_tokens?: number | undefined;
 }
+
+/**
+ * Flat model-facing action contract. BrowserIR translates this into the
+ * nested, strongly typed core action only after strict MCP validation.
+ */
+export type BrowserActInput = BrowserActBase & BrowserAction;
 
 export type BrowserWaitCondition =
   | { kind: 'revision_change' }
   | { kind: 'text'; value: string; state?: 'visible' | undefined }
   | {
       kind: 'entity_state';
-      target: EntityTarget;
+      target_ref: string;
       state: 'visible' | 'hidden' | 'enabled' | 'disabled' | 'expanded' | 'collapsed';
     }
   | { kind: 'settled' };
 
-export interface BrowserWaitInput {
+interface BrowserWaitBase {
   browser_id: string;
   page_id?: string | undefined;
   expected_revision: number;
-  condition: BrowserWaitCondition;
   timeout_ms?: number | undefined;
   max_tokens?: number | undefined;
 }
+
+/** Flat model-facing wait contract; translated to the core condition after validation. */
+export type BrowserWaitInput = BrowserWaitBase & BrowserWaitCondition;
 
 export interface BrowserPagesInput {
   browser_id: string;

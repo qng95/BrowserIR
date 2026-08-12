@@ -11,7 +11,7 @@ export declare function actionableContextRef(
   role: string,
 ): {
   page_id: string;
-  entity_id: string;
+  target_ref: string;
   revision: number;
 };
 

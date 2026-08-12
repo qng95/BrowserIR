@@ -310,6 +310,8 @@ describe('paired crash journal', () => {
         errors: 1,
         byTool: { browser_type: 1 },
         budgetExceeded: false,
+        adapterRejectedCalls: 1,
+        adapterRejectionsByCode: { input_schema_invalid: 1 },
         policyViolations: [sentinel],
       },
       toolTrace: [
@@ -351,7 +353,11 @@ describe('paired crash journal', () => {
       agentErrorSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
       finalTextSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
       submittedResultSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
-      tools: { policyViolationsSha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
+      tools: {
+        adapterRejectedCalls: 1,
+        adapterRejectionsByCode: { input_schema_invalid: 1 },
+        policyViolationsSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
       judge: { reasonSha256: expect.stringMatching(/^[a-f0-9]{64}$/) },
       agent: {
         modelConfigurationSha256: expect.stringMatching(/^[a-f0-9]{64}$/),

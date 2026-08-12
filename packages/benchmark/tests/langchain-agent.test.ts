@@ -19,6 +19,7 @@ class RecordingBroker implements AgentToolBroker {
   readonly calls: Array<{ name: string; input: Record<string, unknown> }> = [];
   #descriptors: readonly AgentToolDescriptor[];
   #result: AgentToolCallResult;
+  #adapterRejections: Partial<Record<'input_schema_invalid' | 'unknown_tool', number>> = {};
 
   constructor(
     descriptors: readonly AgentToolDescriptor[],
@@ -41,14 +42,28 @@ class RecordingBroker implements AgentToolBroker {
   }
 
   metrics(): AgentToolMetrics {
+    const adapterRejectedCalls = Object.values(this.#adapterRejections).reduce(
+      (sum, count) => sum + (count ?? 0),
+      0,
+    );
     return {
       calls: this.calls.length,
-      errors: 0,
+      errors: adapterRejectedCalls,
       byTool: Object.fromEntries(
         this.calls.map(({ name }) => [name, this.calls.filter((call) => call.name === name).length]),
       ),
       budgetExceeded: false,
+      ...(adapterRejectedCalls === 0
+        ? {}
+        : {
+            adapterRejectedCalls,
+            adapterRejectionsByCode: { ...this.#adapterRejections },
+          }),
     };
+  }
+
+  recordAdapterRejection(code: 'input_schema_invalid' | 'unknown_tool'): void {
+    this.#adapterRejections[code] = (this.#adapterRejections[code] ?? 0) + 1;
   }
 
   async close(): Promise<void> {}
@@ -86,7 +101,116 @@ const runInput = (
   },
 });
 
+const toolMessageWithUsage = (
+  name: string,
+  args: Record<string, unknown>,
+  id: string,
+  usage: Readonly<Record<string, number>>,
+): AIMessage => {
+  const message = new AIMessage({
+    content: '',
+    tool_calls: [{ name, args, id, type: 'tool_call' }],
+  });
+  Object.assign(message, { usage_metadata: usage });
+  return message;
+};
+
 describe('LangChain BrowserIR agent adapter', () => {
+  it('retains public-safe partial model metrics when the model-turn budget is exhausted', async () => {
+    const broker = new RecordingBroker([observeTool]);
+    const firstMessage = toolMessageWithUsage(
+      'browser_observe',
+      { scope: 'all' },
+      'observe-budget-1',
+      { input_tokens: 41, output_tokens: 7, total_tokens: 48 },
+    );
+    const model = fakeModel()
+      .respond(firstMessage)
+      .respond(new AIMessage('This response must never be requested.'));
+    const agent = createLangChainBrowserAgent({
+      model,
+      modelId: 'deterministic-fake',
+    });
+    const input = runInput(broker);
+
+    const progress: Array<{ modelTurns: number; usage?: Readonly<Record<string, number>> }> = [];
+    await expect(
+      agent.run({
+        ...input,
+        budgets: { ...input.budgets, maxModelTurns: 1 },
+        onProgress(snapshot) {
+          progress.push({
+            modelTurns: snapshot.modelTurns,
+            ...(snapshot.usage === undefined ? {} : { usage: snapshot.usage }),
+          });
+        },
+      }),
+    ).rejects.toMatchObject({ code: 'model_budget_exceeded' });
+
+    expect(model.callCount).toBe(1);
+    expect(progress.at(-1)).toEqual({
+      modelTurns: 1,
+      usage: { input_tokens: 41, output_tokens: 7, total_tokens: 48 },
+    });
+  });
+
+  it('counts pre-broker schema rejection without retaining rejected argument values', async () => {
+    const secret = 'SENTINEL-INVALID-TOOL-VALUE-9171';
+    const broker = new RecordingBroker([observeTool]);
+    const model = fakeModel()
+      .respondWithTools([
+        {
+          name: 'browser_observe',
+          args: { scope: secret },
+          id: 'invalid-observe-1',
+        },
+      ])
+      .respond(new AIMessage('done'));
+    const agent = createLangChainBrowserAgent({
+      model,
+      modelId: 'deterministic-fake',
+    });
+
+    await agent.run(runInput(broker));
+
+    expect(broker.calls).toEqual([]);
+    expect(broker.metrics()).toMatchObject({
+      calls: 0,
+      errors: 1,
+      adapterRejectedCalls: 1,
+      adapterRejectionsByCode: { input_schema_invalid: 1 },
+    });
+    expect(JSON.stringify(broker.metrics())).not.toContain(secret);
+  });
+
+  it('counts an unknown model-selected tool without retaining its arguments', async () => {
+    const secret = 'SENTINEL-UNKNOWN-TOOL-ARGUMENT-4418';
+    const broker = new RecordingBroker([observeTool]);
+    const model = fakeModel()
+      .respondWithTools([
+        {
+          name: 'browser_nonexistent',
+          args: { secret },
+          id: 'unknown-tool-1',
+        },
+      ])
+      .respond(new AIMessage('done'));
+    const agent = createLangChainBrowserAgent({
+      model,
+      modelId: 'deterministic-fake',
+    });
+
+    await agent.run(runInput(broker));
+
+    expect(broker.calls).toEqual([]);
+    expect(broker.metrics()).toMatchObject({
+      errors: 1,
+      adapterRejectedCalls: 1,
+      adapterRejectionsByCode: { unknown_tool: 1 },
+    });
+    expect(JSON.stringify(broker.metrics())).not.toContain(secret);
+  });
+
   it('maps broker JSON schemas to tools and returns stable structured results to the model', async () => {
     const result: AgentToolCallResult = {
       text: 'Current page: Customers',
@@ -240,7 +364,7 @@ describe('LangChain BrowserIR agent adapter', () => {
         ...input,
         budgets: { ...input.budgets, maxModelTurns: 1 },
       }),
-    ).rejects.toThrow(/model call limits exceeded/iu);
+    ).rejects.toMatchObject({ code: 'model_budget_exceeded' });
     expect(model.callCount).toBe(1);
   });
 

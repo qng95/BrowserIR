@@ -223,10 +223,14 @@ export function parseBrowserIrObservation(
     const seenEntityIds = new Set<string>();
     const contextEntities = context.targets.map((candidate, index): QualificationEntity => {
       const label = `Delta-first actionable_context target ${index + 1}`;
+      const parsedRef =
+        isRecord(candidate) && typeof candidate.target_ref === 'string'
+          ? /^([^@\]]+)@r(\d+)$/.exec(candidate.target_ref)
+          : null;
       if (
         !isRecord(candidate) ||
-        typeof candidate.entity_id !== 'string' ||
-        candidate.entity_id.length === 0 ||
+        parsedRef === null ||
+        Number(parsedRef[2]) !== contextRevision ||
         typeof candidate.kind !== 'string' ||
         candidate.kind.length === 0 ||
         !Array.isArray(candidate.actions) ||
@@ -243,10 +247,11 @@ export function parseBrowserIrObservation(
       ) {
         throw new Error(`${label} is malformed.`);
       }
-      if (seenEntityIds.has(candidate.entity_id)) {
-        throw new Error(`${label} duplicates entity_id ${JSON.stringify(candidate.entity_id)}.`);
+      const entityId = parsedRef[1]!;
+      if (seenEntityIds.has(entityId)) {
+        throw new Error(`${label} duplicates entity_id ${JSON.stringify(entityId)}.`);
       }
-      seenEntityIds.add(candidate.entity_id);
+      seenEntityIds.add(entityId);
       const actions = candidate.actions.filter(
         (action): action is string => typeof action === 'string',
       );
@@ -259,7 +264,7 @@ export function parseBrowserIrObservation(
       }
       if (candidate.invalid === true) state.invalid = true;
       return {
-        id: candidate.entity_id,
+        id: entityId,
         revision: contextRevision,
         kind: candidate.kind,
         ...(typeof candidate.role === 'string' ? { role: candidate.role } : {}),
@@ -325,6 +330,54 @@ const resultEnvelope = (result: CallToolResult): ParsedEnvelope =>
 
 const safeError = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
+
+const diagnosticKinds = new Set([
+  'check',
+  'click',
+  'context_click',
+  'double_click',
+  'drag',
+  'entity_state',
+  'fill',
+  'focus',
+  'hover',
+  'press',
+  'revision_change',
+  'select',
+  'settled',
+  'text',
+  'timeout',
+  'type',
+  'uncheck',
+  'upload',
+]);
+
+const safeDiagnosticRef = (value: unknown): string | undefined =>
+  typeof value === 'string' && /^e[1-9]\d*@r[1-9]\d*$/.test(value)
+    ? value
+    : undefined;
+
+export function publicSafeToolArgumentsDiagnostic(
+  args: JsonRecord,
+): Pick<QualificationDiagnostic, 'action' | 'target'> {
+  const action =
+    typeof args.kind === 'string' && diagnosticKinds.has(args.kind)
+      ? args.kind
+      : undefined;
+  const targetRef = safeDiagnosticRef(args.target_ref);
+  const sourceRef = safeDiagnosticRef(args.source_ref);
+  const destinationRef = safeDiagnosticRef(args.destination_ref);
+  const target =
+    action === 'drag'
+      ? sourceRef !== undefined && destinationRef !== undefined
+        ? `${sourceRef} -> ${destinationRef}`
+        : undefined
+      : targetRef;
+  return {
+    ...(action === undefined ? {} : { action }),
+    ...(target === undefined ? {} : { target }),
+  };
+}
 
 export class QualificationToolError extends Error {
   readonly tool: string;
@@ -482,6 +535,7 @@ export class BrowserIrReferenceAgent {
 
   private async call(name: string, args: JsonRecord): Promise<CallToolResult> {
     const started = performance.now();
+    const publicSafeArguments = publicSafeToolArgumentsDiagnostic(args);
     let result: CallToolResult;
     try {
       result = await this.#client.callTool({ name, arguments: args });
@@ -489,8 +543,7 @@ export class BrowserIrReferenceAgent {
       this.diagnostics.push({
         sequence: this.diagnostics.length + 1,
         tool: name,
-        action: isRecord(args.action) && typeof args.action.kind === 'string' ? args.action.kind : undefined,
-        target: this.diagnosticTarget(args),
+        ...publicSafeArguments,
         isError: true,
         durationMs: Math.round(performance.now() - started),
         summary: safeError(error).slice(0, 500),
@@ -510,8 +563,7 @@ export class BrowserIrReferenceAgent {
     this.diagnostics.push({
       sequence: this.diagnostics.length + 1,
       tool: name,
-      action: isRecord(args.action) && typeof args.action.kind === 'string' ? args.action.kind : undefined,
-      target: this.diagnosticTarget(args),
+      ...publicSafeArguments,
       status,
       revision,
       isError: result.isError === true,
@@ -527,19 +579,6 @@ export class BrowserIrReferenceAgent {
       });
     }
     return result;
-  }
-
-  private diagnosticTarget(args: JsonRecord): string | undefined {
-    const action = isRecord(args.action) ? args.action : undefined;
-    if (action === undefined) return undefined;
-    const target = isRecord(action.target) ? action.target : undefined;
-    const source = isRecord(action.source) ? action.source : undefined;
-    const destination = isRecord(action.target) ? action.target : undefined;
-    const targetId = typeof target?.entity_id === 'string' ? target.entity_id : undefined;
-    const sourceId = typeof source?.entity_id === 'string' ? source.entity_id : undefined;
-    const destinationId = typeof destination?.entity_id === 'string' ? destination.entity_id : undefined;
-    if (sourceId !== undefined && destinationId !== undefined) return `${sourceId} -> ${destinationId}`;
-    return targetId;
   }
 
   private setCurrent(result: CallToolResult): QualificationObservation {
@@ -592,7 +631,7 @@ export class BrowserIrReferenceAgent {
         browser_id: this.current.browserId,
         page_id: this.current.pageId,
         expected_revision: this.current.revision,
-        condition: { kind: 'settled' },
+        kind: 'settled',
         timeout_ms: timeoutMs,
         max_tokens: MAX_MODEL_TOKENS,
       }),
@@ -605,7 +644,9 @@ export class BrowserIrReferenceAgent {
         browser_id: this.current.browserId,
         page_id: this.current.pageId,
         expected_revision: this.current.revision,
-        condition: { kind: 'text', value, state: 'visible' },
+        kind: 'text',
+        value,
+        state: 'visible',
         timeout_ms: timeoutMs,
         max_tokens: MAX_MODEL_TOKENS,
       }),
@@ -618,7 +659,7 @@ export class BrowserIrReferenceAgent {
         browser_id: this.current.browserId,
         page_id: this.current.pageId,
         expected_revision: this.current.revision,
-        condition: { kind: 'revision_change' },
+        kind: 'revision_change',
         timeout_ms: timeoutMs,
         max_tokens: MAX_MODEL_TOKENS,
       }),
@@ -767,34 +808,31 @@ export class BrowserIrReferenceAgent {
       | { kind: 'press'; target?: QualificationEntity | undefined; keys: string }
       | { kind: 'drag'; source: QualificationEntity; target: QualificationEntity },
   ): Promise<QualificationObservation> {
-    const ref = (entity: QualificationEntity): JsonRecord => ({
-      page_id: this.current.pageId,
-      entity_id: entity.id,
-      revision: this.current.revision,
-    });
+    const ref = (entity: QualificationEntity): string =>
+      `${entity.id}@r${this.current.revision}`;
     let encoded: JsonRecord;
     if (action.kind === 'drag') {
-      encoded = { kind: 'drag', source: ref(action.source), target: ref(action.target) };
+      encoded = { kind: 'drag', source_ref: ref(action.source), destination_ref: ref(action.target) };
     } else if (action.kind === 'press') {
       encoded = {
         kind: 'press',
         keys: action.keys,
-        ...(action.target === undefined ? {} : { target: ref(action.target) }),
+        ...(action.target === undefined ? {} : { target_ref: ref(action.target) }),
       };
     } else if (action.kind === 'fill') {
-      encoded = { kind: 'fill', target: ref(action.target), value: action.value };
+      encoded = { kind: 'fill', target_ref: ref(action.target), value: action.value };
     } else if (action.kind === 'type') {
-      encoded = { kind: 'type', target: ref(action.target), text: action.text };
+      encoded = { kind: 'type', target_ref: ref(action.target), text: action.text };
     } else if (action.kind === 'select') {
-      encoded = { kind: 'select', target: ref(action.target), values: action.values };
+      encoded = { kind: 'select', target_ref: ref(action.target), values: action.values };
     } else {
-      encoded = { kind: action.kind, target: ref(action.target) };
+      encoded = { kind: action.kind, target_ref: ref(action.target) };
     }
     const result = await this.call('browser_act', {
       browser_id: this.current.browserId,
       page_id: this.current.pageId,
       expected_revision: this.current.revision,
-      action: encoded,
+      ...encoded,
       max_tokens: MAX_MODEL_TOKENS,
     });
     const observation = this.setCurrent(result);

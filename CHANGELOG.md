@@ -94,6 +94,25 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   package and Chromium provenance, and final-child-only credential access. No
   scored paired run or uplift result is included in this change.
 
+### Changed
+
+- Flattened the model-facing `browser_act` and `browser_wait` inputs. Action or
+  wait `kind`, revision-bound refs, and kind-specific values now occupy one
+  strict JSON object; nested and stringified payloads, bracketed refs, and
+  unrelated fields fail before browser dispatch. The runtime still translates
+  validated calls into BrowserIR's strongly typed core actions.
+- Retained public-safe partial agent telemetry when a run times out or fails,
+  including model turns and usage already observed plus pre-broker adapter
+  rejection counts. Raw model messages and tool arguments remain excluded.
+- The first Drop 01 v1 execution was operator-stopped after nine complete
+  matched blocks, with a tenth control arm complete and its treatment arm in
+  flight. The prefix has no score or interval. Diagnosis showed the model
+  stringifying the old nested action object and LangChain rejecting it before
+  the BrowserIR broker. Two score-excluded canaries on the already-seen
+  `create-customer` workflow passed after the flat-contract fix. Any v2 run is
+  an adaptive recovery: it reuses the exact 30 seeds and arm orders, restarts
+  every arm, and is not independent confirmation.
+
 ### Security
 
 - Stock MCP deployment is local stdio only and owns browser cleanup for its connection.

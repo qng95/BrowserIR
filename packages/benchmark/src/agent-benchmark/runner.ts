@@ -7,7 +7,10 @@ import {
   type AgentBenchmarkReport,
   type AgentBenchmarkTaskSummary,
   type AgentRunCompletion,
+  type AgentRunErrorCode,
+  type AgentRunProgress,
   type AgentToolBroker,
+  type AgentToolAdapterRejectionCode,
   type AgentToolCallResult,
   type AgentToolDescriptor,
   type AgentToolMetrics,
@@ -114,6 +117,10 @@ class BudgetedToolBroker implements AgentToolBroker {
   #responseBytes = 0;
   #screenshots = 0;
   #dispatchedBrowserActions = 0;
+  #adapterRejectedCalls = 0;
+  readonly #adapterRejectionsByCode: Partial<
+    Record<AgentToolAdapterRejectionCode, number>
+  > = {};
   readonly #trace: AgentToolTraceEntry[] = [];
 
   constructor(inner: AgentToolBroker, limit: number) {
@@ -212,11 +219,24 @@ class BudgetedToolBroker implements AgentToolBroker {
     }));
   }
 
+  recordAdapterRejection(code: AgentToolAdapterRejectionCode): void {
+    this.#adapterRejectedCalls += 1;
+    this.#adapterRejectionsByCode[code] =
+      (this.#adapterRejectionsByCode[code] ?? 0) + 1;
+  }
+
   metrics(): AgentToolMetrics {
     const metrics = this.#inner.metrics();
     return {
       ...metrics,
+      errors: metrics.errors + this.#adapterRejectedCalls,
       budgetExceeded: metrics.budgetExceeded || this.#budgetExceeded,
+      ...(this.#adapterRejectedCalls === 0
+        ? {}
+        : {
+            adapterRejectedCalls: this.#adapterRejectedCalls,
+            adapterRejectionsByCode: { ...this.#adapterRejectionsByCode },
+          }),
       ...(this.#catalogSha256 === undefined
         ? {}
         : {
@@ -238,7 +258,37 @@ interface AgentRunState {
   status: AgentTrialResult['agentStatus'];
   completion?: AgentRunCompletion | undefined;
   error?: string | undefined;
+  errorCode?: AgentRunErrorCode | undefined;
 }
+
+const usageKeyPattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+
+const publicSafeProgress = (progress: AgentRunProgress): AgentRunCompletion | undefined => {
+  if (!Number.isInteger(progress.modelTurns) || progress.modelTurns < 0) return undefined;
+  const usage =
+    progress.usage === undefined
+      ? undefined
+      : Object.fromEntries(
+          Object.entries(progress.usage).filter(
+            ([name, value]) =>
+              usageKeyPattern.test(name) &&
+              typeof value === 'number' &&
+              Number.isFinite(value) &&
+              value >= 0,
+          ),
+        );
+  return {
+    modelTurns: progress.modelTurns,
+    ...(usage === undefined || Object.keys(usage).length === 0 ? {} : { usage }),
+  };
+};
+
+const runErrorCode = (error: unknown): AgentRunErrorCode | undefined => {
+  if (error === null || typeof error !== 'object') return undefined;
+  return (error as { code?: unknown }).code === 'model_budget_exceeded'
+    ? 'model_budget_exceeded'
+    : undefined;
+};
 
 async function runWithDeadline(
   agent: BrowserAgentAdapter,
@@ -246,17 +296,36 @@ async function runWithDeadline(
   timeoutMs: number,
 ): Promise<AgentRunState> {
   const controller = new AbortController();
-  const runPromise = agent.run({ ...input, signal: controller.signal }).then<
-    AgentRunState,
-    AgentRunState
-  >(
-    (completion) => ({ status: 'completed', completion }),
-    (error: unknown) => ({ status: 'errored', error: safeError(error) }),
-  );
+  let partialCompletion: AgentRunCompletion | undefined;
+  const runPromise = agent
+    .run({
+      ...input,
+      signal: controller.signal,
+      onProgress(progress) {
+        const safe = publicSafeProgress(progress);
+        if (safe !== undefined) partialCompletion = safe;
+      },
+    })
+    .then<AgentRunState, AgentRunState>(
+      (completion) => ({ status: 'completed', completion }),
+      (error: unknown) => {
+        const errorCode = runErrorCode(error);
+        return {
+          status: 'errored',
+          ...(partialCompletion === undefined ? {} : { completion: partialCompletion }),
+          error: safeError(error),
+          ...(errorCode === undefined ? {} : { errorCode }),
+        };
+      },
+    );
   let timeout: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<AgentRunState>((resolve) => {
     timeout = setTimeout(() => {
-      resolve({ status: 'timed_out', error: `Agent exceeded ${timeoutMs} ms.` });
+      resolve({
+        status: 'timed_out',
+        ...(partialCompletion === undefined ? {} : { completion: partialCompletion }),
+        error: `Agent exceeded ${timeoutMs} ms.`,
+      });
       controller.abort(new Error(`Agent exceeded ${timeoutMs} ms.`));
     }, timeoutMs);
   });
@@ -278,6 +347,9 @@ function classifyTrial(input: {
     return { outcome: 'failed', failureKind: 'agent_timeout' };
   }
   if (input.run.status === 'errored') {
+    if (input.run.errorCode === 'model_budget_exceeded') {
+      return { outcome: 'failed', failureKind: 'model_budget_exceeded' };
+    }
     return { outcome: 'failed', failureKind: 'agent_error' };
   }
   if (input.tools.budgetExceeded) {

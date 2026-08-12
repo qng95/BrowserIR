@@ -87,7 +87,7 @@ export function actionableContextRef(data, name, role) {
     (target) =>
       target !== null &&
       typeof target === 'object' &&
-      typeof target.entity_id === 'string' &&
+      typeof target.target_ref === 'string' &&
       target.name === name &&
       target.role === role,
   );
@@ -96,7 +96,7 @@ export function actionableContextRef(data, name, role) {
   }
   return {
     page_id: context.page_id,
-    entity_id: matches[0].entity_id,
+    target_ref: matches[0].target_ref,
     revision: context.revision,
   };
 }
@@ -331,7 +331,9 @@ export function writeConsumerSources(
       '      browser_id: browserId,',
       '      page_id: current.pageId,',
       '      expected_revision: current.revision,',
-      "      action: { kind: 'fill', target: nameField, value: 'Ada Lovelace' },",
+      "      kind: 'fill',",
+      "      target_ref: `${nameField.entity_id}@r${nameField.revision}`,",
+      "      value: 'Ada Lovelace',",
       '    },',
       '  });',
       "  assert.equal(filled.structuredContent?.status, 'verified');",
@@ -344,7 +346,8 @@ export function writeConsumerSources(
       '      browser_id: browserId,',
       '      page_id: current.pageId,',
       '      expected_revision: current.revision,',
-      "      action: { kind: 'click', target: refreshedSaveButton },",
+      "      kind: 'click',",
+      "      target_ref: refreshedSaveButton.target_ref,",
       '    },',
       '  });',
       "  assert.equal(clicked.structuredContent?.status, 'verified');",
@@ -357,7 +360,7 @@ export function writeConsumerSources(
       '      browser_id: browserId,',
       '      page_id: current.pageId,',
       '      expected_revision: current.revision,',
-      "      condition: { kind: 'settled' },",
+      "      kind: 'settled',",
       '      timeout_ms: 5000,',
       '    },',
       '  });',

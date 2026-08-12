@@ -1,0 +1,232 @@
+{
+  "packages": [
+    {
+      "files": [
+        {
+          "bytes": 820,
+          "path": "dist/compiler.d.ts",
+          "sha256": "025333c278b9b0c28f7f296a24386acc7b0f51575d8232d569f1945917861f79"
+        },
+        {
+          "bytes": 19301,
+          "path": "dist/compiler.js",
+          "sha256": "adcbe2993b2b530a687045efc5697602649f4881f5bab1dfd9b925053b88dade"
+        },
+        {
+          "bytes": 445,
+          "path": "dist/index.d.ts",
+          "sha256": "2bef8b187bce33d2f4aa12457eec249f73f1691d19f9711323d1e0bb44e7a468"
+        },
+        {
+          "bytes": 387,
+          "path": "dist/index.js",
+          "sha256": "307b18cd84372fc2692f9a938b64e4ec4a6fd877e88dbd4955d3859e5b881e67"
+        },
+        {
+          "bytes": 588,
+          "path": "dist/limits.d.ts",
+          "sha256": "962328d34345f01d134e2ea44cef7f86f9233001c3972490088d19277978713d"
+        },
+        {
+          "bytes": 563,
+          "path": "dist/limits.js",
+          "sha256": "66003106ee912d7cc897faf8b0f059be48bc3d57a3e51d2a5cb0e02ee8c32e1e"
+        },
+        {
+          "bytes": 1622,
+          "path": "dist/runtime.d.ts",
+          "sha256": "453c035bcbc2aadb438636a726b705423b7c5b7f68d90ba68c9c62c54edd06dd"
+        },
+        {
+          "bytes": 51877,
+          "path": "dist/runtime.js",
+          "sha256": "f2efea11bc95093eb429f77f71e0a0e25b626dda64792ebac86e95034c749aaa"
+        },
+        {
+          "bytes": 14891,
+          "path": "dist/types.d.ts",
+          "sha256": "1707d2e17625404bad67a7314c9b4b224535e099e8ceefe9ac9ea71dac3bc398"
+        },
+        {
+          "bytes": 11,
+          "path": "dist/types.js",
+          "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+        },
+        {
+          "bytes": 217,
+          "path": "dist/url.d.ts",
+          "sha256": "cd14034fa6c15da36b61bf441be28616b8fd4051f015eafcd2b19d8fb85ee682"
+        },
+        {
+          "bytes": 1846,
+          "path": "dist/url.js",
+          "sha256": "51aee36d35562fe8c52d68f16fb25fe0e0bdbd7b660c8cb7e7d6a39430294d2d"
+        },
+        {
+          "bytes": 1154,
+          "path": "package.json",
+          "sha256": "3165ad65e9f3ab3b6d797ea356b92a8dd4ff3fd950e84d2164d78f26cc75528b"
+        }
+      ],
+      "name": "@browserir/core",
+      "sha256": "3dac821e385b96773302a5ffd346b9428956f2a4da74ca4b73b94ae96278a9d5",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "bytes": 351,
+          "path": "dist/cli-options.d.ts",
+          "sha256": "78e055734d710cd768c45370647c2f97c0726553518fa7c9e3ab40e81310615b"
+        },
+        {
+          "bytes": 2199,
+          "path": "dist/cli-options.js",
+          "sha256": "e262816af94eec42e365dbcdeb5e5b064a8436ca8f713ac0e4228f9d44a24bc4"
+        },
+        {
+          "bytes": 31,
+          "path": "dist/cli.d.ts",
+          "sha256": "43e818adf60173644896298637f47b01d5819b17eda46eaa32d0c7d64724d012"
+        },
+        {
+          "bytes": 2756,
+          "path": "dist/cli.js",
+          "sha256": "aebfdf98156d233aede6c69c077e5198cb6fcb37426f85b4d64b49dc68529701"
+        },
+        {
+          "bytes": 1295,
+          "path": "dist/index.d.ts",
+          "sha256": "578ed8dfbb2a68a70b8de98ff3a6077919cf46b3bb14efd42d35b12ca8ce87e9"
+        },
+        {
+          "bytes": 660,
+          "path": "dist/index.js",
+          "sha256": "c85cdd25edc1189f8d0b39d80d0184174b71b11ba2bd11c4c18e9e9c51e44f83"
+        },
+        {
+          "bytes": 1124,
+          "path": "dist/runtime-service.d.ts",
+          "sha256": "0c8eb18189a10fbdd843da69679960d2b20b9a2ffc2b15d58f8eca3e8fe7a4fd"
+        },
+        {
+          "bytes": 57896,
+          "path": "dist/runtime-service.js",
+          "sha256": "8f69881f334c58b85378f98ebfd1b405f926bba09072c0f279725cc6ffca2550"
+        },
+        {
+          "bytes": 6708,
+          "path": "dist/schemas.d.ts",
+          "sha256": "df80e3927d3ce5ab43e8df8aa6c61b10da79449312d55fa3a2bf56047270d834"
+        },
+        {
+          "bytes": 6879,
+          "path": "dist/schemas.js",
+          "sha256": "f6f3dbef9b850bccb3cb3d2c062ad5615f09aaaeca3dba0d46572ec387dfb580"
+        },
+        {
+          "bytes": 679,
+          "path": "dist/server.d.ts",
+          "sha256": "0f97ad928baee30141670ad15f1d98e7b8b88a2fb63a219df13438cd6f9c5d06"
+        },
+        {
+          "bytes": 7518,
+          "path": "dist/server.js",
+          "sha256": "f32573dc6998f167874df21b78ffa2cf00b4e4da11da238c2ecc8c23b8527852"
+        },
+        {
+          "bytes": 915,
+          "path": "dist/stdio.d.ts",
+          "sha256": "73e2a2de97fe8d7ce82f7f5e18fd050e3be8ce1ac84e9036f9f27df198e18afe"
+        },
+        {
+          "bytes": 2862,
+          "path": "dist/stdio.js",
+          "sha256": "57b0c88b20b33bdcdd95f73fba30854a9fe572f3bdc3eeb952d89d83310083e8"
+        },
+        {
+          "bytes": 5897,
+          "path": "dist/types.d.ts",
+          "sha256": "dac3672dc82ee3c753437eed0396ad48ee50eb199f2182f04e571d6df0e478ee"
+        },
+        {
+          "bytes": 290,
+          "path": "dist/types.js",
+          "sha256": "72469d9e1c2044de379bb0e353a238a4eab6655f49b6847e493d7cdac600d4a4"
+        },
+        {
+          "bytes": 678,
+          "path": "dist/unsafe-evaluate.d.ts",
+          "sha256": "6aef1d3eb5aa5979db62ca9673e2b0a18f96e668b35d1d2a49aad338770ac151"
+        },
+        {
+          "bytes": 2860,
+          "path": "dist/unsafe-evaluate.js",
+          "sha256": "899e9077028d3c9137932e5c6e0c664d587931e20948d36e0ebe7783947b6928"
+        },
+        {
+          "bytes": 114,
+          "path": "dist/version.d.ts",
+          "sha256": "249cb1f90aec3ade6d51ffed9f0a884227cd59a2c2790b8ba85697ba4e820ef7"
+        },
+        {
+          "bytes": 98,
+          "path": "dist/version.js",
+          "sha256": "d314a2a1711f2b1a30d16c2d8652452f9fd0cb6182ba4c6362337d6c6b33b7fa"
+        },
+        {
+          "bytes": 1923,
+          "path": "package.json",
+          "sha256": "c666c44e4095720eec9ea81d1c4ba9f1593f0e751c7415e8583669d6b8cfd559"
+        }
+      ],
+      "name": "@browserir/mcp",
+      "sha256": "f0b98878c6e78f4226dd119576a132edd676dad068ea931f7d764cce0d8e3a24",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "bytes": 3032,
+          "path": "dist/index.d.ts",
+          "sha256": "f336bd3150e4f33d7a1c83e036e385b906f9b363b88b8316d73f708ec8bfc4db"
+        },
+        {
+          "bytes": 170809,
+          "path": "dist/index.js",
+          "sha256": "47b51c164a708edbbd2adf2b5414bd66c1042e26101ac0ca760467704420fceb"
+        },
+        {
+          "bytes": 185,
+          "path": "dist/ordered-concurrency.d.ts",
+          "sha256": "fe8df1154cb55542d038e953607b216e0eaaedd35650266e4b63fd81a50c79cb"
+        },
+        {
+          "bytes": 963,
+          "path": "dist/ordered-concurrency.js",
+          "sha256": "cd04b346bd0a6c442ea170e1fa051c891ca96e50c7058035f6e25341f5fbf951"
+        },
+        {
+          "bytes": 914,
+          "path": "dist/unsafe-evaluate.d.ts",
+          "sha256": "9a4a4da9ced9124f178dc5c7e316eb78a4d1f2698c77a5748846595a631fdc5e"
+        },
+        {
+          "bytes": 29679,
+          "path": "dist/unsafe-evaluate.js",
+          "sha256": "5e713a230f415ba5df09135d5091927339f4f652c296245a2bdd41ee09c3b00e"
+        },
+        {
+          "bytes": 1224,
+          "path": "package.json",
+          "sha256": "5a74bb4b257dda414f7cba1903d36c2df7781653fa4ec022e237207ff05009e5"
+        }
+      ],
+      "name": "@browserir/playwright",
+      "sha256": "9450b2bb5f1f51cc12a835c7da32abd3b884692296055fc69b63c21c40854d58",
+      "version": "0.1.0"
+    }
+  ],
+  "schemaVersion": "1.0.0",
+  "sha256": "be10b265fb5419890a009344921507da6c32aa63f456ac4f847aaf19bb26aa3d"
+}

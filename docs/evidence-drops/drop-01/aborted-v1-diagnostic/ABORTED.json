@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0.0",
+  "documentType": "aborted-sealed-benchmark-diagnostic",
+  "status": "aborted",
+  "protocolId": "drop-01-qwen38max-validation-recovery-v1",
+  "runId": "drop-01-sealed-2026-08-12T11-33-32-594Z",
+  "protocolSha256": "038f84fa1ed12514e72e083166702cbae6646d492307fe49cfff959124c74c21",
+  "source": {
+    "freezeRef": "refs/tags/evidence-drop-01-protocol-v1",
+    "revision": "89c82ff4d89ec33c1311df65729306c579192357",
+    "tree": "a59ba73593805e9098b6c550a1f794db97f9d395",
+    "clean": true
+  },
+  "abort": {
+    "reasonCode": "operator-interrupted-for-treatment-non-dispatch-investigation",
+    "summary": "The sealed run was deliberately stopped before the full schedule completed so repeated treatment-arm failures with no dispatched browser actions could be investigated.",
+    "markerProvenance": "administrative-publication-marker",
+    "journalContainsAbortEvent": false,
+    "lastDurableEventAt": "2026-08-12T12:26:32.849Z"
+  },
+  "publication": {
+    "classification": "diagnostic-only",
+    "scoreable": false,
+    "benchmarkResult": false,
+    "pairedComparison": false,
+    "reason": "The precommitted 30-block schedule did not complete and the journal has no run_completed event."
+  },
+  "journal": {
+    "schemaVersion": "1.0.0",
+    "scheduledBlocks": 30,
+    "blocksStarted": 10,
+    "completedBlocks": 9,
+    "completedAttempts": 19,
+    "activeAttempts": 1,
+    "eventCount": 59,
+    "finalSequence": 58,
+    "finalEventSha256": "e36c5a906244d87cd1eb7769426876123d440b2027b392e265a58edf339677ed",
+    "eventTypes": {
+      "run_started": 1,
+      "block_started": 10,
+      "attempt_started": 20,
+      "attempt_completed": 19,
+      "block_completed": 9
+    },
+    "completedBlockOutcomes": {
+      "control_win": 9
+    },
+    "activeAttempt": {
+      "blockId": "drop-01-sealed-2026-08-12T11-33-32-594Z:validation-recovery:9",
+      "attemptId": "drop-01-sealed-2026-08-12T11-33-32-594Z:validation-recovery:9:treatment",
+      "taskId": "validation-recovery",
+      "trialIndex": 9,
+      "role": "treatment"
+    }
+  },
+  "completedAttemptDiagnostics": {
+    "control": {
+      "attempts": 10,
+      "passed": 10,
+      "failed": 0,
+      "dispatchedBrowserActions": 85
+    },
+    "treatment": {
+      "attempts": 9,
+      "passed": 0,
+      "failed": 9,
+      "dispatchedBrowserActions": 0,
+      "failureKinds": {
+        "agent_error": 3,
+        "agent_timeout": 5,
+        "submission_missing": 1
+      }
+    }
+  },
+  "integrity": {
+    "startArtifactsCopiedByteForByte": true,
+    "journalCopiedByteForByte": true,
+    "journalHashChainVerified": true,
+    "journalLifecycleVerified": true,
+    "checksumsCoverAllBundleFilesExceptSHA256SUMS": true
+  },
+  "excludedArtifacts": [
+    "COMPLETE.json",
+    "comparison.json",
+    "attempts.ndjson",
+    "summary.md",
+    "end-stage provenance",
+    "raw model text",
+    "secrets"
+  ]
+}

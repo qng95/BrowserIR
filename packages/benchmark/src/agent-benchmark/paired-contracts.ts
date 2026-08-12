@@ -79,6 +79,8 @@ export interface JournalSafeAgentTrialResult {
     errors: number;
     byTool: Readonly<Record<string, number>>;
     budgetExceeded: boolean;
+    adapterRejectedCalls?: number | undefined;
+    adapterRejectionsByCode?: AgentToolMetrics['adapterRejectionsByCode'];
     policyViolationCount: number;
     policyViolationsSha256?: string | undefined;
     toolCatalogSha256?: string | undefined;

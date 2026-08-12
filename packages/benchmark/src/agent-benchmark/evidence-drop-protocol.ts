@@ -9,6 +9,7 @@ const safeId = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const sha256 = /^[a-f0-9]{64}$/;
 const prefixedSha256 = /^sha256:[a-f0-9]{64}$/;
 const safeProviderRoute = /^[a-z0-9][a-z0-9._/-]{0,127}$/;
+const tagRef = /^refs\/tags\/[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$/;
 const unsigned32 = z.number().int().min(0).max(0xffff_ffff);
 
 const strictModelCapabilitiesSchema = z
@@ -74,6 +75,17 @@ const armSchema = z
   })
   .strict();
 
+const adaptiveLineageSchema = z
+  .object({
+    kind: z.literal('adaptive-follow-up'),
+    predecessorProtocolId: z.string().regex(safeId),
+    predecessorFreezeRef: z.string().regex(tagRef),
+    trigger: z.literal('observed-treatment-tool-contract-failure'),
+    schedulePolicy: z.literal('reuse-predecessor-schedule-exactly'),
+    interpretation: z.literal('adaptive-recovery-not-independent-confirmation'),
+  })
+  .strict();
+
 const protocolSchema = z
   .object({
     schemaVersion: z.literal(EVIDENCE_DROP_PROTOCOL_SCHEMA_VERSION),
@@ -81,7 +93,8 @@ const protocolSchema = z
     protocolId: z.string().regex(safeId),
     phase: z.enum(['development', 'sealed']),
     status: z.enum(['draft', 'frozen']),
-    freezeRef: z.string().regex(/^refs\/tags\/[A-Za-z0-9][A-Za-z0-9._/-]{0,200}$/).optional(),
+    freezeRef: z.string().regex(tagRef).optional(),
+    adaptiveLineage: adaptiveLineageSchema.optional(),
     question: z.string().trim().min(1).max(1_000),
     taskIds: z.array(z.string().regex(safeId)).min(1),
     taskContracts: z
@@ -181,6 +194,26 @@ const protocolSchema = z
     }
     if (protocol.arms.control.id === protocol.arms.treatment.id) {
       add(['arms'], 'Control and treatment arm IDs must differ.');
+    }
+    if (protocol.adaptiveLineage !== undefined) {
+      if (protocol.phase !== 'sealed') {
+        add(
+          ['adaptiveLineage'],
+          'Adaptive lineage is reserved for sealed follow-up protocols.',
+        );
+      }
+      if (protocol.adaptiveLineage.predecessorProtocolId === protocol.protocolId) {
+        add(
+          ['adaptiveLineage', 'predecessorProtocolId'],
+          'An adaptive follow-up must name a different predecessor protocol.',
+        );
+      }
+      if (protocol.adaptiveLineage.predecessorFreezeRef === protocol.freezeRef) {
+        add(
+          ['adaptiveLineage', 'predecessorFreezeRef'],
+          'An adaptive follow-up must name a different predecessor freeze ref.',
+        );
+      }
     }
     const actualPromptSha256 = createHash('sha256')
       .update(protocol.agent.systemPrompt, 'utf8')

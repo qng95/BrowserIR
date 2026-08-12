@@ -6,11 +6,40 @@ import {
   FIXTURE_TASK_PLANNERS,
   latestObservationArguments,
   parseBrowserIrObservation,
+  publicSafeToolArgumentsDiagnostic,
   QualificationToolError,
   qualificationContinuationNeedsObserve,
 } from './task-qualification-harness.js';
 
 describe('fixture task qualification harness', () => {
+  it('records only flat public-safe fill and drag action targets', () => {
+    const secret = 'SENTINEL-QUALIFICATION-VALUE-4917';
+
+    expect(
+      publicSafeToolArgumentsDiagnostic({
+        kind: 'fill',
+        target_ref: 'e12@r7',
+        value: secret,
+      }),
+    ).toEqual({ action: 'fill', target: 'e12@r7' });
+    expect(
+      publicSafeToolArgumentsDiagnostic({
+        kind: 'drag',
+        source_ref: 'e3@r11',
+        destination_ref: 'e9@r11',
+        note: secret,
+      }),
+    ).toEqual({ action: 'drag', target: 'e3@r11 -> e9@r11' });
+
+    const serialized = JSON.stringify([
+      publicSafeToolArgumentsDiagnostic({
+        kind: secret,
+        target_ref: `${secret}@r7`,
+      }),
+    ]);
+    expect(serialized).not.toContain(secret);
+  });
+
   it('has one deterministic BrowserIR-reference planner for every fixture task', () => {
     expect(Object.keys(FIXTURE_TASK_PLANNERS).sort()).toEqual(
       TASKS.map((task) => task.id).sort(),
@@ -45,7 +74,7 @@ describe('fixture task qualification harness', () => {
 
   it('retains fresh continuation targets from a delta-first action receipt', () => {
     const observation = parseBrowserIrObservation(
-      'Action verified at revision 5; Delta only. Continue with fresh actionable_context targets using its page_id and revision.',
+      'Action verified at revision 5; Delta only. Continue with fresh actionable_context target_ref tokens.',
       {
         browser_id: 'browser-1',
         page_id: 'page-1',
@@ -56,7 +85,7 @@ describe('fixture task qualification harness', () => {
           revision: 5,
           targets: [
             {
-              entity_id: 'password',
+              target_ref: 'e1@r5',
               kind: 'input',
               role: 'textbox',
               name: 'Password',
@@ -64,7 +93,7 @@ describe('fixture task qualification harness', () => {
               actions: ['fill'],
             },
             {
-              entity_id: 'submit',
+              target_ref: 'e2@r5',
               kind: 'control',
               role: 'button',
               name: 'Sign in',
@@ -85,7 +114,7 @@ describe('fixture task qualification harness', () => {
     });
     expect(observation.entities).toEqual([
       expect.objectContaining({
-        id: 'password',
+        id: 'e1',
         revision: 5,
         kind: 'input',
         role: 'textbox',
@@ -94,7 +123,7 @@ describe('fixture task qualification harness', () => {
         actions: ['fill'],
       }),
       expect.objectContaining({
-        id: 'submit',
+        id: 'e2',
         revision: 5,
         kind: 'control',
         role: 'button',
@@ -165,7 +194,7 @@ describe('fixture task qualification harness', () => {
         revision: 5,
         targets: [
           {
-            entity_id: 'next-field',
+            target_ref: 'e1@r5',
             kind: 'input',
             name: 'Next field',
             actions: ['fill'],
@@ -194,13 +223,13 @@ describe('fixture task qualification harness', () => {
           revision: 5,
           targets: [
             {
-              entity_id: 'password',
+              target_ref: 'e1@r5',
               kind: 'input',
               name: 'Password',
               actions: ['fill'],
             },
             {
-              entity_id: 'submit',
+              target_ref: 'e2@r5',
               kind: 'control',
               name: 'Sign in',
             },

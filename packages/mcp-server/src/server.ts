@@ -168,7 +168,7 @@ export function createBrowserIrMcpServer(options: BrowserIrMcpOptions): McpServe
     {
       title: 'Act in browser',
       description:
-        'Execute one entity-targeted or page-scoped typed action at an expected revision and return verified effects.',
+        'Execute one entity-targeted or page-scoped typed action at an expected revision and return verified effects. Copy entity ref tokens exactly without brackets. Example fill: {kind:"fill",target_ref:"e15@r7",value:"Ada",expected_revision:7}. Required fields by kind: target_ref for click/double_click/context_click/focus/hover/fill/type/select/check/uncheck/upload; value for fill; text for type; values for select; keys for press; artifact_ids for upload; source_ref and destination_ref for drag.',
       inputSchema: browserActSchema,
       annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false },
     },
@@ -180,7 +180,7 @@ export function createBrowserIrMcpServer(options: BrowserIrMcpOptions): McpServe
     {
       title: 'Wait for browser condition',
       description:
-        'Wait for a bounded semantic condition, then return the new BrowserIR revision and delta.',
+        'Wait for a bounded semantic condition, then return the new BrowserIR revision and delta. Use flat fields: {kind:"text",value:"Saved",expected_revision:7}; entity_state additionally requires target_ref and state. Copy ref tokens exactly without brackets.',
       inputSchema: browserWaitSchema,
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
     },

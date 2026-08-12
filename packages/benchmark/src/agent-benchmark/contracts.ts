@@ -33,6 +33,12 @@ export interface AgentToolMetrics {
   errors: number;
   byTool: Readonly<Record<string, number>>;
   budgetExceeded: boolean;
+  /** Tool calls rejected by the adapter before they reached the broker. */
+  adapterRejectedCalls?: number | undefined;
+  /** Stable, bounded categories only; argument values and validation messages are never retained. */
+  adapterRejectionsByCode?:
+    | Readonly<Partial<Record<AgentToolAdapterRejectionCode, number>>>
+    | undefined;
   policyViolations?: readonly string[] | undefined;
   toolCatalogSha256?: string | undefined;
   toolCatalogToolCount?: number | undefined;
@@ -40,6 +46,8 @@ export interface AgentToolMetrics {
   screenshots?: number | undefined;
   dispatchedBrowserActions?: number | undefined;
 }
+
+export type AgentToolAdapterRejectionCode = 'input_schema_invalid' | 'unknown_tool';
 
 export interface AgentToolTraceEntry {
   index: number;
@@ -62,6 +70,8 @@ export interface AgentToolTraceEntry {
 export interface AgentToolBroker {
   listTools(): Promise<readonly AgentToolDescriptor[]>;
   callTool(name: string, input: Record<string, unknown>): Promise<AgentToolCallResult>;
+  /** Records an adapter-side rejection that occurred before callTool could be dispatched. */
+  recordAdapterRejection?(code: AgentToolAdapterRejectionCode): void;
   metrics(): AgentToolMetrics;
   close(): Promise<void>;
 }
@@ -126,7 +136,16 @@ export interface AgentRunInput {
   tools: AgentToolBroker;
   signal: AbortSignal;
   budgets: AgentBenchmarkBudgets;
+  /** Public-safe incremental accounting retained if the run errors or times out. */
+  onProgress?: ((progress: AgentRunProgress) => void) | undefined;
 }
+
+export interface AgentRunProgress {
+  modelTurns: number;
+  usage?: Readonly<Record<string, number>> | undefined;
+}
+
+export type AgentRunErrorCode = 'model_budget_exceeded';
 
 export interface AgentRunCompletion {
   finalText?: string | undefined;

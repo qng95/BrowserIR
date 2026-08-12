@@ -130,6 +130,16 @@ export function toJournalSafeAttempt(
       errors: attempt.tools.errors,
       byTool: { ...attempt.tools.byTool },
       budgetExceeded: attempt.tools.budgetExceeded,
+      ...(attempt.tools.adapterRejectedCalls === undefined
+        ? {}
+        : { adapterRejectedCalls: attempt.tools.adapterRejectedCalls }),
+      ...(attempt.tools.adapterRejectionsByCode === undefined
+        ? {}
+        : {
+            adapterRejectionsByCode: {
+              ...attempt.tools.adapterRejectionsByCode,
+            },
+          }),
       policyViolationCount: policyViolations?.length ?? 0,
       ...(policyViolations === undefined
         ? {}
@@ -250,6 +260,14 @@ const safeAttemptSchema = z
         errors: nonNegativeInteger,
         byTool: z.record(z.string().max(256), nonNegativeInteger),
         budgetExceeded: z.boolean(),
+        adapterRejectedCalls: nonNegativeInteger.optional(),
+        adapterRejectionsByCode: z
+          .object({
+            input_schema_invalid: nonNegativeInteger.optional(),
+            unknown_tool: nonNegativeInteger.optional(),
+          })
+          .strict()
+          .optional(),
         policyViolationCount: nonNegativeInteger,
         policyViolationsSha256: digestSchema.optional(),
         toolCatalogSha256: digestSchema.optional(),

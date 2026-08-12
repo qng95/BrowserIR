@@ -21,8 +21,11 @@ The repository contains the measuring components, not a published comparative re
 
 There is no built-in competitor adapter and no published BrowserIR, sealed
 real-model, or competitor baseline. The optional agent runner can execute a
-LangChain `createAgent` loop. Local Ollama development diagnostics exist, but no
-sealed or public real-model or competitor baseline has been published. Its
+LangChain `createAgent` loop. Local Ollama development diagnostics exist. Drop
+01 v1 also began, but the operator stopped it after nine complete blocks plus a
+completed tenth control arm while treatment was in flight; that prefix has no
+score or interval. No sealed or public real-model or competitor result has been
+published. The
 checked-in fake-model vertical slice validates the harness rather than model
 generalization. The official-client 14-task runner uses a deterministic
 reference planner to qualify representation and action reachability; it also
@@ -437,3 +440,11 @@ sealed result remains published; a post-fix rerun of that task is labelled an
 adaptive follow-up, and independent confirmation moves to a previously
 unmeasured slice. The full lifecycle and claim rules are in
 [the evidence-drop protocol](EVIDENCE_DROPS.md).
+
+For Drop 01, the aborted v1 prefix exposed a general model-facing schema defect:
+the model stringified the nested BrowserIR action object, and LangChain rejected
+it before broker dispatch. The flat action/wait contract was checked with two
+score-excluded canaries on the already-seen development workflow. Adaptive v2
+therefore reuses v1's exact 30 seeds and arm order but restarts every arm from
+fresh state. It is not independent confirmation, and no v1 arm or partial
+statistic is carried into the v2 result.

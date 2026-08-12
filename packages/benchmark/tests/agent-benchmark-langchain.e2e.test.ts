@@ -49,16 +49,11 @@ const entityRef = (messages: BaseMessage[], expectedName: string) => {
     for (const line of text.split('\n')) {
       const match = /^\[([^@\]]+)@r(\d+)\].*\bname=("(?:\\.|[^"\\])*")/u.exec(line);
       if (match === null || JSON.parse(match[3]!) !== expectedName) continue;
-      const data = envelope(messages);
-      return {
-        page_id: stringField(data, 'page_id'),
-        entity_id: match[1]!,
-        // Delta-first receipts deliberately omit an unchanged full view. The
-        // deterministic model mirrors a real conversation by retaining the
-        // latest observed ref; BrowserIR alone decides whether its identity can
-        // be safely rebound across every intervening revision.
-        revision: Number(match[2]),
-      };
+      // Delta-first receipts deliberately omit an unchanged full view. The
+      // deterministic model mirrors a real conversation by retaining the
+      // latest opaque ref token; BrowserIR alone decides whether its identity
+      // can be safely rebound across every intervening revision.
+      return `${match[1]!}@r${match[2]!}`;
     }
   }
   throw new Error(`Could not find BrowserIR entity named ${JSON.stringify(expectedName)}.`);
@@ -91,11 +86,9 @@ const actionFactory = (
             ? numberField(data, 'revision')
             : numberField(data, 'post_revision'),
         max_tokens: 4_000,
-        action: {
-          kind,
-          target: entityRef(messages, name),
-          ...(value === undefined ? {} : { value }),
-        },
+        kind,
+        target_ref: entityRef(messages, name),
+        ...(value === undefined ? {} : { value }),
       },
     };
   });

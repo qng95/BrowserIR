@@ -34,8 +34,8 @@ const reviewedWorkspacePackages = [
   ['@browserir/core', 60, 0],
   ['@think-dom/fixture-app', 98, 0],
   ['@browserir/playwright', 107, 0],
-  ['@browserir/benchmark', 281, 0],
-  ['@browserir/mcp', 189, 19],
+  ['@browserir/benchmark', 289, 0],
+  ['@browserir/mcp', 195, 19],
 ] as const;
 const sourceFilePaths = [
   'package.json',
@@ -99,7 +99,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 735, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 749, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {
@@ -240,7 +240,7 @@ describe('release candidate artifact finalization', () => {
             revision: 17,
             targets: [
               {
-                entity_id: 'save-customer',
+                target_ref: 'e7@r17',
                 name: 'Save customer',
                 role: 'button',
                 actions: ['click'],
@@ -254,7 +254,7 @@ describe('release candidate artifact finalization', () => {
       ),
     ).toEqual({
       page_id: 'page-packed',
-      entity_id: 'save-customer',
+      target_ref: 'e7@r17',
       revision: 17,
     });
   });
@@ -270,8 +270,8 @@ describe('release candidate artifact finalization', () => {
             page_id: 'page-packed',
             revision: 17,
             targets: [
-              { entity_id: 'save-one', name: 'Save customer', role: 'button' },
-              { entity_id: 'save-two', name: 'Save customer', role: 'button' },
+              { target_ref: 'e7@r17', name: 'Save customer', role: 'button' },
+              { target_ref: 'e8@r17', name: 'Save customer', role: 'button' },
             ],
           },
         },

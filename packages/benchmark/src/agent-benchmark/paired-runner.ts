@@ -169,6 +169,16 @@ const restoredAttempt = (attempt: JournalSafeAgentTrialResult): AgentTrialResult
     errors: attempt.tools.errors,
     byTool: { ...attempt.tools.byTool },
     budgetExceeded: attempt.tools.budgetExceeded,
+    ...(attempt.tools.adapterRejectedCalls === undefined
+      ? {}
+      : { adapterRejectedCalls: attempt.tools.adapterRejectedCalls }),
+    ...(attempt.tools.adapterRejectionsByCode === undefined
+      ? {}
+      : {
+          adapterRejectionsByCode: {
+            ...attempt.tools.adapterRejectionsByCode,
+          },
+        }),
     ...(attempt.tools.policyViolationCount === 0
       ? {}
       : {

@@ -26,14 +26,14 @@ const maxDossierBytes = 256 * 1024 * 1024;
  * newly skipping tests requires a deliberate policy review in the same change.
  */
 const workspaceTestCountPolicy = Object.freeze({
-  version: '2026-08-12-v15',
-  aggregate: Object.freeze({ declared: 735, executed: 716, skipped: 19 }),
+  version: '2026-08-12-v16',
+  aggregate: Object.freeze({ declared: 749, executed: 730, skipped: 19 }),
   packages: Object.freeze([
     Object.freeze({ package: '@browserir/core', declared: 60, executed: 60, skipped: 0 }),
     Object.freeze({ package: '@think-dom/fixture-app', declared: 98, executed: 98, skipped: 0 }),
     Object.freeze({ package: '@browserir/playwright', declared: 107, executed: 107, skipped: 0 }),
-    Object.freeze({ package: '@browserir/benchmark', declared: 281, executed: 281, skipped: 0 }),
-    Object.freeze({ package: '@browserir/mcp', declared: 189, executed: 170, skipped: 19 }),
+    Object.freeze({ package: '@browserir/benchmark', declared: 289, executed: 289, skipped: 0 }),
+    Object.freeze({ package: '@browserir/mcp', declared: 195, executed: 176, skipped: 19 }),
   ]),
 });
 const requirements = [

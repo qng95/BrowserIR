@@ -68,6 +68,48 @@ developing or diagnosing an agent, pass `--headful` in the MCP configuration:
 Run `browserir-mcp --help` for the complete local CLI surface. Headful mode
 does not reuse the user's normal browser profile or make page content trusted.
 
+## Flat action and wait calls
+
+`browser_act` uses one flat JSON object. Copy an entity ref from the compact
+view without its display brackets: `[e15@r7]` becomes `e15@r7`.
+
+```json
+{
+  "browser_id": "browser-1",
+  "page_id": "page-1",
+  "expected_revision": 7,
+  "kind": "fill",
+  "target_ref": "e15@r7",
+  "value": "Ada"
+}
+```
+
+Targeted actions use `target_ref`. `fill`, `type`, `select`, and `upload` add
+`value`, `text`, `values`, and `artifact_ids` respectively. `press` requires
+`keys` and may be targeted or page-scoped. `scroll` accepts optional
+`target_ref`, `delta_x`, and `delta_y`. `drag` instead uses `source_ref` and
+`destination_ref`, with optional `destination_page_id` for a cross-page
+destination. Fields that do not belong to the selected `kind` are rejected.
+
+`browser_wait` is flat as well:
+
+```json
+{
+  "browser_id": "browser-1",
+  "page_id": "page-1",
+  "expected_revision": 7,
+  "kind": "entity_state",
+  "target_ref": "e15@r7",
+  "state": "enabled",
+  "timeout_ms": 5000
+}
+```
+
+The other wait kinds are `revision_change`, `text` with `value`, and
+`settled`. Nested `action` or `condition` objects, stringified JSON, bracketed
+refs, stale revisions, and unrelated kind-specific fields fail validation
+before browser dispatch.
+
 ## Experimental unsafe evaluation
 
 `browser_evaluate_unsafe` is completely disabled and absent from tool discovery

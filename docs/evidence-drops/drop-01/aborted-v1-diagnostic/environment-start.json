@@ -1,0 +1,120 @@
+{
+  "arms": {
+    "control": {
+      "browser": {
+        "engine": "chromium",
+        "executableSha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+        "version": "151.0.7922.34"
+      },
+      "interfaceVersion": "0.0.78",
+      "runtimePackages": [
+        {
+          "name": "@playwright/mcp",
+          "version": "0.0.78"
+        },
+        {
+          "name": "playwright-core",
+          "version": "1.62.0-alpha-1783623505000"
+        }
+      ]
+    },
+    "treatment": {
+      "browser": {
+        "engine": "chromium",
+        "executableSha256": "a596b1cfc6353e987fcec8d71a23a28cd6a9e7a6b4e20b908e4c4fcffe51158e",
+        "version": "151.0.7922.34"
+      },
+      "interfaceVersion": "0.1.0+mcp-2026-07-28",
+      "runtimePackages": [
+        {
+          "name": "@browserir/core",
+          "version": "0.1.0"
+        },
+        {
+          "name": "@browserir/mcp",
+          "version": "0.1.0"
+        },
+        {
+          "name": "@browserir/playwright",
+          "version": "0.1.0"
+        },
+        {
+          "name": "playwright-core",
+          "version": "1.62.0"
+        }
+      ]
+    }
+  },
+  "harness": {
+    "lockfileSha256": "83bb85538457b42f77f388ff9c3f2ac6c2b94c3016568a5d2c4b9c02df83b7ad",
+    "nodeVersion": "v22.19.0",
+    "packageManager": "pnpm@10.30.3",
+    "pnpmVersion": "10.30.3"
+  },
+  "host": {
+    "arch": "arm64",
+    "hardware": {
+      "cpuModel": "Apple M1 Pro",
+      "logicalCpuCount": 10,
+      "memoryBytes": 17179869184
+    },
+    "platform": "darwin",
+    "release": "25.3.0",
+    "resourceLimits": {
+      "attemptConcurrency": 1,
+      "containerOrVmLimits": "unverified",
+      "processBoundary": false
+    }
+  },
+  "model": {
+    "canonicalModelSlug": "qwen/qwen3.8-max-20260803",
+    "configuration": {
+      "contextWindowTokens": 1000000,
+      "imageMode": "text-only",
+      "maxOutputTokens": 4096,
+      "maxRetries": 0,
+      "temperature": 0.2
+    },
+    "metadata": {
+      "canonicalModelSlug": "qwen/qwen3.8-max-20260803",
+      "contextWindowTokens": 1000000,
+      "endpointModelId": "qwen/qwen3.8-max",
+      "endpointName": "Alibaba | qwen/qwen3.8-max-20260803",
+      "maxCompletionTokens": 131072,
+      "modelId": "qwen/qwen3.8-max",
+      "providerName": "Alibaba",
+      "providerRoute": "alibaba",
+      "requiredParameters": [
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "seed",
+        "temperature",
+        "tool_choice",
+        "tools"
+      ],
+      "schemaVersion": "1.0.0"
+    },
+    "modelId": "qwen/qwen3.8-max",
+    "modelMetadataSha256": "aa4bc3cb2b4d668c5a67943f524dbb49a0da1bb31eb4b2811f2487959c05b901",
+    "provider": "openrouter",
+    "providerRoute": "alibaba",
+    "verification": "openrouter-endpoint-metadata-fingerprint"
+  },
+  "schemaVersion": "1.2.0",
+  "target": {
+    "expectedVersion": "sha256:7d62e7e3e4ae0b02883d1606ca2e1eaad15a93d0dca6d582bf86c1525ca89364",
+    "headless": true,
+    "profile": {
+      "colorScheme": "light",
+      "locale": "en-US",
+      "reducedMotion": "reduce",
+      "timezoneId": "UTC",
+      "viewport": {
+        "deviceScaleFactor": 1,
+        "height": 900,
+        "width": 1440
+      }
+    }
+  }
+}

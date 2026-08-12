@@ -12,11 +12,12 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The current qualified v15 policy declares 735 cases: 716
-executed and 19 intentional opt-in cases skipped. By package, that is core
-60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189
-declared with 170 executed and 19 skipped. The latest qualified public evidence
-is v15 [GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
+implemented. The local v16 candidate declares 749 cases: 730 executed and 19
+intentional opt-in cases skipped. By package, that is core 60/60, fixture
+98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared with
+176 executed and 19 skipped. The full local suite and type checks passed, but
+this is not hosted clean-commit evidence. The latest qualified public evidence
+remains v15 [GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
 for commit `89c82ff`; every required job passed, the run assembled a checksummed
 dossier, and annotated tag `evidence-drop-01-protocol-v1` resolves to that exact
 commit. Earlier v14, v13, and
@@ -364,8 +365,8 @@ turns, with zero tool errors and five exact database/audit/structured
 submissions. There was no BrowserIR arm, so raw 5/5 is not a score, pass-rate
 estimate, uplift result, generalization result, or competitor-superiority
 claim. The `validation-recovery` candidate was exercised by the deterministic
-reference qualification, but remains unexposed to a real model and has no
-scored paired attempt.
+reference qualification. It was later exposed by the aborted v1 prefix, which
+has no score or interval.
 [Inspect the retained summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md).
 
 - [x] Add a fail-closed sealed OpenRouter path that binds the qualified model
@@ -378,7 +379,21 @@ scored paired attempt.
 - [x] Create and review a clean Git `HEAD`, then create the freeze tag resolving
   to that exact protocol commit. Hosted CI run `31590339246` passed all ten
   jobs before the annotated remote tag was created.
-- [ ] Run 30 complete sealed blocks without early stopping or favorable rerun.
+- [x] Retain v1 as operator-stopped after nine complete blocks plus a completed
+  tenth control arm with treatment in flight. Do not calculate a score or
+  interval, resume the prefix, or mark it complete.
+- [x] Diagnose the repeated BrowserIR failure: the model stringified the old
+  nested `action` object, and LangChain rejected it before broker dispatch.
+- [x] Replace model-facing nested action and wait inputs with strict flat
+  contracts using revision-bound `target_ref`, `source_ref`, and
+  `destination_ref`; retain bounded partial-turn and pre-broker rejection
+  telemetry on failed attempts.
+- [x] Pass two score-excluded canaries on the already-seen `create-customer`
+  workflow through the corrected flat contract and exact judge.
+- [ ] Freeze adaptive v2 separately, reusing the exact v1 30 seeds and arm
+  order while restarting every control and treatment arm from fresh state.
+- [ ] Run all 30 adaptive-v2 blocks without early stopping or favorable rerun;
+  label the run adaptive recovery rather than independent confirmation.
 - [ ] Classify discordant failures from retained evidence; add test-first,
   technology-neutral BrowserIR fixes only when a general defect is proven.
 - [ ] Publish the unchanged sealed result, visual scorecard, README scope,
@@ -495,7 +510,7 @@ unaffected document loses valid references.
   per-task and pooled 95% Wilson intervals, micro pass rate, macro task pass
   rate, invalid rate, tool metrics, versions, and fingerprints.
 - [x] Pass the deterministic fake-model real-Chromium/MCP vertical slice and the
-  current 281/281 benchmark package gate. Local Ollama development diagnostics
+  current 289/289 benchmark package gate. Local Ollama development diagnostics
   exist, including one BrowserIR treatment-path signal whose official control
   failed; the separate score-excluded official-control qualification completed
   5/5, while no sealed paired run or public uplift score has been completed.

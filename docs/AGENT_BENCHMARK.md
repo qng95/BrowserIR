@@ -30,8 +30,10 @@ score-excluded control qualification has now completed: one selected OpenRouter
 of official Playwright MCP `0.0.78` and produced 5 passed, 0 failed, and 0
 invalid outcomes. This is a compatibility result, not a score. No sealed paired
 real-model result, public competitor score, or generalization result has been
-run or published. The deterministic fake-model test validates benchmark wiring
-and grading, not model capability or generalization. The current CLI is
+published. Drop 01 v1 was operator-stopped after nine complete blocks, with a
+tenth control arm complete and treatment in flight. That aborted prefix has no
+score or interval. The deterministic fake-model test validates benchmark
+wiring and grading, not model capability or generalization. The current CLI is
 suitable for local development and characterization; it is not yet a hardened
 public scoring service. See the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
@@ -262,6 +264,33 @@ changes use declared development tasks. A sealed comparison starts only from a
 committed frozen protocol and is never tuned or stopped after observing its
 score. See [the evidence-drop protocol](EVIDENCE_DROPS.md).
 
+### Drop 01 adaptive-recovery boundary
+
+The first sealed v1 execution was operator-stopped after nine complete matched
+blocks, plus a completed tenth control arm whose treatment arm was in flight.
+Its partial schedule is an aborted diagnostic, not a smaller benchmark: no arm
+rate, paired lift, or confidence interval may be computed or published from it.
+
+Public-safe traces showed the repeated treatment failure before BrowserIR
+dispatch. The model selected `browser_act` but emitted the old nested `action`
+object as a JSON string; LangChain rejected that input against the generated
+schema before the broker saw it. The corrected MCP surface puts `kind`, refs,
+and kind-specific values in one strict top-level object. The adapter now also
+retains bounded partial turn, usage, and pre-broker rejection counts on failed
+attempts without retaining raw model messages or tool arguments.
+
+Two score-excluded canaries on the already-seen `create-customer` workflow
+passed the exact database/audit/submission judge with the flat contract. Those
+canaries validate compatibility only. They do not score `validation-recovery`
+or establish uplift.
+
+Adaptive v2 reuses the exact v1 30-trial seeds and arm order, but restarts every
+arm from fresh state; completed v1 arms are not resumed or reused. Because the
+scored slice informed the interface fix, v2 is an adaptive recovery rather than
+independent confirmation. A separate frozen manifest and tag must bind v2
+before its first attempt, and independent confirmation must use a previously
+unmeasured slice.
+
 ## Score-excluded official-control qualification
 
 Before freezing a paired uplift protocol, BrowserIR has a narrow compatibility
@@ -271,8 +300,8 @@ Playwright MCP control? The dedicated qualification answers only that question.
 It is deliberately outside the Drop 01 score and has these fixed boundaries:
 
 - it runs only official Playwright MCP, with no BrowserIR treatment arm;
-- it uses `create-customer`, an already-seen development task, while the
-  reserved `validation-recovery` task remains outside real-model scoring;
+- it uses `create-customer`, an already-seen development task, and its protocol
+  cannot access the reserved `validation-recovery` task;
 - it runs all five precommitted attempts, with no early stop, favorable rerun,
   or invalid-attempt replacement;
 - `demonstrated` requires five completed attempts, zero invalid attempts, and
@@ -298,8 +327,8 @@ predeclared capability on one already-seen workflow. There was no BrowserIR arm,
 so raw 5/5 is not a score, pass-rate estimate, uplift measurement,
 generalization result, or competitor-superiority claim. The reserved
 `validation-recovery` task was exercised by the deterministic reference
-qualification, but remains unexposed to a real model and has no scored paired
-attempt.
+qualification and later by the aborted v1 prefix. The qualification itself did
+not expose that task, and the interrupted v1 execution produced no score.
 
 [Inspect the checksummed qualification summary](evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
 
@@ -393,15 +422,20 @@ non-zero stochastic temperature. Both arms in a matched task/trial block
 receive the same derived seed, and a regression test checks the actual
 OpenAI-compatible invocation parameters rather than metadata alone.
 
-Sealed runs use the outer launcher rather than the development command. Drop
-01 is frozen to 30 matched blocks, one fixed workflow, and the exact
-OpenRouter model, route, and configuration retained in the manifest:
+Sealed runs use the outer launcher rather than the development command. The v1
+output is an aborted diagnostic and must not be resumed or finalized. Adaptive
+v2 has a separate manifest candidate retaining the same 30 seeds, arm order,
+workflow, model, route, prompt, budgets, and decision rule:
 
 ```sh
-pnpm benchmark:uplift:sealed -- \
-  --protocol docs/evidence-drops/drop-01/sealed.protocol.json \
-  --output /absolute/external/path/drop-01
+pnpm benchmark:uplift:sealed \
+  --protocol docs/evidence-drops/drop-01/sealed-adaptive-v2.protocol.json \
+  --output /absolute/external/path/drop-01-adaptive-v2
 ```
+
+That output must be a new create-only directory. Every control and treatment
+arm runs again; no completed v1 arm is imported. The command is valid only
+after the v2 manifest and its distinct freeze tag have been committed.
 
 The launcher checks out the manifest's freeze tag into a fresh detached
 temporary clone, installs the frozen lockfile, builds before the benchmark CLI

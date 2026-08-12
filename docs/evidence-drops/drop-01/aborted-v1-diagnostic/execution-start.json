@@ -1,0 +1,26 @@
+{
+  "protocolId": "drop-01-qwen38max-validation-recovery-v1",
+  "protocolSha256": "038f84fa1ed12514e72e083166702cbae6646d492307fe49cfff959124c74c21",
+  "runId": "drop-01-sealed-2026-08-12T11-33-32-594Z",
+  "runtimeProvenance": {
+    "startSha256": "177ad9130cbb885abd671e9a2730267ba90e241536577bdcef552b7e2c26f3c6"
+  },
+  "schemaVersion": "1.0.0",
+  "source": {
+    "clean": true,
+    "freezeRef": "refs/tags/evidence-drop-01-protocol-v1",
+    "revision": "89c82ff4d89ec33c1311df65729306c579192357",
+    "tree": "a59ba73593805e9098b6c550a1f794db97f9d395"
+  },
+  "stage": "started",
+  "toolCatalogs": {
+    "control": {
+      "sha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75",
+      "toolCount": 17
+    },
+    "treatment": {
+      "sha256": "1b13038b5650ccf5e283ffb3dcf81902845baeafb546fd6e6341ced7af821b34",
+      "toolCount": 10
+    }
+  }
+}

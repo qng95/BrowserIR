@@ -141,9 +141,8 @@ are fixed at their own layer.
 
 ## Evidence Drop 01
 
-Status: **BrowserIR treatment-path signal observed; score-excluded official-
-control capability demonstrated; sealed paired protocol frozen; no Drop 01
-comparison result has been run**.
+Status: **v1 operator-stopped and retained as an aborted diagnostic; adaptive
+v2 recovery being prepared; no Drop 01 comparison result exists**.
 
 The intended first public question is deliberately narrow:
 
@@ -151,14 +150,14 @@ The intended first public question is deliberately narrow:
 > LangChain agent succeed more often with BrowserIR than with pinned official
 > Playwright MCP?
 
-The frozen sealed schedule is 30 matched blocks, text-only, with alternating
-arm order from a committed order seed, a precommitted model-seed base, and a
+The v1 sealed schedule is 30 matched blocks, text-only, with alternating arm
+order from a committed order seed, a precommitted model-seed base, and a
 non-zero frozen sampling temperature. Each task/trial coordinate
 deterministically derives one model seed shared by both arms; temperature-zero
 repetition is rejected because greedy decoding may ignore seeds.
-`create-customer` is the development task for adapter and reporting work
-and is excluded from the Drop 01 score. The first public result must be labelled
-a **controlled fixture pilot**, never a general browser-agent benchmark or an
+`create-customer` is the development task for adapter and reporting work and is
+excluded from the Drop 01 score. Any completed result must be labelled a
+**controlled fixture pilot**, never a general browser-agent benchmark or an
 independent-samples population estimate.
 
 The control is pinned to official `@playwright/mcp` `0.0.78` in its text-only
@@ -172,12 +171,43 @@ interface is the intervention, so this is not a pure representation ablation.
 The schedule and decision rule are retained in
 [`sealed.protocol.json`](evidence-drops/drop-01/sealed.protocol.json) and bound
 to `refs/tags/evidence-drop-01-protocol-v1`; the published annotated tag peels
-to hosted-CI-qualified commit `89c82ff`. All 30 blocks must run, with no
-replacement. At most one invalid block is allowed for a headline; the result
-is positive only when the conservative 95% lower bound is above zero, negative
-only when the upper bound is below zero, and otherwise inconclusive. It will be
-published regardless of sign. With 30 pairs, the implemented bound is roughly
-±49.6 percentage points, so this first pilot can detect only a large effect.
+to hosted-CI-qualified commit `89c82ff`. A valid result requires all 30 blocks,
+with no replacement. At most one invalid block is allowed for a headline; the
+result is positive only when the conservative 95% lower bound is above zero,
+negative only when the upper bound is below zero, and otherwise inconclusive.
+With 30 pairs, the implemented bound is roughly ±49.6 percentage points, so
+this first pilot can detect only a large effect.
+
+The v1 execution did not satisfy that contract. The operator stopped it after
+nine complete blocks; a tenth control arm had completed while its treatment
+arm was still in flight. All nine complete blocks favored control, but this
+unplanned prefix is not a nine-pair result and has no pass-rate estimate,
+paired lift, confidence interval, or result wording. It is retained only as an
+aborted diagnostic and must never receive a `COMPLETE.json` result marker.
+[Inspect the checksummed non-scoreable v1 bundle](evidence-drops/drop-01/aborted-v1-diagnostic/README.md).
+
+The treatment failures had one repeated, general cause. The model selected
+`browser_act` but serialized the old nested `action` object as a JSON string.
+LangChain rejected those calls against the generated input schema before they
+reached the BrowserIR broker, so the browser could not dispatch them. BrowserIR
+now exposes strict flat action and wait inputs: `kind`, revision-bound refs,
+and kind-specific values share the tool's top-level JSON object. The benchmark
+also retains public-safe partial model and adapter-rejection counts when an
+attempt fails before broker dispatch.
+
+Two individually captured, score-excluded canaries passed the exact judge on
+the already-seen `create-customer` workflow after this fix. They establish that
+the selected model can use the corrected contract; they are not Drop 01 trials,
+an uplift result, or evidence about `validation-recovery` performance.
+
+The next execution is an adaptive v2 recovery, not a continuation and not
+independent confirmation. It reuses the exact v1 30-trial seeds and arm order
+so the contract change is isolated, but starts every control and treatment arm
+again from fresh state. No v1 outcome is reused. Its separate manifest and
+freeze tag must be committed before the first v2 attempt, and all outcomes will
+be published regardless of sign. Independent confirmation must move to a
+previously unmeasured slice.
+[Inspect the adaptive v2 manifest candidate](evidence-drops/drop-01/sealed-adaptive-v2.protocol.json).
 
 Development is manifest-driven through `pnpm benchmark:uplift`. The original
 failed artifacts remain retained; a development failure is an input to the
@@ -191,8 +221,8 @@ safe browser-tool subset exposed by official Playwright MCP `0.0.78` on the
 already-seen development task `create-customer`. It had no BrowserIR arm and
 cannot produce a score or uplift result. The sealed candidate
 `validation-recovery` was exercised by the deterministic reference
-qualification, but it has not been exposed to a real model and no scored paired
-attempt has run.
+qualification and by the aborted v1 real-model prefix. That prefix cannot
+produce a score or interval, and no completed paired result exists.
 
 The qualification precommits exactly five attempts and runs the entire
 schedule. It permits no early stop, favorable rerun, or invalid-attempt
@@ -238,17 +268,17 @@ Git publication provides the source context.
 > points. It is a signal to proceed to a frozen run, not evidence of uplift or
 > superiority.
 
-These development changes include BrowserIR production inference changes. The
-reserved `validation-recovery` task has not been exposed to a real model or
-used to select or tune a real-model fix, model, prompt, or budget. Its existing
-deterministic reference-planner qualification is not a scored paired attempt
-and does not satisfy the public claim rule.
+The earlier development changes include BrowserIR production inference
+changes. The later v1 diagnostic did expose `validation-recovery` and identify
+the model-facing nested-action defect. Any rerun of that slice is therefore an
+adaptive follow-up. The model, prompt, budgets, 30 seeds, and arm order remain
+fixed; independent confirmation moves to a previously unmeasured slice.
 
 ## Drop registry
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
-| 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Sealed 30-pair protocol frozen; score-excluded control capability demonstrated | Paired result not run |
+| 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | v1 aborted diagnostic retained; adaptive v2 recovery pending | No complete paired result |
 | 02 | External representation slice | Planned | Not run |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |

@@ -458,12 +458,11 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
       max_tokens: 256,
-      action: {
-        kind: 'double_click',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-      },
+      kind: 'double_click',
+      target_ref: 'e1@r1',
     });
 
     expect(runtime.act).toHaveBeenCalledWith({
@@ -499,11 +498,9 @@ describe('BrowserIR runtime MCP service', () => {
     await service.act({
       browser_id: 'browser-1',
       expected_revision: 1,
-      action: {
-        kind: 'fill',
-        target: { entity_id: 'e1', revision: 1 },
-        value: 'Updated',
-      },
+      kind: 'fill',
+      target_ref: 'e1@r1',
+      value: 'Updated',
     });
 
     expect(runtime.pages).toHaveBeenCalledWith({ browserId: 'browser-1' });
@@ -525,7 +522,7 @@ describe('BrowserIR runtime MCP service', () => {
     });
   });
 
-  it('uses an explicit nested action page without consulting open-page inference', async () => {
+  it('uses an explicit top-level action page without consulting open-page inference', async () => {
     const runtime = fakeRuntime();
     runtime.pages = vi.fn(async () => [
       { browserId: 'browser-1', pageId: 'page-1', revision: 1, url: 'https://example.test' },
@@ -535,11 +532,10 @@ describe('BrowserIR runtime MCP service', () => {
 
     await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-2',
       expected_revision: 1,
-      action: {
-        kind: 'click',
-        target: { page_id: 'page-2', entity_id: 'e2', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e2@r1',
     });
 
     expect(runtime.pages).not.toHaveBeenCalled();
@@ -560,7 +556,7 @@ describe('BrowserIR runtime MCP service', () => {
     });
   });
 
-  it('uses an explicit top-level action page without consulting open-page inference', async () => {
+  it('keeps an explicit top-level action page in the translated ref', async () => {
     const runtime = fakeRuntime();
     runtime.pages = vi.fn(async () => []);
     const service = createBrowserIrRuntimeService(runtime);
@@ -569,10 +565,8 @@ describe('BrowserIR runtime MCP service', () => {
       browser_id: 'browser-1',
       page_id: 'page-2',
       expected_revision: 1,
-      action: {
-        kind: 'click',
-        target: { entity_id: 'e2', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e2@r1',
     });
 
     expect(runtime.pages).not.toHaveBeenCalled();
@@ -587,6 +581,58 @@ describe('BrowserIR runtime MCP service', () => {
     );
   });
 
+  it('routes cross-page drag source and destination refs independently', async () => {
+    const runtime = fakeRuntime();
+    runtime.pages = vi.fn(async () => [
+      { browserId: 'browser-1', pageId: 'page-1', revision: 1, url: 'https://example.test' },
+      { browserId: 'browser-1', pageId: 'page-2', revision: 1, url: 'https://example.test/2' },
+    ]);
+    const service = createBrowserIrRuntimeService(runtime);
+
+    await service.act({
+      browser_id: 'browser-1',
+      page_id: 'page-1',
+      expected_revision: 1,
+      kind: 'drag',
+      source_ref: 'e1@r1',
+      destination_page_id: 'page-2',
+      destination_ref: 'e2@r1',
+    });
+
+    expect(runtime.pages).not.toHaveBeenCalled();
+    expect(runtime.act).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageId: 'page-1',
+        action: {
+          kind: 'drag',
+          target: expect.objectContaining({ pageId: 'page-1', entityId: 'e1' }),
+          destination: expect.objectContaining({ pageId: 'page-2', entityId: 'e2' }),
+        },
+      }),
+    );
+  });
+
+  it('never treats a drag destination page as an omitted source page', async () => {
+    const runtime = fakeRuntime();
+    runtime.pages = vi.fn(async () => [
+      { browserId: 'browser-1', pageId: 'page-1', revision: 1, url: 'https://example.test' },
+      { browserId: 'browser-1', pageId: 'page-2', revision: 1, url: 'https://example.test/2' },
+    ]);
+    const service = createBrowserIrRuntimeService(runtime);
+
+    await expect(
+      service.act({
+        browser_id: 'browser-1',
+        expected_revision: 1,
+        kind: 'drag',
+        source_ref: 'e1@r1',
+        destination_page_id: 'page-2',
+        destination_ref: 'e2@r1',
+      }),
+    ).rejects.toMatchObject({ code: 'ambiguous_page' });
+    expect(runtime.act).not.toHaveBeenCalled();
+  });
+
   it('rejects an omitted action page when more than one page is open', async () => {
     const runtime = fakeRuntime();
     runtime.pages = vi.fn(async () => [
@@ -599,10 +645,8 @@ describe('BrowserIR runtime MCP service', () => {
       service.act({
         browser_id: 'browser-1',
         expected_revision: 1,
-        action: {
-          kind: 'click',
-          target: { entity_id: 'e1', revision: 1 },
-        },
+        kind: 'click',
+        target_ref: 'e1@r1',
       }),
     ).rejects.toMatchObject({ code: 'ambiguous_page' });
     expect(runtime.act).not.toHaveBeenCalled();
@@ -617,10 +661,8 @@ describe('BrowserIR runtime MCP service', () => {
       service.act({
         browser_id: 'browser-1',
         expected_revision: 1,
-        action: {
-          kind: 'click',
-          target: { entity_id: 'e1', revision: 1 },
-        },
+        kind: 'click',
+        target_ref: 'e1@r1',
       }),
     ).rejects.toMatchObject({ code: 'unknown_page' });
     expect(runtime.act).not.toHaveBeenCalled();
@@ -665,11 +707,10 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action: {
-        kind: 'click',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e1@r1',
     });
 
     expect(result.data).toMatchObject({
@@ -791,7 +832,7 @@ describe('BrowserIR runtime MCP service', () => {
             ref: {
               browserId: 'browser-1',
               pageId: 'page-1',
-              entityId: 'e-custom',
+              entityId: 'e4',
               revision: 2,
             },
             kind: 'control',
@@ -847,12 +888,11 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action: {
-        kind: 'fill',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-        value: 'Steinweg Logistik GmbH',
-      },
+      kind: 'fill',
+      target_ref: 'e1@r1',
+      value: 'Steinweg Logistik GmbH',
     });
 
     expect(result.summary).toContain('Delta only');
@@ -866,7 +906,7 @@ describe('BrowserIR runtime MCP service', () => {
         revision: 2,
         targets: [
           {
-            entity_id: 'e2',
+            target_ref: 'e2@r2',
             kind: 'input',
             role: 'textbox',
             name: 'City',
@@ -874,14 +914,14 @@ describe('BrowserIR runtime MCP service', () => {
             actions: ['fill'],
           },
           {
-            entity_id: 'e3',
+            target_ref: 'e3@r2',
             kind: 'control',
             role: 'button',
             name: 'Create customer',
             actions: ['click'],
           },
           {
-            entity_id: 'e-custom',
+            target_ref: 'e4@r2',
             kind: 'control',
             name: 'Custom cell editor',
             actions: ['click', 'doubleClick'],
@@ -890,7 +930,7 @@ describe('BrowserIR runtime MCP service', () => {
         omitted: 0,
       },
     });
-    expect(result.summary).toContain('Continue with fresh actionable_context targets');
+    expect(result.summary).toContain('Continue with fresh actionable_context target_ref tokens');
     expect(JSON.stringify(result.data)).not.toContain('Already completed field');
     expect(JSON.stringify(result.data)).not.toContain('PRIOR_VALUE_MUST_NOT_REPEAT');
     expect(JSON.stringify(result.data)).not.toContain('Unrelated navigation');
@@ -904,7 +944,7 @@ describe('BrowserIR runtime MCP service', () => {
     const runtime = fakeRuntime();
     const observed = observation();
     const changedEntity = {
-      id: 'status',
+      id: 'e1',
       pageId: 'page-1',
       kind: 'input' as const,
       role: 'combobox',
@@ -925,8 +965,8 @@ describe('BrowserIR runtime MCP service', () => {
       changed: [{ entity: changedEntity, changedFields: ['value'] }],
       addedRelations: [],
       removedRelations: [],
-      invalidatedRefs: ['status'],
-      rebindableRefs: ['status'],
+      invalidatedRefs: ['e1'],
+      rebindableRefs: ['e1'],
     };
     observed.view = {
       ...compiledView(),
@@ -938,7 +978,7 @@ describe('BrowserIR runtime MCP service', () => {
             ref: {
               browserId: 'browser-1',
               pageId: 'page-1',
-              entityId: 'status',
+              entityId: 'e1',
               revision: 2,
             },
             kind: 'input',
@@ -955,7 +995,7 @@ describe('BrowserIR runtime MCP service', () => {
             ref: {
               browserId: 'browser-1',
               pageId: 'page-1',
-              entityId: 'apply',
+              entityId: 'e2',
               revision: 2,
             },
             kind: 'control',
@@ -971,7 +1011,7 @@ describe('BrowserIR runtime MCP service', () => {
             ref: {
               browserId: 'browser-1',
               pageId: 'page-1',
-              entityId: 'next-row',
+              entityId: 'e3',
               revision: 2,
             },
             kind: 'input',
@@ -1000,19 +1040,18 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action: {
-        kind: 'select',
-        target: { page_id: 'page-1', entity_id: 'status', revision: 1 },
-        values: ['In stock'],
-      },
+      kind: 'select',
+      target_ref: 'e1@r1',
+      values: ['In stock'],
     });
 
     expect(result.data).toMatchObject({
       actionable_context: {
         targets: [
-          expect.objectContaining({ entity_id: 'apply', name: 'Apply' }),
-          expect.objectContaining({ entity_id: 'next-row', name: 'Next visual row' }),
+          expect.objectContaining({ target_ref: 'e2@r2', name: 'Apply' }),
+          expect.objectContaining({ target_ref: 'e3@r2', name: 'Next visual row' }),
         ],
       },
     });
@@ -1103,13 +1142,12 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
       max_tokens: 256,
-      action: {
-        kind: 'fill',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-        value: 'done',
-      },
+      kind: 'fill',
+      target_ref: 'e1@r1',
+      value: 'done',
     });
 
     const context = result.data.actionable_context as
@@ -1203,12 +1241,11 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
       max_tokens: 256,
-      action: {
-        kind: 'click',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e1@r1',
     });
 
     expect(result.data.truncated).toBe(true);
@@ -1242,11 +1279,10 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action: {
-        kind: 'click',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e1@r1',
     });
 
     expect(result.data.revision).toBe(3);
@@ -1275,11 +1311,10 @@ describe('BrowserIR runtime MCP service', () => {
 
     const result = await service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action: {
-        kind: 'click',
-        target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
-      },
+      kind: 'click',
+      target_ref: 'e1@r1',
     });
 
     expect(result.data.error).toMatchObject({ code: 'driver_rejected_action' });
@@ -1294,7 +1329,7 @@ describe('BrowserIR runtime MCP service', () => {
       browser_id: 'browser-1',
       page_id: 'page-1',
       expected_revision: 1,
-      condition: { kind: 'revision_change' },
+      kind: 'revision_change',
       max_tokens: 300,
     });
     await service.inspect({
@@ -1337,7 +1372,7 @@ describe('BrowserIR runtime MCP service', () => {
       browser_id: 'browser-1',
       page_id: 'page-1',
       expected_revision: 1,
-      condition: { kind: 'settled' },
+      kind: 'settled',
       timeout_ms: 2_000,
     });
 
@@ -1347,6 +1382,37 @@ describe('BrowserIR runtime MCP service', () => {
       expectedRevision: 1,
       condition: { kind: 'settled' },
       timeoutMs: 2_000,
+      budget: { maxCharacters: 12_000 },
+    });
+  });
+
+  it('maps a flat revision-bound entity-state wait to the core runtime', async () => {
+    const runtime = fakeRuntime();
+    const service = createBrowserIrRuntimeService(runtime);
+
+    await service.wait({
+      browser_id: 'browser-1',
+      page_id: 'page-1',
+      expected_revision: 3,
+      kind: 'entity_state',
+      target_ref: 'e9@r3',
+      state: 'disabled',
+    });
+
+    expect(runtime.wait).toHaveBeenCalledWith({
+      browserId: 'browser-1',
+      pageId: 'page-1',
+      expectedRevision: 3,
+      condition: {
+        kind: 'entity_state',
+        target: {
+          browserId: 'browser-1',
+          pageId: 'page-1',
+          entityId: 'e9',
+          revision: 3,
+        },
+        state: { enabled: false },
+      },
       budget: { maxCharacters: 12_000 },
     });
   });
@@ -1617,18 +1683,20 @@ describe('BrowserIR runtime MCP service', () => {
     const service = createBrowserIrRuntimeService(runtime);
     const action = {
       kind: 'click' as const,
-      target: { page_id: 'page-1', entity_id: 'e1', revision: 1 },
+      target_ref: 'e1@r1',
     };
 
     const first = service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action,
+      ...action,
     });
     const second = service.act({
       browser_id: 'browser-1',
+      page_id: 'page-1',
       expected_revision: 1,
-      action,
+      ...action,
     });
     await nextTurn();
 
@@ -1751,17 +1819,16 @@ describe('BrowserIR runtime MCP service', () => {
       () =>
         service.act({
           browser_id: 'browser-1',
+          page_id: 'page-1',
           expected_revision: 1,
-          action: {
-            kind: 'click',
-            target: { entity_id: 'e1', page_id: 'page-1', revision: 1 },
-          },
+          kind: 'click',
+          target_ref: 'e1@r1',
         }),
       () =>
         service.wait({
           browser_id: 'browser-1',
           expected_revision: 1,
-          condition: { kind: 'settled' },
+          kind: 'settled',
         }),
       () => service.pages({ browser_id: 'browser-1' }),
       () =>

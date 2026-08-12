@@ -185,12 +185,19 @@ const DELTA_FIRST_CHANGED_FIELDS = new Set(['value', 'state']);
 
 function actionEntityIds(action: BrowserAction): Set<string> {
   if (action.kind === 'drag') {
-    return new Set([action.source.entity_id, action.target.entity_id]);
+    return new Set([
+      entityTargetFromRefToken(action.source_ref).entity_id,
+      entityTargetFromRefToken(action.destination_ref).entity_id,
+    ]);
   }
   if (action.kind === 'press' || action.kind === 'scroll') {
-    return new Set(action.target === undefined ? [] : [action.target.entity_id]);
+    return new Set(
+      action.target_ref === undefined
+        ? []
+        : [entityTargetFromRefToken(action.target_ref).entity_id],
+    );
   }
-  return new Set([action.target.entity_id]);
+  return new Set([entityTargetFromRefToken(action.target_ref).entity_id]);
 }
 
 function usesDeltaFirstReceipt(action: BrowserAction, receipt: ActionReceipt): boolean {
@@ -244,7 +251,7 @@ const ACTIONABLE_CONTEXT_CAPABILITY_ORDER: readonly CapabilityKind[] = [
 ];
 
 type SerializedActionableTarget = {
-  entity_id: string;
+  target_ref: string;
   kind: string;
   role?: string | undefined;
   name?: string | undefined;
@@ -499,7 +506,7 @@ function serializedActionableContext(
       ? compactSelectValue(entity.value)
       : undefined;
     const target: SerializedActionableTarget = {
-      entity_id: entity.ref.entityId,
+      target_ref: `${entity.ref.entityId}@r${entity.ref.revision}`,
       kind: entity.kind,
       ...(entity.role === undefined ? {} : { role: entity.role }),
       ...(entity.name === undefined ? {} : { name: entity.name }),
@@ -709,16 +716,26 @@ function coreRef(browserId: string, target: EntityTarget, fallbackPageId?: strin
   };
 }
 
-function explicitActionPageId(action: BrowserAction): string | undefined {
-  switch (action.kind) {
-    case 'press':
-    case 'scroll':
-      return action.target?.page_id;
-    case 'drag':
-      return action.source.page_id ?? action.target.page_id;
-    default:
-      return action.target.page_id;
+const ENTITY_REF_TOKEN = /^(e[1-9]\d*)@r(0|[1-9]\d*)$/;
+
+function entityTargetFromRefToken(ref: string, pageId?: string): EntityTarget {
+  const match = ENTITY_REF_TOKEN.exec(ref);
+  const parsedRevision = match === null ? Number.NaN : Number(match[2]);
+  if (match === null || !Number.isSafeInteger(parsedRevision)) {
+    throw new BrowserIrServiceError(
+      'invalid_entity_ref',
+      `Invalid BrowserIR entity ref ${JSON.stringify(ref)}. Expected e<number>@r<revision>.`,
+    );
   }
+  return {
+    ...(pageId === undefined ? {} : { page_id: pageId }),
+    entity_id: match[1]!,
+    revision: parsedRevision,
+  };
+}
+
+function coreActionRef(browserId: string, ref: string, pageId?: string): EntityRef {
+  return coreRef(browserId, entityTargetFromRefToken(ref, pageId), pageId);
 }
 
 async function coreAction(
@@ -730,32 +747,32 @@ async function coreAction(
     case 'click':
     case 'hover':
     case 'focus': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: action.kind, target }, pageId: target.pageId };
     }
     case 'double_click': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: 'doubleClick', target }, pageId: target.pageId };
     }
     case 'context_click': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: 'contextClick', target }, pageId: target.pageId };
     }
     case 'fill': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: 'fill', target, value: action.value }, pageId: target.pageId };
     }
     case 'type': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: 'type', target, text: action.text }, pageId: target.pageId };
     }
     case 'select': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return { action: { kind: 'select', target, values: action.values }, pageId: target.pageId };
     }
     case 'check':
     case 'uncheck': {
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       return {
         action: { kind: 'check', target, checked: action.kind === 'check' },
         pageId: target.pageId,
@@ -763,9 +780,9 @@ async function coreAction(
     }
     case 'press': {
       const target =
-        action.target === undefined
+        action.target_ref === undefined
           ? undefined
-          : coreRef(input.browser_id, action.target, input.page_id);
+          : coreActionRef(input.browser_id, action.target_ref, input.page_id);
       const pageId = target?.pageId ?? input.page_id;
       return {
         action: {
@@ -778,9 +795,9 @@ async function coreAction(
     }
     case 'scroll': {
       const target =
-        action.target === undefined
+        action.target_ref === undefined
           ? undefined
-          : coreRef(input.browser_id, action.target, input.page_id);
+          : coreActionRef(input.browser_id, action.target_ref, input.page_id);
       const pageId = target?.pageId ?? input.page_id;
       return {
         action: {
@@ -793,8 +810,12 @@ async function coreAction(
       };
     }
     case 'drag': {
-      const source = coreRef(input.browser_id, action.source, input.page_id);
-      const destination = coreRef(input.browser_id, action.target, source.pageId);
+      const source = coreActionRef(input.browser_id, action.source_ref, input.page_id);
+      const destination = coreActionRef(
+        input.browser_id,
+        action.destination_ref,
+        action.destination_page_id ?? source.pageId,
+      );
       return {
         action: { kind: 'drag', target: source, destination },
         pageId: source.pageId,
@@ -807,7 +828,7 @@ async function coreAction(
           'Upload requires an artifact resolver configured by the BrowserIR host.',
         );
       }
-      const target = coreRef(input.browser_id, action.target, input.page_id);
+      const target = coreActionRef(input.browser_id, action.target_ref, input.page_id);
       const files = await options.resolveArtifacts(action.artifact_ids);
       return { action: { kind: 'upload', target, files }, pageId: target.pageId };
     }
@@ -824,7 +845,7 @@ function coreWaitCondition(
     case 'text':
       return { condition: { kind: 'text_includes', text: condition.value } };
     case 'entity_state': {
-      const target = coreRef(input.browser_id, condition.target, input.page_id);
+      const target = coreActionRef(input.browser_id, condition.target_ref, input.page_id);
       const state =
         condition.state === 'visible'
           ? { visible: true }
@@ -1455,7 +1476,7 @@ export function createBrowserIrRuntimeService(
     },
 
     async act(input: BrowserActInput): Promise<BrowserIrToolResult> {
-      let pageId = input.page_id ?? explicitActionPageId(input.action);
+      let pageId = input.page_id;
       if (pageId === undefined) {
         const pages = await runtimeCall(() => runtime.pages({ browserId: input.browser_id }));
         if (pages.length > 1) {
@@ -1470,7 +1491,7 @@ export function createBrowserIrRuntimeService(
         throw new BrowserIrServiceError('unknown_page', 'BrowserIR has no page to act on.');
       }
       const resolvedInput: BrowserActInput = { ...input, page_id: pageId };
-      const mapped = await coreAction(resolvedInput, input.action, options);
+      const mapped = await coreAction(resolvedInput, resolvedInput, options);
       const viewBudget = budget(input.max_tokens);
       const receipt = await runtimeCall(() =>
         runtime.act({
@@ -1482,7 +1503,7 @@ export function createBrowserIrRuntimeService(
         }),
       );
       const observation = receipt.observation?.view.text;
-      const deltaFirst = usesDeltaFirstReceipt(input.action, receipt);
+      const deltaFirst = usesDeltaFirstReceipt(input, receipt);
       const data = actionReceiptData(
         input.browser_id,
         mapped.pageId ?? input.page_id,
@@ -1504,7 +1525,7 @@ export function createBrowserIrRuntimeService(
             ? undefined
             : serializedActionableContext(
                 receipt.observation.view,
-                actionEntityIds(input.action),
+                actionEntityIds(input),
                 actionableContextBudgetCharacters(input.max_tokens),
               );
         if (actionableContext !== undefined) {
@@ -1519,7 +1540,7 @@ export function createBrowserIrRuntimeService(
               ? ''
               : actionableContext.targets.length === 0
                 ? ' Additional actionable targets were omitted by the response budget; observe to continue.'
-                : ' Continue with fresh actionable_context targets using its page_id and revision.');
+                : ' Continue with fresh actionable_context target_ref tokens.');
       return boundedModelResult(
         {
           summary:
@@ -1536,7 +1557,7 @@ export function createBrowserIrRuntimeService(
     },
 
     async wait(input: BrowserWaitInput): Promise<BrowserIrToolResult> {
-      const mapped = coreWaitCondition(input, input.condition);
+      const mapped = coreWaitCondition(input, input);
       const pageId = mapped.pageId ?? input.page_id;
       const viewBudget = budget(input.max_tokens);
       const result = await runtimeCall(() =>

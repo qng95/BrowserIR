@@ -6,7 +6,9 @@ import { AIMessage, type BaseMessage } from '@langchain/core/messages';
 import { tool, type ClientTool, type ToolSchemaBase } from '@langchain/core/tools';
 import {
   createAgent,
+  createMiddleware,
   modelCallLimitMiddleware,
+  ToolInvocationError,
   type AnyAgentMiddleware,
 } from 'langchain';
 
@@ -14,6 +16,7 @@ import type {
   AgentAdapterMetadata,
   AgentRunCompletion,
   AgentRunInput,
+  AgentToolAdapterRejectionCode,
   AgentToolBroker,
   AgentToolCallResult,
   AgentToolContentBlock,
@@ -244,10 +247,61 @@ function aggregateUsage(
   return Object.keys(usage).length === 0 ? undefined : usage;
 }
 
+const usageKeyPattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+
+function publicSafeUsage(
+  usage: Readonly<Record<string, number>> | undefined,
+): Readonly<Record<string, number>> | undefined {
+  if (usage === undefined) return undefined;
+  const safe = Object.fromEntries(
+    Object.entries(usage).filter(
+      ([name, value]) =>
+        usageKeyPattern.test(name) &&
+        typeof value === 'number' &&
+        Number.isFinite(value) &&
+        value >= 0,
+    ),
+  );
+  return Object.keys(safe).length === 0 ? undefined : safe;
+}
+
+function notifyProgress(
+  input: AgentRunInput,
+  modelTurns: number,
+  usage: Readonly<Record<string, number>> | undefined,
+): void {
+  try {
+    input.onProgress?.({
+      modelTurns,
+      ...(usage === undefined ? {} : { usage: { ...usage } }),
+    });
+  } catch {
+    // Diagnostics must never change agent behavior.
+  }
+}
+
+function recordAdapterRejection(
+  broker: AgentToolBroker,
+  code: AgentToolAdapterRejectionCode,
+): void {
+  broker.recordAdapterRejection?.(code);
+}
+
+function isModelBudgetError(error: unknown): boolean {
+  return error instanceof Error && error.name === 'ModelCallLimitMiddlewareError';
+}
+
+function modelBudgetError(): Error & { code: 'model_budget_exceeded' } {
+  return Object.assign(new Error('Model turn budget exceeded.'), {
+    name: 'AgentRunBudgetError',
+    code: 'model_budget_exceeded' as const,
+  });
+}
+
 function completionFromMessages(messages: readonly BaseMessage[]): AgentRunCompletion {
   const modelMessages = messages.filter(AIMessage.isInstance);
   const finalText = modelMessages.at(-1)?.text.trim();
-  const usage = aggregateUsage(modelMessages);
+  const usage = publicSafeUsage(aggregateUsage(modelMessages));
   return {
     modelTurns: modelMessages.length,
     ...(finalText === undefined || finalText.length === 0 ? {} : { finalText }),
@@ -304,11 +358,41 @@ class LangChainBrowserAgent implements BrowserAgentAdapter {
         await awaitWithSignal(input.tools.listTools(), controller.signal),
       );
       const tools = createBrokerTools(input.tools, descriptors, this.#imageMode);
+      const observedModelMessages: BaseMessage[] = [];
+      const observabilityMiddleware = createMiddleware({
+        name: 'BrowserIRBenchmarkObservability',
+        wrapModelCall: async (request, handler) => {
+          const response = await handler(request);
+          if (AIMessage.isInstance(response)) {
+            observedModelMessages.push(response);
+            notifyProgress(
+              input,
+              observedModelMessages.length,
+              publicSafeUsage(aggregateUsage(observedModelMessages)),
+            );
+          }
+          return response;
+        },
+        wrapToolCall: async (request, handler) => {
+          if (request.tool === undefined) {
+            recordAdapterRejection(input.tools, 'unknown_tool');
+          }
+          try {
+            return await handler(request);
+          } catch (error) {
+            if (ToolInvocationError.isInstance(error)) {
+              recordAdapterRejection(input.tools, 'input_schema_invalid');
+            }
+            throw error;
+          }
+        },
+      });
       const agent = createAgent({
         model: this.#model,
         tools,
         systemPrompt: this.#systemPrompt,
         middleware: [
+          observabilityMiddleware,
           makeModelCallLimitMiddleware({
             runLimit: input.budgets.maxModelTurns,
             exitBehavior: 'error',
@@ -325,6 +409,9 @@ class LangChainBrowserAgent implements BrowserAgentAdapter {
         },
       );
       return completionFromMessages(state.messages);
+    } catch (error) {
+      if (isModelBudgetError(error)) throw modelBudgetError();
+      throw error;
     } finally {
       input.signal.removeEventListener('abort', forwardAbort);
       this.#activeController = undefined;
