@@ -815,6 +815,7 @@ TASK_DEFINITIONS.push(
         ].sort();
         return (
           String(r['entity_id']) === '3' &&
+          evidence?.['method'] === 'POST' &&
           evidence?.['match'] === 'all' &&
           Number(evidence['resultCount']) === expected &&
           actualConditions.length === expectedConditions.length &&

@@ -23,7 +23,7 @@ import type {
 import { createBrowserIrMcpToolBroker } from './mcp-broker.js';
 import { pinBrowserProfile, restrictBrowserNavigation } from './policy-broker.js';
 
-export const FIXTURE_AGENT_SUITE_VERSION = '1.3.0' as const;
+export const FIXTURE_AGENT_SUITE_VERSION = '1.4.0' as const;
 export const FIXTURE_AUDIT_GUARD_VERSION = '1.0.0' as const;
 
 export const DEFAULT_FIXTURE_AGENT_PROFILE = Object.freeze({

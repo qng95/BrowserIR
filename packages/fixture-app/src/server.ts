@@ -706,20 +706,28 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     // ---- dashboard + query builder ----------------------------------------
     if (path === '/app/dashboard') return html(res, dashboardPage(ctx));
     if (path === '/app/reports/query') {
-      // Running a query is recorded. Without this the screen is unverifiable
-      // from database state, and a task over it could never pass.
-      if (url.searchParams.has('run')) {
-        const filters = parseFilters(url.searchParams);
-        const match = url.searchParams.get('match') === 'any' ? 'any' : 'all';
+      if (method === 'POST') {
+        const submitted = new URLSearchParams(await readBody(req));
+        if (submitted.get('run') !== '1') {
+          return html(res, filterBuilderPage(ctx), 422);
+        }
+        // Running a query is recorded. This is POST-only so same-origin direct
+        // navigation cannot manufacture a passing audit while bypassing the
+        // query builder's dynamically created controls.
+        const filters = parseFilters(submitted);
+        const match = submitted.get('match') === 'any' ? 'any' : 'all';
         const count = applyFilters(db, filters, match).length;
         audit(db, {
           actor,
           action: 'report.query',
           entity: 'query',
           entityId: String(filters.length),
-          detail: JSON.stringify({ match, filters, resultCount: count }),
+          detail: JSON.stringify({ method, match, filters, resultCount: count }),
         });
+        return html(res, filterBuilderPage(ctx, submitted));
       }
+      // Ignore every GET query parameter, including a crafted `run=1` URL.
+      // browser_navigate is necessarily a GET in both benchmark arms.
       return html(res, filterBuilderPage(ctx));
     }
 

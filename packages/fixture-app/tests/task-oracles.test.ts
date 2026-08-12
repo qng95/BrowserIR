@@ -84,13 +84,14 @@ function recordQuery(
   filters: Array<{ field: string; op: string; value: string }>,
   resultCount: number,
   match: 'all' | 'any' = 'all',
+  method: 'GET' | 'POST' = 'POST',
 ): void {
   audit(db, {
     actor: 'test',
     action: 'report.query',
     entity: 'query',
     entityId: filters.length,
-    detail: JSON.stringify({ match, filters, resultCount }),
+    detail: JSON.stringify({ method, match, filters, resultCount }),
   });
 }
 
@@ -710,6 +711,11 @@ describe('task oracle contracts', () => {
     recordQuery(wrongCountDb, required, expected + 1);
     expect(task('query-three-conditions').verify(wrongCountDb).passed).toBe(false);
     wrongCountDb.close();
+
+    const directGetDb = createDb({ customers: 100, vehicles: 100 });
+    recordQuery(directGetDb, required, expected, 'all', 'GET');
+    expect(task('query-three-conditions').verify(directGetDb).passed).toBe(false);
+    directGetDb.close();
 
     const correctDb = createDb({ customers: 100, vehicles: 100 });
     recordQuery(correctDb, [required[2]!, required[0]!, required[1]!], expected);

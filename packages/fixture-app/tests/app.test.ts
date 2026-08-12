@@ -91,6 +91,73 @@ describe('fixture network boundary', () => {
       await browserFacingApp.close();
     }
   });
+
+  it('executes report queries only through the rendered POST form', async () => {
+    const queryApp = await startAppServer({
+      apiLatencyMs: 0,
+      pageLatencyMs: 0,
+      customers: 100,
+      vehicles: 100,
+    });
+
+    try {
+      const login = await fetch(`${queryApp.origin}/app/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username: 'test', password: 'test' }),
+        redirect: 'manual',
+      });
+      const querySid = /sid=([^;]+)/.exec(login.headers.get('set-cookie') ?? '')?.[1];
+      expect(querySid).toBeDefined();
+
+      const parameters = new URLSearchParams({ match: 'all' });
+      for (const [field, operator, value] of [
+        ['country', 'equals', 'Germany'],
+        ['status', 'equals', 'Active'],
+        ['credit_limit', '>', '30000'],
+      ] as const) {
+        parameters.append('f_field', field);
+        parameters.append('f_op', operator);
+        parameters.append('f_value', value);
+      }
+      parameters.set('run', '1');
+
+      const directNavigation = await fetch(
+        `${queryApp.origin}/app/reports/query?${parameters.toString()}`,
+        { headers: { cookie: `sid=${querySid}` } },
+      );
+      expect(directNavigation.status).toBe(200);
+      const directPage = await directNavigation.text();
+      expect(directPage).not.toContain('id="resultcount"');
+      expect(
+        Number(
+          (
+            queryApp.db
+              .prepare("SELECT COUNT(*) AS n FROM audit WHERE action = 'report.query'")
+              .get() as { n: number }
+          ).n,
+        ),
+      ).toBe(0);
+      expect(taskById('query-three-conditions')!.verify(queryApp.db).passed).toBe(false);
+
+      const formSubmission = await fetch(`${queryApp.origin}/app/reports/query`, {
+        method: 'POST',
+        headers: {
+          cookie: `sid=${querySid}`,
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: parameters,
+      });
+      expect(formSubmission.status).toBe(200);
+      expect(await formSubmission.text()).toContain('id="resultcount"');
+      expect(taskById('query-three-conditions')!.verify(queryApp.db)).toMatchObject({
+        outcome: 'passed',
+        passed: true,
+      });
+    } finally {
+      await queryApp.close();
+    }
+  });
 });
 
 describe('authentication is a real gate', () => {

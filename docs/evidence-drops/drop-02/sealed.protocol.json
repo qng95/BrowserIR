@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0.0",
+  "dropId": "02",
+  "protocolId": "drop-02-qwen38max-query-three-conditions-v1",
+  "phase": "sealed",
+  "status": "frozen",
+  "freezeRef": "refs/tags/evidence-drop-02-protocol-v1",
+  "question": "On the fixed local query-three-conditions workflow and a new precommitted seed schedule, does the same Qwen3.8-Max LangChain agent complete the task more often through the BrowserIR complete browser interface than through the official Playwright MCP accessibility-snapshot interface?",
+  "taskIds": [
+    "query-three-conditions"
+  ],
+  "taskContracts": [
+    {
+      "id": "query-three-conditions",
+      "version": "sha256:8534144f9f47037b0422f5d35a4e3240bca13e384824dbe86dedf94927573632",
+      "promptSha256": "c10a76f331754765dece9d38dff978003ade080b9f8de6153bd769e895c895fb",
+      "oracleVersion": "sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768"
+    }
+  ],
+  "reservedSealedTaskIds": [
+    "query-three-conditions"
+  ],
+  "trialsPerTask": 30,
+  "schedule": {
+    "orderSeed": 1515077191,
+    "bootstrapSeed": 3259178390,
+    "modelSeedBase": 3958319222,
+    "bootstrapResamples": 10000,
+    "stoppingRule": "run-entire-schedule",
+    "invalidReplacementPolicy": "none"
+  },
+  "budgets": {
+    "maxDurationMs": 300000,
+    "maxToolCalls": 100,
+    "maxModelTurns": 30
+  },
+  "agent": {
+    "framework": "langchain-create-agent",
+    "frameworkVersion": "1.5.5",
+    "provider": "openrouter",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "modelId": "qwen/qwen3.8-max",
+    "canonicalModelSlug": "qwen/qwen3.8-max-20260803",
+    "modelMetadataSha256": "aa4bc3cb2b4d668c5a67943f524dbb49a0da1bb31eb4b2811f2487959c05b901",
+    "providerRoute": "alibaba",
+    "reasoningEffort": "low",
+    "providerPolicy": {
+      "allowFallbacks": false,
+      "requireParameters": true,
+      "dataCollection": "deny"
+    },
+    "modelCapabilities": {
+      "tools": true,
+      "seed": true,
+      "temperature": true
+    },
+    "temperature": 0.2,
+    "maxOutputTokens": 4096,
+    "maxRetries": 0,
+    "imageMode": "text-only",
+    "systemPrompt": "You are a browser automation agent operating only through the provided browser tools.\nUse the page representation and exact target references returned by those tools to understand and operate the page.\nObserve or navigate before acting, and inspect the updated result after navigation or meaningful state changes.\nNever invent target references. If a target becomes invalid, inspect the current page again and continue from fresh evidence.\nComplete every requirement in the Task, including work after intermediate steps such as sign-in or navigation. Before finishing, re-read the Task against the current page state.\nPrefer the narrowest supported browser action that accomplishes the requested task. Do not claim success from page text alone; perform the requested action.\nAfter the entire task is complete, call benchmark_submit_result exactly once. A text response does not submit the result.",
+    "systemPromptSha256": "115b0e8d4f61a457c3961d4d26f8866c29a817e762539f7039bfb198ef7116cd"
+  },
+  "target": {
+    "expectedVersion": "sha256:5609bf1a1e9286c14a85eb8be641104f124b7e830e6b182789de6fcb9eb7fdec",
+    "headless": true
+  },
+  "arms": {
+    "control": {
+      "role": "control",
+      "id": "playwright-mcp",
+      "label": "Official Playwright MCP 0.0.78 accessibility-snapshot interface",
+      "interfaceVersion": "0.0.78",
+      "expectedToolCatalogSha256": "70b7709d1435f1345f92673ef395aea5b11f9a52189f8cba4c5be0ffc8719e75"
+    },
+    "treatment": {
+      "role": "treatment",
+      "id": "browserir",
+      "label": "BrowserIR complete semantic interaction interface with flat action contract",
+      "interfaceVersion": "0.1.0+mcp-2026-07-28",
+      "expectedToolCatalogSha256": "6257d7619f5ae3d5c4199fc2fb604cbde24886991519f173b503e75a2e64465e"
+    }
+  },
+  "analysis": {
+    "confidence": 0.95,
+    "interval": "paired-hoeffding-bound",
+    "invalidBlockHeadlineThreshold": 0.05,
+    "primaryMetric": "paired-treatment-minus-control-pass-rate",
+    "decisionRule": {
+      "minimumScheduledBlocks": 30,
+      "maximumInvalidBlocks": 1,
+      "positive": {
+        "lowerBoundAbove": 0
+      },
+      "negative": {
+        "upperBoundBelow": 0
+      },
+      "otherwise": "inconclusive"
+    },
+    "publicationRule": "publish-regardless-of-sign",
+    "estimand": "fixed-workflow-precommitted-seed-schedule"
+  }
+}

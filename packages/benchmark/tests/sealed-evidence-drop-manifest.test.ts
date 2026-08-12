@@ -1,22 +1,20 @@
 import { createHash } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 import { taskById } from '@think-dom/fixture-app';
 import { describe, expect, it } from 'vitest';
 
 import {
-  createFixtureAgentTargetFactory,
-  createPlaywrightMcpToolBroker,
   deterministicModelSeed,
-  fixtureAgentTargetVersion,
   fixtureAgentTasks,
-  inspectModelFacingCatalog,
+  modelFacingToolCatalogSha256,
   NEUTRAL_BROWSER_AGENT_SYSTEM_PROMPT,
   pairedArmOrder,
   parseEvidenceDropProtocol,
   PLAYWRIGHT_MCP_VERSION,
   readEvidenceDropProtocol,
-  type FixtureAgentToolBrokerFactoryInput,
+  type AgentToolDescriptor,
 } from '../src/agent-benchmark/index.js';
 
 const v1ManifestPath = fileURLToPath(
@@ -27,6 +25,10 @@ const v2ManifestPath = fileURLToPath(
     '../../../docs/evidence-drops/drop-01/sealed-adaptive-v2.protocol.json',
     import.meta.url,
   ),
+);
+const v2EvidenceUrl = new URL(
+  '../../../docs/evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/',
+  import.meta.url,
 );
 
 const sha256 = (value: string): string =>
@@ -184,7 +186,6 @@ describe('Evidence Drop 01 frozen paired manifests', () => {
       v1.arms.treatment.expectedToolCatalogSha256,
     );
 
-    expect(v2.target.expectedVersion).toBe(fixtureAgentTargetVersion());
     expect(v2.arms.control.interfaceVersion).toBe(PLAYWRIGHT_MCP_VERSION);
     expect(v2.taskContracts).toEqual([
       {
@@ -243,44 +244,100 @@ describe('Evidence Drop 01 frozen paired manifests', () => {
     expect(new Set(v2Schedule.seeds)).toHaveLength(30);
   });
 
-  it('matches v2 to the live no-model catalogs and failing baseline before the freeze', async () => {
-    const { protocol } = await readEvidenceDropProtocol(v2ManifestPath);
-    const [task] = fixtureAgentTasks(protocol.taskIds);
-    expect(task).toBeDefined();
-    const controlBrokerFactory = ({
-      origin,
-      headless,
-      browserProfile,
-    }: FixtureAgentToolBrokerFactoryInput) =>
-      createPlaywrightMcpToolBroker({
-        allowedOrigin: origin,
-        headless,
-        viewport: browserProfile.viewport,
-        locale: browserProfile.locale,
-        timezoneId: browserProfile.timezoneId,
-        colorScheme: browserProfile.colorScheme,
-        reducedMotion: browserProfile.reducedMotion,
-      });
-    const [control, treatment] = await Promise.all([
-      inspectModelFacingCatalog({
-        task: task!,
-        targetFactory: createFixtureAgentTargetFactory({
-          headless: true,
-          toolBrokerFactory: controlBrokerFactory,
-        }),
+  it('binds v2 to its archived protocol, catalogs, failing baselines, and completion', async () => {
+    const manifest = await readEvidenceDropProtocol(v2ManifestPath);
+    const [
+      archivedProtocolSource,
+      controlCatalogSource,
+      treatmentCatalogSource,
+      comparisonSource,
+      completionSource,
+    ] = await Promise.all([
+      readFile(fileURLToPath(new URL('protocol.json', v2EvidenceUrl)), 'utf8'),
+      readFile(
+        fileURLToPath(new URL('control-tool-catalog.json', v2EvidenceUrl)),
+        'utf8',
+      ),
+      readFile(
+        fileURLToPath(new URL('treatment-tool-catalog.json', v2EvidenceUrl)),
+        'utf8',
+      ),
+      readFile(fileURLToPath(new URL('comparison.json', v2EvidenceUrl)), 'utf8'),
+      readFile(fileURLToPath(new URL('COMPLETE.json', v2EvidenceUrl)), 'utf8'),
+    ]);
+    const controlCatalog = JSON.parse(controlCatalogSource) as AgentToolDescriptor[];
+    const treatmentCatalog = JSON.parse(treatmentCatalogSource) as AgentToolDescriptor[];
+    const comparison = JSON.parse(comparisonSource) as {
+      protocolId: string;
+      protocolSha256: string;
+      protocolBinding: string;
+      phase: string;
+      expectedTargetVersion: string;
+      arms: Array<{ role: string; expectedToolCatalogSha256?: string }>;
+      blocks: Array<{
+        attempts: Record<
+          'control' | 'treatment',
+          {
+            baseline?: {
+              outcome: string;
+              oracleVersion: string;
+              stateFingerprint: string;
+            };
+          }
+        >;
+      }>;
+    };
+    const completion = JSON.parse(completionSource) as {
+      state: string;
+      protocolId: string;
+      protocolSha256: string;
+    };
+    const { protocol } = manifest;
+
+    expect(archivedProtocolSource).toBe(manifest.sourceText);
+    expect(modelFacingToolCatalogSha256(controlCatalog)).toBe(
+      protocol.arms.control.expectedToolCatalogSha256,
+    );
+    expect(modelFacingToolCatalogSha256(treatmentCatalog)).toBe(
+      protocol.arms.treatment.expectedToolCatalogSha256,
+    );
+    expect(comparison).toMatchObject({
+      protocolId: protocol.protocolId,
+      protocolSha256: manifest.sha256,
+      protocolBinding: 'frozen_verified',
+      phase: 'sealed',
+      expectedTargetVersion: protocol.target.expectedVersion,
+    });
+    expect(comparison.arms).toEqual([
+      expect.objectContaining({
+        role: 'control',
+        expectedToolCatalogSha256: protocol.arms.control.expectedToolCatalogSha256,
       }),
-      inspectModelFacingCatalog({
-        task: task!,
-        targetFactory: createFixtureAgentTargetFactory({ headless: true }),
+      expect.objectContaining({
+        role: 'treatment',
+        expectedToolCatalogSha256: protocol.arms.treatment.expectedToolCatalogSha256,
       }),
     ]);
-
-    expect(control.baseline.outcome).toBe('failed');
-    expect(treatment.baseline.outcome).toBe('failed');
-    expect(control.baseline.stateFingerprint).toBe(treatment.baseline.stateFingerprint);
-    expect(control.sha256).toBe(protocol.arms.control.expectedToolCatalogSha256);
-    expect(treatment.sha256).toBe(protocol.arms.treatment.expectedToolCatalogSha256);
-    expect(control.targetVersion).toBe(protocol.target.expectedVersion);
-    expect(treatment.targetVersion).toBe(protocol.target.expectedVersion);
-  }, 30_000);
+    expect(comparison.blocks).toHaveLength(30);
+    for (const block of comparison.blocks) {
+      const controlBaseline = block.attempts.control.baseline;
+      const treatmentBaseline = block.attempts.treatment.baseline;
+      expect(controlBaseline).toMatchObject({
+        outcome: 'failed',
+        oracleVersion: protocol.taskContracts[0]!.oracleVersion,
+      });
+      expect(treatmentBaseline).toMatchObject({
+        outcome: 'failed',
+        oracleVersion: protocol.taskContracts[0]!.oracleVersion,
+      });
+      expect(controlBaseline?.stateFingerprint).toBe(
+        treatmentBaseline?.stateFingerprint,
+      );
+    }
+    expect(completion).toMatchObject({
+      state: 'complete',
+      protocolId: protocol.protocolId,
+      protocolSha256: manifest.sha256,
+    });
+  });
 });

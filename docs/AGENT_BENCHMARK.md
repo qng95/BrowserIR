@@ -306,6 +306,31 @@ previously unmeasured slice.
 [Inspect the completed result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
 [Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
 
+### Drop 02 prospective independence boundary
+
+Drop 02 prospectively selects `query-three-conditions`. No retained real-model
+development, compatibility, or scored run has used that workflow. The
+deterministic reference qualification has exercised it, so the intended claim
+is a new real-model slice within the known fixture—not unseen-site
+generalization.
+
+The planned comparison fixes the same Qwen3.8-Max configuration and neutral
+LangChain agent across the complete BrowserIR and official Playwright MCP
+interfaces. It uses 30 fresh matched blocks, a new counterbalancing seed, and
+30 new paired model seeds. No Drop 01 attempt is reused and no adaptive lineage
+is declared. The comparison is not raw-DOM evidence or a pure representation
+ablation.
+
+The direct-navigation oracle bypass was fixed test-first, and the regenerated
+task/oracle bindings now pass the local manifest preflight. The provisional
+manifest is
+[`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json), SHA-256
+`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+The complete local v17 gate is green at 754 declared cases, 735 executed, and
+19 intentional opt-in skips. The candidate is not committed or tag-bound, and
+no model call or result exists. The first scored call must wait for a committed
+and pushed source, successful hosted CI, and the new annotated freeze tag.
+
 ## Score-excluded official-control qualification
 
 Before freezing a paired uplift protocol, BrowserIR has a narrow compatibility

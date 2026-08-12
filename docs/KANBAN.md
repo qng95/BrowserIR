@@ -12,11 +12,13 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The qualified v16 publication declares 749 cases: 730 executed and 19
-intentional opt-in cases skipped. By package, that is core 60/60, fixture
-98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared with
-176 executed and 19 skipped. Result-publication commit `e448b58` passed all ten
-jobs in hosted v16 [GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
+implemented. The Drop 02 freeze candidate advances the exact-count policy to
+v17 and declares 754 cases: 735 executed and 19 intentional opt-in cases
+skipped. By package, that is core 60/60, fixture 100/100, Playwright driver
+107/107, benchmark 292/292, and MCP 195 declared with 176 executed and 19
+skipped. This v17 candidate is not yet hosted-qualified. The latest qualified
+publication remains result-publication commit `e448b58`, which passed all ten
+jobs under v16 in [GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
 and is bound by tag `evidence-drop-01-adaptive-v2-result`. The current dossier is
 `release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`
 with GitHub-reported digest `sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`.
@@ -288,6 +290,40 @@ Definition of Done for every implementation card:
 - documentation is updated when a public contract changes.
 
 ## In Progress
+
+### BIR-100 — Evidence Drop 02: independent query-three-conditions comparison
+
+- [x] Select `query-three-conditions` as a prospective real-model-unexposed
+  fixture slice; deterministic qualification has exercised it, so do not call
+  it an unseen site or unseen engineering workflow.
+- [x] Fix the study shape to the qualified Qwen3.8-Max configuration, the same
+  neutral agent and complete BrowserIR/official-Playwright-MCP interfaces, 30
+  fresh matched blocks, a new order seed, 30 new paired model seeds, and no
+  adaptive lineage to Drop 01.
+- [x] Capture the discovered direct-navigation oracle bypass with a failing
+  regression, harden the oracle generally, and regenerate the affected task and
+  oracle bindings before reviewing any manifest for freeze.
+- [x] Bind the exact task, prompt, oracle, target, model endpoint, tool catalogs,
+  budgets, schedule, invalid policy, and sign-independent claim rule in a new
+  sealed manifest and focused freeze tests.
+- [x] Recount the workspace after those tests and deliberately advance the
+  exact test-count policy without weakening any release gate.
+- [x] Run the complete local workspace and qualification gates.
+- [ ] Commit and push the clean freeze source, require all ten hosted CI jobs to
+  pass, then create and push an annotated Drop 02 protocol tag.
+- [ ] Only after that tag exists, run the complete 30-block schedule without
+  early stopping, favorable reruns, or reuse of a Drop 01 attempt.
+- [ ] Publish every result under the predeclared rule. Describe it as a
+  complete-interface fixture comparison—not raw DOM, a pure representation
+  ablation, or unseen-site generalization.
+
+Current state: oracle hardening and local manifest preflight are green. The
+provisional `docs/evidence-drops/drop-02/sealed.protocol.json` has SHA-256
+`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+The complete local v17 gate is green at 754 declared cases, 735 executed, and
+19 intentional opt-in skips. The candidate is not committed or tag-bound, and
+there is no model call, score, result, or hosted-CI freeze binding. Every
+unchecked step above remains mandatory.
 
 ### BIR-099 — Evidence Drop 01: paired Playwright MCP comparison
 

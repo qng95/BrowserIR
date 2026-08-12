@@ -169,6 +169,34 @@ describe('query builder', () => {
     expect(await page.locator('[data-frow]').count()).toBe(2);
   }, 45_000);
 
+  it('does not execute a query encoded in a direct navigation URL', async () => {
+    const before = Number(
+      (
+        app.db
+          .prepare("SELECT COUNT(*) AS n FROM audit WHERE action = 'report.query'")
+          .get() as { n: number }
+      ).n,
+    );
+    await page.goto(
+      `${app.origin}/app/reports/query?match=all` +
+        '&f_field=country&f_op=equals&f_value=Germany' +
+        '&f_field=status&f_op=equals&f_value=Active' +
+        '&f_field=credit_limit&f_op=%3E&f_value=30000&run=1',
+    );
+
+    expect(await page.locator('[data-frow]').count()).toBe(1);
+    expect(await page.locator('#resultcount').count()).toBe(0);
+    const after = Number(
+      (
+        app.db
+          .prepare("SELECT COUNT(*) AS n FROM audit WHERE action = 'report.query'")
+          .get() as { n: number }
+      ).n,
+    );
+    expect(after).toBe(before);
+    expect(taskById('query-three-conditions')!.verify(app.db).passed).toBe(false);
+  }, 45_000);
+
   it('runs a three-condition query and satisfies the task', async () => {
     await page.goto(`${app.origin}/app/reports/query`);
     await page.click('#addrow');
@@ -188,7 +216,12 @@ describe('query builder', () => {
     await page.selectOption('[aria-label="Operator 3"]', '>');
     await page.fill('[aria-label="Value 3"]', '30000');
 
+    const responsePromise = page.waitForResponse(
+      (response) => response.url().includes('/app/reports/query'),
+    );
     await page.click('button[name=run]');
+    const response = await responsePromise;
+    expect(response.request().method()).toBe('POST');
     await page.waitForSelector('#resultcount');
 
     const verdict = taskById('query-three-conditions')!.verify(app.db);

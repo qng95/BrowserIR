@@ -107,6 +107,17 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Retained public-safe partial agent telemetry when a run times out or fails,
   including model turns and usage already observed plus pre-broker adapter
   rejection counts. Raw model messages and tool arguments remain excluded.
+- Recorded the prospective Evidence Drop 02 boundary: fixed Qwen3.8-Max on the
+  real-model-unexposed `query-three-conditions` fixture workflow, 30 new matched
+  pairs with new seeds, and no adaptive lineage to Drop 01. The discovered
+  direct-navigation oracle bypass was fixed test-first; the regenerated
+  bindings and provisional local manifest pass preflight. The manifest SHA-256
+  is `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+  The complete local v17 gate is green at 754 declared cases, 735 executed,
+  and 19 intentional opt-in skips. No model call or result exists; hosted
+  qualification, commit, push, and the annotated tag remain pending. This
+  cannot support raw-DOM,
+  pure-representation, or unseen-site claims.
 - The first Drop 01 v1 execution was operator-stopped after nine complete
   matched blocks, with a tenth control arm complete and its treatment arm in
   flight. The prefix has no score or interval. Diagnosis showed the model

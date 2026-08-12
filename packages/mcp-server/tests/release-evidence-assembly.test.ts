@@ -30,9 +30,9 @@ const workspaceRoot = fileURLToPath(new URL('../../../', import.meta.url));
 
 const reviewedWorkspacePackages = [
   ['@browserir/core', 60, 0],
-  ['@think-dom/fixture-app', 98, 0],
+  ['@think-dom/fixture-app', 100, 0],
   ['@browserir/playwright', 107, 0],
-  ['@browserir/benchmark', 289, 0],
+  ['@browserir/benchmark', 292, 0],
   ['@browserir/mcp', 195, 19],
 ] as const;
 const sourceFilePaths = [
@@ -106,7 +106,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 749, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 754, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {
@@ -218,7 +218,7 @@ describe('release evidence assembly', () => {
       releaseId: 'browserir-0.1.0-alpha.1',
       outcome: 'qualified',
       source: { revision, tree, lockfileSha256 },
-      qualification: { workspaceTestCountPolicyId: '2026-08-12-v16' },
+      qualification: { workspaceTestCountPolicyId: '2026-08-12-v17' },
     });
     expect((report.fragments as unknown[]).length).toBe(releaseEvidenceRequirements().length);
     expect(JSON.parse(readFileSync(join(output, 'release-evidence.json'), 'utf8'))).toEqual(

@@ -32,9 +32,9 @@ import { finalizeEvidenceDirectory } from '../../../scripts/record-release-evide
 const temporaryRoots: string[] = [];
 const reviewedWorkspacePackages = [
   ['@browserir/core', 60, 0],
-  ['@think-dom/fixture-app', 98, 0],
+  ['@think-dom/fixture-app', 100, 0],
   ['@browserir/playwright', 107, 0],
-  ['@browserir/benchmark', 289, 0],
+  ['@browserir/benchmark', 292, 0],
   ['@browserir/mcp', 195, 19],
 ] as const;
 const sourceFilePaths = [
@@ -99,7 +99,7 @@ function gateResult(requirement: ReleaseEvidenceRequirement): Record<string, unk
         outcome: 'passed',
         junit: { tests, failures: 0, errors: 0, skipped, timeSeconds: 2 },
       })),
-      totals: { tests: 749, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
+      totals: { tests: 754, failures: 0, errors: 0, skipped: 19, timeSeconds: 10 },
     };
   }
   if (requirement.gate === 'capability-qualification') {

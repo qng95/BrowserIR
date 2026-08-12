@@ -264,6 +264,11 @@ export const TASK_ORACLE_CONTRACTS = deepFreeze({
     requiredFields: { priority: 'Urgent', assignee: 'M. Roth' },
   },
   'query-three-conditions': {
+    execution: {
+      route: '/app/reports/query',
+      method: 'POST',
+      directGet: 'renders-an-unsubmitted-form-without-audit',
+    },
     expectedResultQuery: {
       table: 'customers',
       conditions: [
@@ -279,6 +284,7 @@ export const TASK_ORACLE_CONTRACTS = deepFreeze({
       entityId: '3',
       entityIdMatch: 'direct-string',
       exactConditionSet: true,
+      detailMethod: 'POST',
       resultCount: 'expected-query-count',
     },
   },

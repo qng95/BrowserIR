@@ -178,10 +178,14 @@ export function applyFilters(db: PageCtx['db'], filters: FilterRow[], match: 'al
  * sent. An agent that needs three conditions has to add two rows before the
  * fields it wants to fill in even exist.
  */
-export function filterBuilderPage(ctx: PageCtx): string {
-  const filters = parseFilters(ctx.url.searchParams);
-  const match = ctx.url.searchParams.get('match') === 'any' ? 'any' : 'all';
-  const ran = ctx.url.searchParams.has('run');
+export function filterBuilderPage(ctx: PageCtx, submitted?: URLSearchParams): string {
+  // Query parameters on a GET are deliberately ignored. The benchmark allows
+  // same-origin navigation, so executing from the URL would let an agent skip
+  // the dynamic controls entirely. Only the rendered POST form can supply a
+  // submitted query.
+  const ran = submitted?.get('run') === '1';
+  const filters = ran ? parseFilters(submitted) : [];
+  const match = ran && submitted.get('match') === 'any' ? 'any' : 'all';
   const results = ran ? applyFilters(ctx.db, filters, match) : [];
 
   const rowMarkup = (f: FilterRow | null, i: number) => {
@@ -202,7 +206,7 @@ export function filterBuilderPage(ctx: PageCtx): string {
   const body = `
 <div class="card">
   <h2>Customer query</h2>
-  <form method="get" action="/app/reports/query">
+  <form method="post" action="/app/reports/query">
     <div class="toolbar">
       <label for="match" class="muted">Match</label>
       <select id="match" name="match">

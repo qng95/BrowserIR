@@ -292,12 +292,49 @@ the model-facing nested-action defect. Any rerun of that slice is therefore an
 adaptive follow-up. The model, prompt, budgets, 30 seeds, and arm order remain
 fixed; independent confirmation moves to a previously unmeasured slice.
 
+## Evidence Drop 02
+
+Status: **provisional local freeze candidate. The direct-navigation oracle
+bypass was fixed test-first, and the local manifest at
+[`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json) has SHA-256
+`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+The complete local v17 gate is green at 754 declared cases, 735 executed, and
+19 intentional opt-in skips. No scored model call or result exists. Hosted
+qualification, commit, push, and the annotated tag remain pending**.
+
+The intended question is:
+
+> On the `query-three-conditions` workflow and a new precommitted seed schedule,
+> does the same Qwen3.8-Max LangChain agent succeed more often with BrowserIR
+> than with pinned official Playwright MCP?
+
+`query-three-conditions` has not appeared in the retained real-model
+development, compatibility, or scored evidence. It has been exercised by the
+deterministic fixture qualification, so this is a real-model-unexposed slice,
+not an unseen site or an unseen workflow in the broader engineering process.
+
+The planned protocol keeps the Qwen3.8-Max model configuration, neutral agent,
+browser profile, budgets, hidden database-and-audit judge, and complete
+BrowserIR-versus-Playwright-MCP interfaces fixed. It schedules 30 fresh matched
+blocks with a new order seed and 30 new paired model seeds. It has no adaptive
+lineage to Drop 01 and reuses no Drop 01 attempt.
+
+This would be another complete-interface fixture comparison. It would not be a
+raw-DOM comparison, a pure representation ablation, or evidence of unseen-site
+generalization. Before the first scored call, the exact manifest, task and
+oracle versions, model and endpoint binding, catalogs, schedule, and claim rule
+must be committed, pass hosted CI, and be bound by a new annotated freeze tag.
+The direct-navigation bypass now has failing-first application, browser, and
+oracle regressions plus a general fix; the provisional manifest binds the
+regenerated task and oracle hashes. It is still only local and is not a frozen
+Git source until the remaining qualification and publication steps complete.
+
 ## Drop registry
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
 | 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Adaptive v2 complete; v1 aborted diagnostic retained | **Inconclusive:** BrowserIR 30/30 vs control 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
-| 02 | External representation slice | Planned | Not run |
+| 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Local manifest and complete v17 gate green; hosted qualification, commit/push, and tag pending | Not run |
 | 03 | WebArena-Verified Hard pilot | Planned | Not run |
 | 04 | WorkArena enterprise workflows | Planned | Not run |
 

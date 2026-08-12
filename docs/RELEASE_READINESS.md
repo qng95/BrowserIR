@@ -16,6 +16,7 @@ Local development and clean hosted CI produced the following engineering evidenc
 
 | Gate | Result |
 | --- | --- |
+| Current unqualified v17 Drop 02 freeze candidate | 754 declared cases: 735 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 100/100, Playwright driver 107/107, benchmark 292/292, and MCP 195 declared / 176 executed / 19 skipped. The complete local gate passes; hosted qualification and a dossier remain pending. |
 | Qualified v16 result-publication workspace verification (commit `e448b58`) | 749 declared cases: 730 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared / 176 executed / 19 skipped. Hosted run `31608404916` passed all ten required jobs and assembled the current dossier. |
 | Qualified v15 workspace verification (commit `89c82ff`) | 735 declared cases: 716 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 281/281, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
 | Qualified v14 workspace verification (commit `6a122a2`) | 689 declared cases: 670 executed and 19 explicitly opt-in qualification cases skipped. By package: core 60/60, fixture 98/98, Playwright driver 107/107, benchmark 235/235, and MCP 189 declared / 170 executed / 19 skipped. Both pinned Node jobs and all five package type checks passed. |
@@ -66,10 +67,12 @@ The assembler accepts only schema `1.1.0` passing fragments from one clean,
 source-bound GitHub Actions commit and run attempt. It verifies stable endpoint
 source snapshots, commit/tree, lockfile and source hashes, per-file checksums,
 gate-specific results, and the exact reviewed workspace test-count policy ID.
-The current exact-count policy is `2026-08-12-v16`, requiring 749 declared, 730
-executed, and 19 skipped cases. It passed hosted result-publication run
-`31608404916` on commit `e448b58`; the same run qualified the checked-in result,
-documentation, and visual and assembled the current dossier.
+The current freeze-candidate exact-count policy is `2026-08-12-v17`, requiring
+754 declared, 735 executed, and 19 skipped cases. Its focused release tests
+and the complete local gate pass, but hosted qualification remains pending. The latest
+qualified policy remains v16: hosted
+result-publication run `31608404916` on commit `e448b58` qualified the checked-in
+Drop 01 result, documentation, and visual and assembled the current dossier.
 
 The current qualified public source release-evidence dossier is
 `release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`,
@@ -146,6 +149,22 @@ model-facing tool traces, and create-only comparison artifacts have focused
 tests. Both BrowserIR and Playwright MCP deterministic reference models can
 complete `create-customer` through real Chromium and the same sealed
 database/audit oracle.
+
+Evidence Drop 02 now has a provisional local freeze candidate. The discovered
+direct-navigation oracle bypass was fixed test-first, and the regenerated task
+and oracle bindings pass the local manifest preflight. The candidate at
+[`sealed.protocol.json`](evidence-drops/drop-02/sealed.protocol.json) has
+SHA-256
+`a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
+It selects the real-model-unexposed `query-three-conditions` fixture workflow,
+fixes Qwen3.8-Max across the same complete interfaces, and schedules 30 fresh
+matched blocks with new order and paired model seeds and no adaptive lineage to
+Drop 01. This remains a known-fixture complete-interface comparison—not raw
+DOM, a pure representation ablation, or unseen-site generalization. No model
+call or result exists. The complete local v17 gate is green; hosted
+qualification, commit, push, and the annotated tag remain pending. Until they
+complete, the local candidate is not a frozen Git
+source and scored execution is prohibited.
 
 The sealed path now requires a fresh checkout of the freeze tag, frozen
 dependency installation, a complete build before the runner loads, exact
