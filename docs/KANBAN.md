@@ -12,16 +12,15 @@ packages are `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`;
 `@think-dom/fixture-app` and `@browserir/benchmark` remain private development
 packages. Core runtime, Playwright driver, local stdio MCP delivery, fixture
 oracles, benchmark/report infrastructure, and the release-evidence pipeline are
-implemented. The local v16 candidate declares 749 cases: 730 executed and 19
+implemented. The qualified v16 publication declares 749 cases: 730 executed and 19
 intentional opt-in cases skipped. By package, that is core 60/60, fixture
 98/98, Playwright driver 107/107, benchmark 289/289, and MCP 195 declared with
-176 executed and 19 skipped. Adaptive-v2 freeze commit `5b7db58` passed hosted
-v16 [GitHub Actions run `31600711043`](https://github.com/qng95/BrowserIR/actions/runs/31600711043),
-and tag `evidence-drop-01-protocol-v2` resolves to that source. The result-
-publication commit is not yet hosted-qualified. The latest dossier whose
-identity and digest are recorded in release readiness remains v15 from
-[run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
-on commit `89c82ff`. Earlier v14, v13, and
+176 executed and 19 skipped. Result-publication commit `e448b58` passed all ten
+jobs in hosted v16 [GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
+and is bound by tag `evidence-drop-01-adaptive-v2-result`. The current dossier is
+`release-evidence-dossier-31608404916-1-e448b58705944e35a1f2b7ff76d80c45afb3b70f`
+with GitHub-reported digest `sha256:199d1d585b6c55773d93a61df209e427d47a4e28e08e6e925548837f69ae1292`.
+Earlier v15, v14, v13, and
 v11 dossiers remain valid for their own source trees; 487/468/19 and 439/420/19
 runs remain retained dirty/unbound history under stale exact-count policies.
 Publication gates and durable promotion of the qualified dossier remain open;
@@ -51,10 +50,10 @@ stable identities, and exact accounting of all 18 known scan omissions. A
 seven-screen warm steady-state characterization recorded 100 samples after five
 warmups per screen with raw samples and seeded 95% p50/p95 confidence
 intervals. Those retained local fragments remain dirty-tree history, while
-[GitHub Actions run `31590339246`](https://github.com/qng95/BrowserIR/actions/runs/31590339246)
-is the latest retained dossier with a recorded identity and digest. The latest
-hosted source qualification is v16 freeze run `31600711043`; neither system-
-qualification record is itself a competitor comparison.
+[GitHub Actions run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916)
+is the latest source-bound public qualification and retained dossier. Its
+engineering gates are distinct from the adaptive comparison result they now
+publish.
 
 ## Historical MCP vertical-slice audit (2026-07-29)
 
@@ -398,8 +397,10 @@ has no score or interval.
   label the run adaptive recovery rather than independent confirmation.
 - [x] Review the discordant outcomes: all three favored BrowserIR and none
   favored control, so no BrowserIR loss triggered another product-code fix.
-- [ ] Publish the unchanged sealed result, visual scorecard, README scope,
-  reproduction command, announcement, commit, tag, and GitHub release.
+- [x] Publish the unchanged sealed result, visual scorecard, README scope,
+  reproduction command, announcement copy, qualified commit, and annotated
+  result tag. Commit `e448b58` passed hosted run `31608404916`; tag
+  `evidence-drop-01-adaptive-v2-result` resolves to it.
 
 Adaptive v2 completed with zero invalid blocks: BrowserIR passed 30/30,
 official Playwright MCP passed 27/30, 27 blocks both passed, and 3 favored
@@ -424,9 +425,10 @@ those decisions are recorded. After the final metadata, `private`, and
 `publishConfig` changes, `pnpm verify:release` must pass before candidate
 artifacts are retained or published.
 
-The canonical repository has qualified source-bound v15 commit `89c82ff` through
-the seven-gate, nine-fragment GitHub Actions matrix. The qualified CI artifact
-must be promoted unchanged to approved durable storage before publication.
+The canonical repository qualified source-bound v16 result-publication commit
+`e448b58` through the seven-gate, nine-fragment GitHub Actions matrix. The
+qualified CI artifact remains subject to the repository's durable-promotion
+policy; the complete adaptive result itself is retained in Git.
 
 ### BIR-080–083 — Opt-in unsafe page evaluation
 
@@ -559,8 +561,9 @@ live probes.
 
 This completed the evidence mechanism. GitHub Actions later produced qualified
 dossiers for clean v11 commit `0097f28`, v13 commit `14f86f6`, v14 commit
-`6a122a2`, and v15 commit `89c82ff`. None of these dossiers resolves npm
-ownership, version/tag, durable promotion, or publish-authorization blockers.
+`6a122a2`, v15 commit `89c82ff`, and v16 result-publication commit `e448b58`.
+None of these dossiers resolves npm ownership, version/tag, durable promotion,
+or publish-authorization blockers.
 
 ### BIR-096 — Local alpha source qualification
 

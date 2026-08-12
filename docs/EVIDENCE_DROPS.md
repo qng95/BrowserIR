@@ -188,6 +188,12 @@ Because that interval crosses zero, the predeclared classification is
 **inconclusive**. The positive point estimate is not an uplift headline or a
 claim of generalization or superiority.
 
+The unchanged result bundle, analysis, and visual were published in commit
+`e448b58`, which passed all ten jobs in hosted
+[run `31608404916`](https://github.com/qng95/BrowserIR/actions/runs/31608404916).
+Annotated tag `evidence-drop-01-adaptive-v2-result` resolves to that publication
+commit.
+
 [Inspect the complete result](evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md) ·
 [Read the outcome analysis](evidence-drops/drop-01/adaptive-v2-analysis.md)
 

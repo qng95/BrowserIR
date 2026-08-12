@@ -32,11 +32,10 @@ references, then exposes them through a TypeScript core and MCP.
 
 Playwright remains underneath for reliable browser mechanics. Arbitrary page-code
 execution is absent by default. The latest hosted source qualification is v16
-freeze commit `5b7db58`, reproduced by GitHub Actions run `31600711043`; it
-passed the deterministic 14/14 task gate. The latest dossier with a recorded
-identity and digest remains v15 on commit `89c82ff`, run `31590339246`. These are
-system qualifications, not LLM or competitor scores, and neither qualifies the
-later result-publication commit. The separate v13 scorecard records its own
+result-publication commit `e448b58`, reproduced by GitHub Actions run
+`31608404916`; it passed the deterministic 14/14 task gate and assembled the
+current source-evidence dossier. That engineering qualification is not itself
+an LLM or competitor score. The separate v13 scorecard records its own
 302-call/one-stale-refusal telemetry.
 
 A separate score-excluded compatibility gate first established that the selected
@@ -57,17 +56,17 @@ confirmation, and it does not establish superiority.
 
 ## Current source-bound engineering evidence
 
-The latest hosted source qualification was reproduced on v16 freeze commit
-`5b7db58` by GitHub Actions run `31600711043`. The latest dossier with a
-recorded identity and digest remains v15 on commit `89c82ff`, run
-`31590339246`; the later result-publication commit still requires hosted CI.
+The latest hosted source qualification was reproduced on v16 result-publication
+commit `e448b58` by GitHub Actions run `31608404916`. The same run assembled the
+current source-evidence dossier, and annotated tag
+`evidence-drop-01-adaptive-v2-result` resolves to that commit.
 
 - Two product surfaces: a reusable TypeScript core and a local MCP server.
 - Browser execution: Playwright over Chromium in the `0.1` alpha.
 - Default MCP surface: nine typed tools; arbitrary page-code execution absent.
 - Controlled fixture: 5,000 customers, 12,000 vehicles, and 14 workflows.
-- Latest hosted v16 freeze qualification: 14/14 tasks; all required CI jobs
-  passed. Latest recorded dossier: v15.
+- Latest hosted v16 result-publication qualification: 14/14 tasks; all required
+  CI jobs passed. Current recorded dossier: v16.
 - Previous v13 run-specific telemetry: 302 MCP calls and one stale action
   refused before dispatch, then recovered by the reference planner.
 - Checked-in 11-case representation corpus: 1.00 precision, recall, and F1 over
@@ -121,13 +120,12 @@ relationships, available actions, revisions, and explicit omissions. Playwright
 handles browser mechanics underneath; a typed MCP server exposes BrowserIR to
 agents above it.
 
-The clean, source-bound v16 freeze CI run passed all 14 controlled,
-database-judged fixture tasks through real Chromium. The latest dossier with a
-recorded identity and digest remains v15. The previous v13 scorecard separately
-records 302 MCP calls and one stale action refused by BrowserIR before dispatch,
-then recovered by the deterministic reference planner. Those are system-
-qualification results, and the result-publication commit still requires hosted
-CI.
+The clean, source-bound v16 result-publication CI run passed all 14 controlled,
+database-judged fixture tasks through real Chromium and assembled the current
+source-evidence dossier. The previous v13 scorecard separately records 302 MCP
+calls and one stale action refused by BrowserIR before dispatch, then recovered
+by the deterministic reference planner. Those are system-qualification
+results.
 
 Evidence Drop 01 adaptive v2 separately ran a matched real-model comparison on
 30 validation-recovery blocks with Qwen3.8-Max. BrowserIR passed 30/30; the

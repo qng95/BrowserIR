@@ -84,11 +84,10 @@ execution.
 Use this formulation for the latest hosted source qualification:
 
 > GitHub Actions reproduced BrowserIR's 14/14 deterministic fixture
-> qualification on clean, source-bound v16 freeze commit `5b7db58` in run
-> `31600711043`. This qualifies the frozen source—not the later result-
-> publication commit—and is system qualification, not an LLM or competitor
-> score. The latest dossier with a recorded identity and digest remains v15 on
-> commit `89c82ff`, run `31590339246`.
+> qualification on clean, source-bound v16 result-publication commit `e448b58`
+> in run `31608404916`. The same run assembled the current source-evidence
+> dossier. This engineering qualification is separate from the adaptive
+> comparison and is not itself an LLM or competitor score.
 
 For the v13 scorecard's run-specific telemetry, use this exact scoped
 formulation:
