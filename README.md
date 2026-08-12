@@ -5,273 +5,136 @@
   </picture>
 </h1>
 
-<p align="center"><strong>Give browser agents a map—not another DOM dump.</strong></p>
+<p align="center"><strong>DOM and accessibility are sensors. BrowserIR is the agent contract.</strong></p>
 
 <p align="center">
-  BrowserIR turns difficult live interfaces into compact semantic entities,<br>
-  relationships, available actions, revisions, and effect-verification status.
+  BrowserIR compiles a live interface into semantic entities, relationships,<br>
+  current actions, revision-bound targets, explicit omissions, receipts, and deltas.
 </p>
 
 <p align="center">
   <a href="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml"><img alt="BrowserIR CI" src="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml/badge.svg?branch=main"></a>
   <img alt="Status: 0.1 source alpha" src="https://img.shields.io/badge/status-0.1_source_alpha-7957FF?style=for-the-badge">
   <img alt="Playwright and MCP" src="https://img.shields.io/badge/backend-Playwright_%2B_MCP-38BDF8?style=for-the-badge&logo=playwright&logoColor=white">
-  <img alt="14 of 14 deterministic system qualification tasks" src="https://img.shields.io/badge/system_qualification-14%2F14-9B5CFF?style=for-the-badge">
   <a href="LICENSE"><img alt="Apache-2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-22C55E?style=for-the-badge"></a>
 </p>
 
 <p align="center">
-  <a href="#see-what-the-model-sees"><strong>See the representation</strong></a>
+  <a href="#why-browserir"><strong>Why BrowserIR</strong></a>
   &nbsp;·&nbsp;
-  <a href="#measured-on-real-browser-workflows"><strong>View the evidence</strong></a>
+  <a href="#evidence-not-promises"><strong>Evidence</strong></a>
   &nbsp;·&nbsp;
-  <a href="#try-it-from-source"><strong>Try the alpha</strong></a>
+  <a href="#how-the-scores-are-earned"><strong>Scoring</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#try-the-source-alpha"><strong>Try it</strong></a>
 </p>
 
-<p align="center">
-  <sub>14/14 was reproduced by a clean, source-bound GitHub Actions run on
-  <a href="https://github.com/qng95/BrowserIR/actions/runs/31540028205"><code>6a122a2</code></a>.
-  It is deterministic system qualification—not an LLM or competitor score.</sub>
-</p>
+## Why BrowserIR?
 
-<p align="center">
-  <img src="assets/brand/browserir-hero.png" width="100%" alt="A complex browser interface transforming into a clean semantic graph">
-</p>
+The DOM describes the document. The accessibility tree exposes accessible
+semantics. Neither alone is a stable, complete action contract. An agent still
+needs to know **what matters, how it relates, what it can do now, whether its
+target is still current, and whether its action had an observable effect**.
 
----
+| View | Useful signal | Missing by itself |
+| --- | --- | --- |
+| Raw DOM | Markup, attributes, and document structure | Large and implementation-shaped; rerenders replace nodes and virtualized grids recycle them. |
+| Accessibility tree | Roles, names, and states where accessible semantics exist | Coverage follows the page's accessibility quality; no revision-bound identity, omission accounting, or effect receipt. |
+| **BrowserIR** | Fuses DOM, accessibility, geometry, lifecycle, and bounded behavior evidence | Produces one compact, technology-neutral interaction view for the model. |
 
-> **Browser automation gives an agent hands. BrowserIR gives it a map.**
+This matters when a label and input live in different trees, a portal renders an
+option outside its control, a custom `div` owns the real click handler, or a
+WebForms postback replaces the whole document. Playwright remains the browser
+driver; BrowserIR provides the model-facing meaning and safety boundary.
 
-Playwright already knows how to click, type, scroll, and navigate. The harder
-problem is deciding **what matters**, **what an element means**, **which action is
-currently available**, and **whether the page changed underneath the agent**.
-
-BrowserIR is that missing layer. It is designed to compile a live UI into the
-simplest useful view for a model—but not a simpler one—then expose it as a
-reusable TypeScript core and a local MCP server.
+## Evidence, not promises
 
 <table>
   <tr>
-    <td width="33%" valign="top">
-      <strong>Understand meaning</strong><br><br>
-      Controls, labels, rows, options, containers, and business-visible
-      relationships—not a bag of selectors.
-    </td>
-    <td width="33%" valign="top">
-      <strong>Act with precision</strong><br><br>
-      Actionable entities advertise current capabilities. Targets are revalidated
-      and outcomes carry an explicit effect-verification status.
-    </td>
-    <td width="33%" valign="top">
-      <strong>Survive change</strong><br><br>
-      Revision-bound references, stable identity, deltas, and explicit omissions
-      keep rerenders from becoming silent mistakes. Bounded continuation context
-      keeps fresh next-action refs visible without repeating the full page.
-    </td>
+    <td width="33%" align="center"><strong>14 / 14</strong><br><sub>database-judged workflows</sub></td>
+    <td width="33%" align="center"><strong>1.00</strong><br><sub>precision · recall · F1 on 11 cases</sub></td>
+    <td width="33%" align="center"><strong>3 / 3 · 18 / 18</strong><br><sub>identities · known omissions</sub></td>
   </tr>
 </table>
 
-## See what the model sees
+- **System qualification:** a deterministic reference planner completed all 14
+  ERP/DMS workflows through BrowserIR, real Chromium, and the official MCP
+  client. This proves the declared representation and action path—not LLM
+  generalization.
+- **Representation qualification:** across the checked-in 11-case corpus,
+  BrowserIR matched 31/31 entities, 44/44 capabilities, 28/28 relationships,
+  and 1/1 required abstention, with no false facts or misses.
+
+| Matched agent comparison | Published improvement |
+| --- | ---: |
+| BrowserIR vs raw-DOM serialization | **Not measured yet** |
+| BrowserIR vs accessibility snapshot | **Not measured yet** |
+
+No matched LLM uplift result is published yet. Any comparison will hold the
+model, prompt, task, browser, budgets, and hidden judge fixed—and publish
+failures and inconclusive runs.
+
+[Inspect the qualified CI run](https://github.com/qng95/BrowserIR/actions/runs/31540028205) ·
+[Read the exact evidence boundaries](docs/RELEASE_READINESS.md)
+
+## How the scores are earned
 
 <p align="center">
-  <img src="assets/brand/browserir-representation.svg" width="100%" alt="A customer form compiled into BrowserIR entities, state, relationships, actions, and a revision">
+  <img src="assets/brand/browserir-scoring-method.svg" width="100%" alt="Fresh worker, known-failing baseline, browser interaction, closed access, then hidden database and audit grading">
 </p>
 
-The tested patterns behind the browser on the left include native inputs,
-standards-hinted custom controls, open-shadow web components, and portal options
-rendered elsewhere in the DOM. They converge on the same compact contract on the
-right: **meaning, state, relationships, capabilities, and freshness**.
+Every task point follows the same fail-closed protocol:
 
-<details>
-<summary><strong>Open an exact BrowserIR text view</strong></summary>
+1. Start a fresh seeded SQLite application, browser, MCP runtime, and planner.
+2. Use a canonical seed separately regression-tested to make all 14 task
+   oracles **fail** before any action.
+3. Let the planner act only through the public model view and opaque references.
+4. Close browser and MCP access before grading.
+5. Award one binary point only if the hidden database-and-audit oracle passes.
 
-```text
-Page: Technology-neutral choice
-URL: data:[REDACTED]
-Revision: 1
-Visible text: "Customer Status"
-[e6@r1] region role="main" name="Representation laboratory" state=visible=true
-[e1@r1] input role="combobox" name="Customer Status" value="prospect" state=enabled=true,expanded=false,focused=false,visible=true actions=contextClick,focus,hover,select
-[e2@r1] text role="label" text="Customer Status" state=visible=true
-[e3@r1] option role="option" name="Active" value="active" state=enabled=true,selected=false,visible=false
-[e4@r1] option role="option" name="Prospect" value="prospect" state=enabled=true,selected=true,visible=false
-[e5@r1] option role="option" name="Suspended" value="suspended" state=enabled=true,selected=false,visible=false
-[e2@r1] labels [e1@r1]
-[e3@r1] option-of [e1@r1]
-[e4@r1] option-of [e1@r1]
-[e5@r1] option-of [e1@r1]
-[e6@r1] contains [e1@r1]
+There is no partial credit. Task-specific oracles reject cheats such as a
+missing audit, a relevant collateral mutation, or a skipped validation
+sequence. Scored agent runs retain every failure and invalid attempt.
+
+Representation scoring is separate: technology-neutral expected sets are
+compared with observed entities, capabilities, and relationships. Precision
+penalizes invented facts; recall penalizes missing facts. Identity continuity
+and bounded-scan omissions are scored independently.
+
+```sh
+pnpm test:qualification -- --run-id local-qualification
+pnpm benchmark:representation -- --run-id local-representation
 ```
 
-This was captured by BrowserIR from the current native-choice fixture markup;
-BrowserIR redacted the data URL. `e1@r1` means the target is valid for revision 1. When represented
-state or identity changes—or a document is replaced—BrowserIR advances or
-invalidates the relevant revision and rejects stale actions. An unchanged
-observation keeps its revision.
-
-</details>
-
-## Measured on real browser workflows
-
-The benchmark is not a page that says “success.” It is a functional SQLite-backed
-dealership fixture with 5,000 customers, 12,000 vehicles, server-side validation,
-and an audit log. After the browser and MCP client are closed, a hidden database-and-audit
-oracle judges the result.
-
-<p align="center">
-  <img src="assets/brand/browserir-benchmark.svg" width="100%" alt="BrowserIR source-bound scorecard: 14 of 14 tasks, 302 MCP calls with one non-dispatched stale refusal recovered by the reference planner, representation corpus F1 of 1.00, three of three identities, and eighteen of eighteen omissions">
-</p>
-
-### Why 14/14 is hard to fake
-
-<p align="center">
-  <img src="assets/brand/browserir-scoring-method.svg" width="100%" alt="Five-stage scoring method: fresh worker, known-failing start, BrowserIR path, access closed, and hidden database and audit oracle">
-</p>
-
-A task does **not** earn its point because the planner says it is finished, a
-toast says “success,” or the page looks right. The point appears only after the
-browser and MCP client have been closed and a private task oracle accepts the
-result.
-
-For every one of the 14 tasks, the qualification runner:
-
-1. starts a separate worker process with a fresh seeded SQLite application,
-   Chromium browser, BrowserIR runtime, stock nine-tool MCP server, and official
-   MCP client;
-2. starts from a seed that is regression-tested to produce **0/14 passing tasks**
-   before any action, so an already-correct value cannot earn a free point;
-3. runs a task-specific deterministic reference planner through BrowserIR's
-   public model view and opaque revision-bound references—without selectors,
-   page-code evaluation, database reads, or reset/verify APIs;
-4. closes browser and MCP access before grading; and
-5. checks hidden database state and audit history against task-specific rules.
-
-There is no partial credit. The command records every outcome and exits non-zero
-if even one applicable task fails.
-
-#### The oracles are tested against believable cheats
-
-| A result that looks successful | Why it still fails |
-| --- | --- |
-| Set the credit limit to the right value without using the application | The value matches, but the required update audit is missing. |
-| Deliver the correct order and also change an unrelated order | The target is right, but the relevant collateral mutation makes the task fail. |
-| Create the correct customer without first triggering the required validation error | The final row exists, but the required rejected attempt and sequence are absent. |
-| Cancel the correct 25 draft orders one by one | The records changed, but the task requires one genuine bulk operation. |
-
-These are executable negative tests in the fixture oracle suite—not examples
-invented for the README.
-
-[Inspect the executable oracle tests](packages/fixture-app/tests/task-oracles.test.ts) ·
-[Inspect the qualification harness](packages/mcp-server/tests/task-qualification-harness.ts) ·
-[Read the full scoring methodology](docs/BENCHMARK.md)
-
-### What every number actually counts
-
-| Score | Plain-English meaning |
-| --- | --- |
-| **14 / 14 tasks** | All 14 applicable workflows passed their binary database-and-audit oracle in isolated workers. No task was counted as not applicable. |
-| **302 calls / 1 stale refusal** | In this qualified run, BrowserIR refused one stale click before dispatch; the deterministic reference planner re-observed, re-resolved, and retried successfully. It is counted openly; the database and audit oracles determine correctness. |
-| **1.00 precision / recall / F1** | In the checked-in 11-case representation corpus, BrowserIR matched all 31 expected entities, 44 capabilities, and 28 relationships with no extras or misses. Precision punishes invented facts; recall punishes missing facts. |
-| **3 / 3 identities** | Three declared logical records kept the correct identity across rerender or replacement. A recycled virtual row becoming a different record must not inherit the old identity. |
-| **18 / 18 omissions** | Every known item hidden by a bounded scan was reported as omitted. BrowserIR did not turn “not scanned” into “nothing exists.” |
-
-**The scope matters:** these figures were reproduced by clean, source-bound CI
-on commit [`14f86f6`](https://github.com/qng95/BrowserIR/actions/runs/31531657356),
-and the run produced a checksummed release-evidence dossier. The 14/14 result is
-a deterministic BrowserIR system qualification through real Chromium and the
-official MCP client—not an LLM score. The 1.00
-result applies only to the 11-case checked-in ground-truth corpus: 31 entities,
-44 capabilities, and 28 relationships. Local real-model development diagnostics
-are retained in the [evidence ledger](docs/EVIDENCE_DROPS.md#development-feedback-ledger),
-but none is included in these headline scores. No sealed paired real-model or
-public competitor score exists yet.
-
-### Can the control complete the workflow? 5/5
-
-<table>
-  <tr>
-    <td width="33%" align="center"><strong>5 / 5</strong><br><sub>scheduled attempts passed</sub></td>
-    <td width="33%" align="center"><strong>0</strong><br><sub>failed or invalid attempts</sub></td>
-    <td width="33%" align="center"><strong>SCORE-EXCLUDED</strong><br><sub>compatibility gate, not a comparison</sub></td>
-  </tr>
-</table>
-
-Before spending a sealed task on a comparison, we ran one narrow compatibility
-check: one selected OpenRouter `qwen/qwen3.8-max` configuration using the safe
-subset of official Playwright MCP `0.0.78` on the already-seen `create-customer`
-workflow.
-All five precommitted attempts completed and passed the exact database, audit,
-and structured-submission judge: **5 passed, 0 failed, 0 invalid**, across 56
-tool calls and 61 model turns, with zero tool errors and five exact submissions.
-Every attempt began from the same known-failing seed; browser access closed
-before grading, and the run retained matching start/end source, model-endpoint,
-runtime-package, tool-catalog, and Chromium fingerprints.
-
-That raw **5/5 is score-excluded**. There was no BrowserIR arm, so it is not a
-pass-rate estimate, uplift result, generalization result, or competitor-
-superiority claim. The reserved `validation-recovery` task remains unexecuted
-and was never exposed to the model. The run is bound to commit
-[`6a122a2`](https://github.com/qng95/BrowserIR/commit/6a122a2bfd0c1f684e1eec350659db3c7d1eadeb).
-
-[Inspect the checksummed control-capability evidence](docs/evidence-drops/drop-01/control-capability-qwen38max-v1-run/summary.md)
-
-> **Paired benchmark status:** the BrowserIR/official Playwright MCP harness now
-> fails closed on source, built-package, environment, journal, and precommitted
-> model-seed drift. This is benchmark infrastructure—not an uplift result. No
-> sealed comparison score has been published yet.
-
-The 14 database-judged workflows exercise:
-
-- authentication, forms, server validation and recovery;
-- pagination, filtering, sorting, virtualized content, and delayed autocomplete;
-- portal content, a multi-step wizard, bulk selection, and hidden-until-selected controls;
-- drag-and-drop and keyboard routes, a spatial schedule, and a category tree; and
-- derived values, double-click inline editing, and dynamic condition rows.
-
-Separate focused capability and representation regressions exercise open Shadow
-DOM, same-origin nested frames, popups, transient context menus, custom-choice
-patterns, table/grid relationships, identity stability, and bounded omissions.
-
 [Read the benchmark methodology](docs/BENCHMARK.md) ·
-[Inspect the agent protocol](docs/AGENT_BENCHMARK.md) ·
-[Check release evidence](docs/RELEASE_READINESS.md)
+[Inspect the oracle tests](packages/fixture-app/tests/task-oracles.test.ts) ·
+[Inspect the qualification harness](packages/mcp-server/tests/task-qualification-harness.ts)
 
-## One clean boundary
-
-The model reasons over BrowserIR. Playwright operates the browser.
+## What the model sees
 
 <p align="center">
-  <img src="assets/brand/browserir-architecture.svg" width="100%" alt="AI agent connected through typed MCP to BrowserIR, which uses Playwright and Chromium">
+  <img src="assets/brand/browserir-representation.svg" width="100%" alt="A live form compiled into BrowserIR entities, relationships, actions, state, and a revision">
 </p>
 
-Selectors, XPath, Playwright handles, and page internals remain below the model
-boundary. The default MCP surface contains no arbitrary page-code execution;
-an experimental unsafe escape hatch exists only behind explicit opt-in.
+```text
+# Abridged exact native-choice fixture capture
+[e1@r1] input role="combobox" name="Customer Status" value="prospect"
+  state=enabled=true,expanded=false,focused=false,visible=true
+  actions=contextClick,focus,hover,select
+[e3@r1] option role="option" name="Active" value="active"
+[e3@r1] option-of [e1@r1]
+```
 
-## Built for real operational software
+`e1` is a session-local semantic identity; `@r1` binds it to revision 1.
+BrowserIR may retain `e1` when the same entity survives a rerender, but actions
+require a fresh revision-bound reference; a recycled row receives a new
+identity. Action receipts report effect status and include a graph delta when
+available.
 
-BrowserIR targets ERP, CRM, DMS, and other systems where the happy-path demo
-stops being representative. The current tested and supported slices include:
+## Try the source alpha
 
-| Modern frontends | Legacy frontends |
-| --- | --- |
-| Open Shadow DOM and standards-hinted web components | WebForms-style full-page replacement |
-| Same-origin nested frames and popups | Generated IDs and server-rendered navigation |
-| Native, explicit ARIA, and evidence-backed roleless controls | Post-redirect-get forms and server validation |
-| Virtualized grids, portals, delayed content, and transient menus | Whole-document replacement and identity churn |
-
-Additional tested representations cover native tables, ARIA grids/treegrids,
-row and cell relationships, custom dropdowns, keyboard alternatives, hover,
-screenshots, focused inspection, token budgets, and bounded-scan omissions.
-Upload actions require an embedding host to provide an artifact resolver; the
-stock stdio server intentionally does not provide one.
-
-## Try it from source
-
-BrowserIR is currently an unreleased `0.1` source alpha. The packages are not on
-npm yet.
-
-**Requirements:** Node.js 22.13+, pnpm 10.30.3, and Chromium.
+BrowserIR is not on npm yet. From a checkout, use Node.js 22.13+, pnpm 10.30.3,
+and Chromium:
 
 ```sh
 npm install --global corepack@0.34.7
@@ -280,115 +143,40 @@ corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
 pnpm exec playwright install chromium
 pnpm build
+node packages/mcp-server/dist/cli.js
 ```
 
-Start the local stdio MCP server:
-
-```sh
-node /absolute/path/to/BrowserIR/packages/mcp-server/dist/cli.js
-```
-
-Point your MCP client at it:
+Point an MCP client at the built stdio server:
 
 ```json
 {
   "mcpServers": {
     "browserir": {
       "command": "node",
-      "args": [
-        "/absolute/path/to/BrowserIR/packages/mcp-server/dist/cli.js"
-      ]
+      "args": ["/absolute/path/to/BrowserIR/packages/mcp-server/dist/cli.js"]
     }
   }
 }
 ```
 
-<details>
-<summary><strong>The nine default MCP tools</strong></summary>
+The default nine-tool surface has no arbitrary page-code execution. An unsafe
+escape hatch exists only behind explicit opt-in.
 
-`browser_create` · `browser_navigate` · `browser_observe` ·
-`browser_inspect` · `browser_act` · `browser_wait` · `browser_pages` ·
-`browser_capture` · `browser_close`
+## Alpha boundaries
 
-</details>
-
-## Reproduce the evidence
-
-Run all 14 database-backed workflows through fresh browser workers:
-
-```sh
-pnpm test:qualification -- --run-id local-qualification
-```
-
-Score the checked-in representation ground truth:
-
-```sh
-pnpm benchmark:representation -- --run-id local-representation
-```
-
-Run an optional real-model characterization through the LangChain adapter:
-
-```sh
-pnpm benchmark:agent -- \
-  --model MODEL_ID \
-  --task create-customer \
-  --trials 5 \
-  --run-id local-model-test
-```
-
-Every model attempt receives fresh application and browser state. Agent access
-closes before judging, collateral audited mutations fail the trial, and results
-are emitted as create-only JSON, NDJSON, Markdown, and SHA-256 artifacts.
-
-## Honest alpha boundaries
-
-Version `0.1` does not claim complete support for closed Shadow DOM, canvas-only
-controls, WebGL, inaccessible cross-origin documents, remote browser fleets,
-Firefox, WebKit, or arbitrary application-specific business semantics. It also
-cannot infer records a virtualized application has never materialized anywhere.
-
-When BrowserIR lacks portable evidence, it should abstain or report an omission.
-That is a product principle, not a footnote.
-
-[Read the full architecture and boundaries](docs/ARCHITECTURE.md)
-
-## Source packages
-
-| Package | Purpose |
-| --- | --- |
-| `@browserir/core` | IR contracts, reconciliation, revisions, deltas, capabilities, verification, and compact views. |
-| `@browserir/playwright` | Chromium driver backed by Playwright. |
-| `@browserir/mcp` | Local stdio MCP server wrapping the runtime. |
-
-The fixture and benchmark packages remain private development infrastructure.
-The three product packages also remain private until npm ownership,
-clean-commit, and release-evidence gates are complete.
-
-## Explore
+The tested scope includes native and ARIA controls, evidence-backed custom
+controls, open Shadow DOM, same-origin frames, portals, virtualized grids, and
+full-document replacement. Closed Shadow DOM, canvas/WebGL-only interfaces,
+and inaccessible cross-origin content are not comprehensively represented.
+When evidence is insufficient, BrowserIR should abstain or report an omission.
 
 [Architecture](docs/ARCHITECTURE.md) ·
-[Benchmark](docs/BENCHMARK.md) ·
 [Agent benchmark](docs/AGENT_BENCHMARK.md) ·
 [Security](SECURITY.md) ·
 [Troubleshooting](docs/TROUBLESHOOTING.md) ·
 [Contributing](CONTRIBUTING.md) ·
-[Release readiness](docs/RELEASE_READINESS.md) ·
 [Changelog](CHANGELOG.md)
-
-### Launch assets
-
-[Logo and visual system](assets/brand/README.md) ·
-[Press kit](assets/brand/PRESS_KIT.md) ·
-[Social preview](assets/brand/browserir-social-card.png)
 
 ## License
 
 BrowserIR is licensed under the [Apache License 2.0](LICENSE).
-
----
-
-<p align="center">
-  <strong>BrowserIR does not promise that agents understand every page.</strong><br>
-  It gives them a compact semantic representation, a revision-checked action
-  boundary, and evidence you can reproduce.
-</p>

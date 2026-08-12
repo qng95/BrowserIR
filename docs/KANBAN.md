@@ -258,6 +258,23 @@ Current limitations:
 - Do not weaken, skip, or delete a legitimate test to make a change pass.
 - Record deferred edge cases as new cards rather than hiding them in implementation notes.
 
+### Public README narrative contract
+
+- Keep the README on one short decision path: **why BrowserIR exists → what is
+  proven → how it is scored → what the model sees → how to try it**.
+- Keep the main page near 850 prose words; move exhaustive architecture,
+  benchmark, release, and limitation detail into the existing focused docs.
+- Explain DOM and accessibility as useful input sensors. Describe BrowserIR as
+  the agent contract that adds semantic relations, current capabilities,
+  revision-bound identity, explicit omissions, and action-effect receipts.
+- Never market system qualification, representation conformance, unit-test
+  counts, or a score-excluded control check as comparative uplift.
+- Show DOM/accessibility improvement only after a matched, precommitted run uses
+  the same model, prompt, tasks, browser profile, budgets, and hidden oracle.
+  Until then the comparative cells must say **not measured yet**.
+- Keep detailed evidence one click away and retain negative, invalid, and
+  inconclusive results rather than optimizing the public story around wins.
+
 Definition of Done for every implementation card:
 
 - public behavior and failure behavior have tests;
