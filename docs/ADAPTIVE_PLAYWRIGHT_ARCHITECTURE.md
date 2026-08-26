@@ -29,33 +29,24 @@ standard Playwright observation needs help.
 
 ## Why this direction
 
-The original score-excluded matrix recovery smoke observed, for one authored
-family and one seed:
+The private `@browserir/playwright-mcp` implementation has two complementary
+development signals. A 64-arm real-browser, zero-model preflight projected all
+15 independently demonstrated recoverable relations, retained one safe
+fallback, and recorded zero projection misses. A later 32-task A/B with
+`qwen/qwen3.8-27b` produced `auto` 31/32 and `off` 24/32 under a
+three-fresh-attempt cap. Both arms solved all 16 semantic-sufficient tasks;
+`auto` solved 15/16 structurally opaque tasks versus 8/16 for `off`.
 
-- official Playwright snapshots with boxes: 4/4 one-shot oracle success;
-- default AX plus conditional compact geometry: 4/4;
-- production-default BrowserIR observation: 2/4;
-- the adaptive path used boxes for both lossy worlds and skipped them for both
-  semantically complete rescue worlds.
-
-The production-default BrowserIR lossy snapshots were truncated and
-byte-identical across worlds that required opposite actions. The experiment is
-not a general benchmark or non-inferiority result, but it is enough to reject an
-always-heavy default as the only architecture worth pursuing.
-
-That direction is now implemented in the private
-`@browserir/playwright-mcp` package and exercised through official Playwright
-MCP with two first-party policy families. A 64-arm real-browser, zero-model
-preflight projected all 15 independently demonstrated recoverable relations,
-retained one safe fallback, and recorded zero projection misses. A later
-32-task development A/B with `qwen/qwen3.8-27b` produced `auto` 31/32 and `off`
-24/32 under a three-fresh-attempt cap. The result is favorable but
-nonconfirmatory; see [the full result](BROWSERIR_REAL_AGENT_RESULTS.md).
+That split supports a narrow layer which intervenes only when semantics omit a
+provable relation. The result remains favorable development evidence rather
+than a confirmatory or general-superiority result; see [the full
+result](BROWSERIR_REAL_AGENT_RESULTS.md).
 
 ## Public boundary
 
-The adaptive mode's model-visible catalog is the official safe Playwright MCP
-catalog. The current private integration boundary is
+The adaptive mode forwards the catalog of the caller-connected official
+Playwright MCP client; the package neither adds tools nor certifies the
+caller's catalog as safe. The current private integration boundary is
 `@browserir/playwright-mcp`; the existing `@browserir/mcp` graph surface remains
 unchanged. BrowserIR adds no parallel `browser_observe`,
 `browser_inspect`, `browser_act`, or incompatible entity-reference namespace to
@@ -65,11 +56,11 @@ The model must see:
 
 - the same Playwright tool names and input schemas;
 - the same current Playwright refs used by later Playwright actions;
-- the original result byte-for-byte when semantic evidence is sufficient;
-- a box-free authoritative snapshot plus small structural facts after an
-  adaptive acquisition;
-- a bounded observation-gap section when enrichment was required but could not
-  be proven.
+- the exact original result object when semantic evidence is sufficient;
+- a box-free authoritative snapshot plus complete adaptive context after a
+  successful projection; or
+- the exact original visible result when acquisition fails, state changes, or
+  a complete projection cannot be proven.
 
 Detector routes, reason codes, experiment arms, fixture identities, raw boxes,
 selectors, task queries, and oracle data are host-only.
@@ -77,21 +68,23 @@ selectors, task queries, and oracle data are host-only.
 ## Runtime layers
 
 ```text
-agent tool-call budget
-  -> submission policy
-  -> AdaptivePlaywrightSnapshotBroker
-       -> SnapshotResult parser
-       -> deterministic policy detector
-       -> optional feature acquisition
-       -> complete-or-unresolved projector
-  -> navigation and profile safety
-  -> raw Playwright MCP broker
+host / agent
+  -> createAdaptivePlaywrightTools
+       -> caller-owned visible client.callTool
+       -> exact default browser_snapshot only:
+            policy detector
+            -> optional hidden browser_snapshot({boxes:true})
+            -> same-page check
+            -> complete projection or original visible result
+  -> caller-owned connected MCP Client
   -> official @playwright/mcp
 ```
 
-The adaptive broker is below the model-visible budget wrapper. One model tool
-call therefore remains one budgeted call even when the host makes one hidden
-read-only acquisition. Physical backend calls are reported separately.
+The wrapper serializes admitted `listTools` and `callTool` work and, within one
+loaded package instance, holds an exclusive lease for that client object. The
+caller owns connection and shutdown. One model-visible snapshot may therefore
+cause either one raw call or one visible plus one hidden raw call; the benchmark
+reports physical calls separately.
 
 The product implementation now lives in
 [`packages/playwright-mcp`](../packages/playwright-mcp/):
@@ -105,7 +98,7 @@ The product implementation now lives in
   parses and rewrites the known inline Playwright snapshot format.
 
 The benchmark adapter, fresh-state retry executor, fixture corpus, independent
-recoverability witness, and paid runner remain under
+recoverability witness, and real-model runner remain under
 [`packages/benchmark`](../packages/benchmark/). They measure the product bytes;
 they are not the product implementation. Adaptive mode is still private and is
 not the public npm or default MCP path. Promotion requires the remaining gates
@@ -142,15 +135,11 @@ detector outcome.
 
 ## Interception rule
 
-The target contract applies to every successful Playwright result containing
-one full inline `### Snapshot` section, including a snapshot embedded in a
-navigate, click, fill, or wait result. This prevents two different observation
-contracts depending on which Playwright tool happened to produce the snapshot.
-
-Results without an inline snapshot, file-backed or selective snapshots, and
-explicit `browser_snapshot` feature arguments pass through unchanged. Parser
-drift also passes through the original result and emits only a host diagnostic;
-the broker must not guess how to rewrite an unknown Playwright format.
+Only an exact default `browser_snapshot` request is eligible. Other tools,
+explicit snapshot arguments, changed request/options objects, error results,
+results without one parseable inline `### Snapshot`, and unknown snapshot
+formats pass through unchanged. The wrapper does not enrich snapshots embedded
+in navigate, click, fill, wait, or other tool results.
 
 ## Projection rules
 
@@ -174,7 +163,7 @@ A projector must satisfy all of the following:
 The narrow policies emit facts such as:
 
 ```text
-### Structural facts
+### Adaptive context
 - grid-cell [ref=e17] row="Paris" column="March"
 ```
 
@@ -193,12 +182,11 @@ error that encourages the model to repeat it.
 - An upstream Playwright throw or error propagates unchanged.
 - No applicable policy or semantically sufficient evidence returns the exact
   original result.
-- A detector, hidden acquisition, or projection failure preserves a successful
-  upstream result and appends a generic observation gap when it is safe to
-  rewrite the known snapshot format.
-- A successful hidden acquisition becomes authoritative. If complete facts
-  cannot be proven, raw boxes are stripped and the latest snapshot is returned
-  with an observation gap.
+- A detector exception, exhausted deadline, hidden acquisition failure,
+  changed page state, or unresolved projection returns the exact original
+  visible result object. Hidden output is never exposed on those paths.
+- Only a complete successful projection returns a cloned result containing the
+  fresh, box-free snapshot and `### Adaptive context` facts.
 - No adaptive path retries or silently falls back to the full BrowserIR graph.
 
 Playwright remains responsible for rejecting a stale ref at action time.
@@ -208,25 +196,22 @@ the stateless geometry plugin.
 
 ## Accounting and diagnostics
 
-Normal `AgentToolMetrics` retain model-visible meaning. Hidden acquisition is
-reported through separate adaptive metrics:
-
-- model-visible calls versus physical backend calls;
-- hidden calls and hidden errors;
-- eligible, pass-through, projected, and unresolved snapshots;
-- bounded counts by policy and reason code;
-- model-visible and backend response bytes;
-- public-safe per-call duration, route, outcome, and fact count.
-
-Diagnostics contain no URLs, refs, labels, facts, raw page text, prompts,
-selectors, or answers. A failing diagnostic sink cannot alter browser behavior.
+Telemetry is disabled unless the host supplies a synchronous callback. Each
+event contains exactly five bounded fields: `schemaVersion`, `mode`,
+`operation`, `outcome`, and logical `hiddenCalls` (`0` or `1`). It contains no
+URLs, refs, labels, facts, page text, prompts, selectors, arguments, durations,
+bytes, policy identifiers, or answers. A throwing or rejected telemetry sink
+cannot alter browser behavior.
 
 ## The full graph runtime
 
-The existing canonical graph runtime remains available as a separately selected
-legacy/experimental mode while its unique benefits are measured. It is not an
+The existing canonical graph runtime remains in source as a separately selected
+legacy/experimental interface. It is not an
 automatic fallback from adaptive Playwright because it changes tool names, ref
 semantics, revision behavior, action dispatch, and output shape.
+
+Its archived design is documented separately in [Legacy full-graph BrowserIR
+architecture](ARCHITECTURE.md).
 
 A future fallback may join adaptive mode only if it returns the same Playwright
 refs and the same compact structure contract. Mixing `eN@rN` entities with
@@ -238,11 +223,12 @@ Before making adaptive Playwright the default public BrowserIR mode:
 
 1. Keep the 64-arm zero-model gate green with zero hidden actions, exact call
    accounting, 15/15 recoverable projections, and no demonstrated misses.
-2. Retain matched semantic-sufficient negatives and byte-exact pass-through.
+2. Retain matched semantic-sufficient negatives and exact object-identity
+   pass-through.
 3. Add and qualify a stateful recycled-row policy before claiming that family;
    it remains a fail-closed non-goal today.
-4. Verify every supported snapshot-bearing Playwright tool and current-ref
-   action dispatch after projection.
+4. Verify exact-default snapshot eligibility, non-eligible pass-through, and
+   current-ref action dispatch after projection.
 5. Freeze maximum extra calls, bytes, latency, unresolved behavior, and product
    source/policy provenance in the result receipt.
 6. Run a prospectively sealed, untouched, multi-family comparison before a

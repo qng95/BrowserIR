@@ -1,12 +1,21 @@
-# `@browserir/mcp`
+# `@browserir/mcp` — legacy full-graph server
 
-Local stdio MCP server and embeddable server APIs for BrowserIR, using the
-official MCP TypeScript SDK and the maintained Playwright backend.
+> **Status:** source-only legacy/experimental package. This nine-tool stdio
+> server is a separate historical interface, not the current BrowserIR thin
+> layer and not a fallback from it. For the current product path, use
+> [`@browserir/playwright-mcp`](../playwright-mcp/README.md) with a
+> caller-owned official Playwright MCP client.
 
-BrowserIR 0.1 is an unreleased alpha line. Public contracts may change between
-0.1 releases.
+Retained local stdio MCP server and embeddable APIs for the full-graph runtime,
+using the official MCP TypeScript SDK and its Playwright backend.
 
-## Install
+This private package has not been published. Its contracts may change while the
+legacy runtime remains in source.
+
+## Planned package install
+
+The following command applies only if publication of the full-graph packages
+resumes; it does not work from the public registry today.
 
 ```sh
 pnpm add @browserir/mcp "playwright@1.62.0"
@@ -17,7 +26,7 @@ The package is ESM-only and requires Node.js 22.13 or newer.
 Playwright is listed explicitly so its browser-installation CLI is available
 under strict package-manager layouts such as pnpm's.
 
-## MCP configuration
+## Legacy MCP configuration
 
 ```json
 {
@@ -43,7 +52,7 @@ command is not reliably on their `PATH`. An absolute path to the project's
 The stock executable serves one local stdio connection and starts no HTTP
 listener. Its default catalog contains exactly the nine typed BrowserIR tools;
 arbitrary page-code evaluation is absent. Typed BrowserIR actions are the
-supported path.
+intended legacy path.
 
 Chromium is headless by default. To watch the same fixed-viewport browser while
 developing or diagnosing an agent, pass `--headful` in the MCP configuration:
@@ -163,9 +172,9 @@ a required redacted `audit` callback. Intent-audit failure blocks dispatch;
 completion-audit failure after dispatch invalidates the browser. The MCP
 server's `enableUnsafeEvaluate` flag is a separate required opt-in.
 
-## Security boundary
+## Legacy security boundary
 
-The supported stock boundary is one local stdio connection. Do not expose the
+The executable's intended boundary is one local stdio connection. Do not expose the
 embeddable handler as remote HTTP or share it between tenants without adding
 authentication, authorization, tenant isolation, browser isolation, request
 limits, audit, and network policy. HTTP/HTTPS URL validation is not an SSRF

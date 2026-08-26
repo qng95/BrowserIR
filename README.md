@@ -19,7 +19,7 @@
 
 <p align="center">
   <a href="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml"><img alt="BrowserIR CI" src="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <img alt="Status: 0.1 source alpha" src="https://img.shields.io/badge/status-0.1_source_alpha-7957FF?style=for-the-badge">
+  <img alt="Status: 0.1 private source alpha" src="https://img.shields.io/badge/status-0.1_private_source_alpha-7957FF?style=for-the-badge">
   <img alt="Playwright and MCP" src="https://img.shields.io/badge/backend-Playwright_%2B_MCP-38BDF8?style=for-the-badge&logo=playwright&logoColor=white">
   <a href="LICENSE"><img alt="Apache-2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-22C55E?style=for-the-badge"></a>
 </p>
@@ -29,37 +29,32 @@
   &nbsp;·&nbsp;
   <a href="#why-the-thin-layer-works"><strong>How it works</strong></a>
   &nbsp;·&nbsp;
-  <a href="#evidence-not-promises"><strong>Evidence</strong></a>
+  <a href="#source-alpha"><strong>Source alpha</strong></a>
   &nbsp;·&nbsp;
-  <a href="#try-the-source-alpha"><strong>Try it</strong></a>
+  <a href="#current-boundaries"><strong>Boundaries</strong></a>
 </p>
 
 ## Measured impact
 
 Same model. Same 32 matched tasks. Same three-fresh-attempt cap. Every attempt
 used a fresh fixture, database, browser, MCP process, and model response, then
-passed or failed against an exact hidden oracle.
+passed or failed against an exact hidden oracle. The host fixed the matching
+policy family; `auto` decided only whether that policy should enrich the
+snapshot.
 
-| Real-agent metric | Playwright enrichment off | BrowserIR auto |
+| Real-agent metric | Playwright enrichment off | BrowserIR auto (host-selected policy) |
 | --- | ---: | ---: |
 | Final task success | 24/32 (75.0%) | **31/32 (96.9%)** |
 | `pass@1` | 23/32 (71.9%) | **31/32 (96.9%)** |
 | Physical model calls | 49 | **34 — 30.6% fewer** |
 | Cost per successful task | $0.002273 | **$0.001012 — 55.5% lower** |
-| Successful-task active time, mean | 5.983 s (`n=24`) | **4.929 s (`n=31`)** |
-| Successful-task active time, median | 5.118 s (`n=24`) | **4.930 s (`n=31`)** |
+| Faster among the 24 tasks both solved | 7/24 | **17/24** |
+| Mean paired `auto - off` active time | — | **−1.089 s** |
 
-Here `pass@1` means exact-oracle success on the first fresh attempt.
-Task time is end-to-end active execution, not model-call latency. It includes
-fresh browser and fixture setup, navigation, snapshot construction, BrowserIR
-processing when enabled, the model request, action dispatch, oracle
-verification, and retry reset where required. It excludes time spent running
-the opposite A/B arm and cleanup after the terminal outcome.
-
-Because the two modes solved different task sets, the cleaner speed comparison
-is the 24 tasks both completed: BrowserIR was faster on **17**, enrichment-off
-was faster on **7**, and BrowserIR's observed mean paired advantage was **1.089
-seconds** per successful task.
+Here `pass@1` means exact-oracle success on the first fresh attempt. Task time
+is end-to-end active execution—from fresh fixture and browser setup through
+action dispatch and oracle verification—not model-call latency. The linked
+analysis records the exact inclusion and exclusion rules.
 
 These are descriptive results from a reused, unsealed development corpus—not a
 claim of general superiority or unseen-site generalization. Inspect the
@@ -69,32 +64,73 @@ or [reproduce the run](docs/BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
 ## Why the thin layer works
 
-The DOM describes the document. The accessibility tree exposes accessible
-semantics. Neither alone is a stable, complete action contract. An agent still
-needs to know **what matters, how it relates, what it can do now, whether its
-target is still current, and whether its action had an observable effect**.
+Playwright already owns the public tools, current refs, browser lifecycle,
+actionability, and dispatch. BrowserIR does not replace any of them. It handles
+one narrow observation gap: a semantic snapshot can contain the right labels
+and controls without exposing the relationship between them.
 
-| View | Useful signal | Missing by itself |
-| --- | --- | --- |
-| Raw DOM | Markup, attributes, and document structure | Large and implementation-shaped; rerenders replace nodes and virtualized grids recycle them. |
-| Accessibility tree | Roles, names, and states where accessible semantics exist | Coverage follows the page's accessibility quality; no revision-bound identity, omission accounting, or effect receipt. |
-| **BrowserIR** | Fuses DOM, accessibility, geometry, lifecycle, and bounded behavior evidence | Produces one compact, technology-neutral interaction view for the model. |
+### See the smallest useful difference
 
-This matters when a label and input live in different trees, a portal renders an
-option outside its control, a custom `div` owns the real click handler, or a
-WebForms postback replaces the whole document. Playwright remains the browser
-driver; BrowserIR provides the model-facing meaning and safety boundary.
+Task: **“Open the case aligned with the Routine queue, then stop.”** This is an
+exact snapshot-tree excerpt from the checked-in, integration-tested
+[`cross-tree/case-routing-columns` `lossy-b` fixture](packages/benchmark/src/agent-benchmark/adaptive-qualification-fixtures.ts):
 
-BrowserIR does not replace Playwright. It starts with Playwright's normal
-semantic snapshot:
+<table>
+  <thead>
+    <tr>
+      <th scope="col" width="50%" align="left">Playwright — enrichment off</th>
+      <th scope="col" width="50%" align="left">BrowserIR — auto</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td valign="top"><pre><code>- region "Case routing" [ref=e31]
+  - group "Relationship labels" [ref=e32]
+    - heading "Urgent queue" [ref=e33]
+    - heading "Routine queue" [ref=e34]
+  - group "Relationship controls" [ref=e35]
+    - button "Open case" [ref=e41]
+    - button "Open case" [ref=e42]</code></pre></td>
+      <td valign="top"><pre><code>- region "Case routing" [ref=f2e31]
+  - group "Relationship labels" [ref=f2e32]
+    - heading "Urgent queue" [ref=f2e33]
+    - heading "Routine queue" [ref=f2e34]
+  - group "Relationship controls" [ref=f2e35]
+    - button "Open case" [ref=f2e41]
+    - button "Open case" [ref=f2e42]
 
-- When that snapshot already contains enough meaning, BrowserIR changes
-  nothing.
-- When relationships are split across trees or visible only through layout,
-  BrowserIR makes one bounded, read-only observation and adds complete,
-  provable relations using current Playwright references.
-- When evidence is incomplete, BrowserIR returns the original snapshot instead
-  of inventing a relationship.
+### Adaptive context
+- cross-tree-label [ref=f2e41] label="Routine queue"
+- cross-tree-label [ref=f2e42] label="Urgent queue"</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+
+With enrichment off, Playwright exposes both labels and two valid but
+indistinguishable `Open case` targets. Their sibling subtrees contain no
+structural edge that tells the agent which button belongs to which queue.
+BrowserIR adds exactly that missing relation, so `Routine queue` resolves to
+`f2e41` without introducing a new action API.
+
+The same failure mode appeared in the matching real-model
+`case-routing-columns / opaque-p1` task: BrowserIR passed on attempt 1, while
+enrichment-off failed all 3 allowed attempts ([raw task
+receipt](packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z.ndjson#L65-L68)).
+The receipt retains results and hashes rather than model-input snapshots, so
+the displayed pair comes from the tested fixture—not a reconstructed paid-run
+input.
+
+The runtime has only three outcomes:
+
+- **Sufficient:** return Playwright's original result unchanged.
+- **Provable gap:** make one read-only recapture, strip its box metadata, and
+  add a complete relation set using only current Playwright refs. The `f2` refs
+  above represent that fresh ref epoch.
+- **Incomplete or changed evidence:** return Playwright's original result
+  instead of guessing.
+
+The [product-path integration test](packages/playwright-mcp/tests/reference-policies.test.ts)
+checks current refs, box stripping, and complete-or-none projection.
 
 That distinction showed up directly in the real-agent run:
 
@@ -106,145 +142,71 @@ That distinction showed up directly in the real-agent run:
 The run produced 15 proven projections, one safe fallback, and zero
 demonstrated projection misses. The layer helped where relationships were
 missing while preserving Playwright's behavior where its semantics were already
-sufficient. The full BrowserIR graph runtime remains available as a separate
-legacy/experimental mode.
+sufficient.
 
-## Evidence, not promises
+## Source alpha
 
-<table>
-  <tr>
-    <td width="33%" align="center"><strong>14 / 14</strong><br><sub>database-judged workflows</sub></td>
-    <td width="33%" align="center"><strong>1.00</strong><br><sub>precision · recall · F1 on 11 cases</sub></td>
-    <td width="33%" align="center"><strong>3 / 3 · 18 / 18</strong><br><sub>identities · known omissions</sub></td>
-  </tr>
-</table>
+`@browserir/playwright-mcp` is currently a private source-alpha library—not a
+published npm package or a drop-in MCP server. It wraps an already-connected
+official MCP `Client`; Playwright continues to own the server, browser, tools,
+refs, and actions.
 
-- **System qualification:** a deterministic reference planner completed all 14
-  ERP/DMS workflows through BrowserIR, real Chromium, and the official MCP
-  client. This proves the declared representation and action path—not LLM
-  generalization.
-- **Representation qualification:** across the checked-in 11-case corpus,
-  BrowserIR matched 31/31 entities, 44/44 capabilities, 28/28 relationships,
-  and 1/1 required abstention, with no false facts or misses.
-
-| Matched agent comparison | Recorded result and boundary |
-| --- | ---: |
-| Thin adaptive Playwright: `auto` vs `off` | **Unsealed development evidence** — 31/32 vs 24/32; +21.875 pp |
-| BrowserIR vs raw-DOM serialization | **Not measured yet** |
-| Drop 02: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 21/30 vs 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
-| Drop 01: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
-
-The thin adaptive result is the current product signal; its scope and caveats
-are stated in [Measured impact](#measured-impact). Earlier sealed Drops tested a
-broader full-BrowserIR interface against Playwright's accessibility snapshot.
-Their intervals crossed zero, so both retain their predeclared
-**inconclusive** verdicts. Drop 02's nine-pair tail was also provider
-contaminated; its frozen score remains unchanged.
-
-[Inspect Drop 02](docs/evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
-[Read the analysis](docs/evidence-drops/drop-02/analysis.md) ·
-[See the frozen protocol](docs/evidence-drops/drop-02/sealed.protocol.json) ·
-[Earlier Drop 01 result](docs/evidence-drops/drop-01/drop-01-qwen38max-validation-recovery-adaptive-v2-run-01/summary.md)
-
-## How the scores are earned
-
-<p align="center">
-  <img src="assets/brand/browserir-scoring-method.svg" width="100%" alt="Fresh worker, known-failing baseline, browser interaction, closed access, then hidden database and audit grading">
-</p>
-
-Every task point follows the same fail-closed protocol:
-
-1. Start a fresh seeded SQLite application, browser, MCP runtime, and planner.
-2. Use a canonical seed separately regression-tested to make all 14 task
-   oracles **fail** before any action.
-3. Let the planner act only through the public model view and opaque references.
-4. Close browser and MCP access before grading.
-5. Award one binary point only if the hidden database-and-audit oracle passes.
-
-There is no partial credit. Task-specific oracles reject cheats such as a
-missing audit, a relevant collateral mutation, or a skipped validation
-sequence. Scored agent runs retain every failure and invalid attempt.
-
-Representation scoring is separate: technology-neutral expected sets are
-compared with observed entities, capabilities, and relationships. Precision
-penalizes invented facts; recall penalizes missing facts. Identity continuity
-and bounded-scan omissions are scored independently.
-
-```sh
-pnpm test:qualification -- --run-id local-qualification
-pnpm benchmark:representation -- --run-id local-representation
-```
-
-[Read the benchmark methodology](docs/BENCHMARK.md) ·
-[Inspect the oracle tests](packages/fixture-app/tests/task-oracles.test.ts) ·
-[Inspect the qualification harness](packages/mcp-server/tests/task-qualification-harness.ts)
-
-## What the model sees
-
-<p align="center">
-  <img src="assets/brand/browserir-representation.svg" width="100%" alt="A live form compiled into BrowserIR entities, relationships, actions, state, and a revision">
-</p>
-
-```text
-# Abridged exact native-choice fixture capture
-[e1@r1] input role="combobox" name="Customer Status" value="prospect"
-  state=enabled=true,expanded=false,focused=false,visible=true
-  actions=contextClick,focus,hover,select
-[e3@r1] option role="option" name="Active" value="active"
-[e3@r1] option-of [e1@r1]
-```
-
-`e1` is a session-local semantic identity; `@r1` binds it to revision 1.
-BrowserIR may retain `e1` when the same entity survives a rerender, but actions
-require a fresh revision-bound reference; a recycled row receives a new
-identity. Action receipts report effect status and include a graph delta when
-available.
-
-## Try the source alpha
-
-BrowserIR is not on npm yet. From a checkout, use Node.js 22.13+, pnpm 10.30.3,
-and Chromium:
+From a checkout with Node.js 22.13+ and pnpm 10.30.3, build and verify the
+thin-layer package:
 
 ```sh
 npm install --global corepack@0.34.7
 corepack enable
 corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm exec playwright install chromium
-pnpm build
-node packages/mcp-server/dist/cli.js
+pnpm --filter @browserir/playwright-mcp build
+pnpm --filter @browserir/playwright-mcp test
 ```
 
-Point an MCP client at the built stdio server:
+Then opt into one fixed policy family in host code:
 
-```json
-{
-  "mcpServers": {
-    "browserir": {
-      "command": "node",
-      "args": ["/absolute/path/to/BrowserIR/packages/mcp-server/dist/cli.js"]
-    }
-  }
-}
+```ts
+import { createAdaptivePlaywrightTools } from '@browserir/playwright-mcp';
+import { createCrossTreeLabelReferencePolicy } from
+  '@browserir/playwright-mcp/reference-policies';
+
+const tools = createAdaptivePlaywrightTools(client, {
+  mode: 'auto',
+  policySet: createCrossTreeLabelReferencePolicy(),
+});
 ```
 
-The default nine-tool surface has no arbitrary page-code execution. An unsafe
-escape hatch exists only behind explicit opt-in.
+`client` is the caller-owned, connected official MCP client. While the wrapper
+is active, route all `listTools` and `callTool` operations through `tools`, then
+await `tools.dispose()`. See the [package guide](packages/playwright-mcp/README.md)
+and [closed-alpha integration guide](docs/PLAYWRIGHT_MCP_ADAPTIVE_ALPHA.md) for
+the complete lifecycle contract.
 
-## Alpha boundaries
+## Current boundaries
 
-The tested scope includes native and ARIA controls, evidence-backed custom
-controls, open Shadow DOM, same-origin frames, portals, virtualized grids, and
-full-document replacement. Closed Shadow DOM, canvas/WebGL-only interfaces,
-and inaccessible cross-origin content are not comprehensively represented.
-When evidence is insufficient, BrowserIR should abstain or report an omission.
+- First-party handles exist for bounded grid coordinates, schedule coordinates,
+  and cross-tree labels. The current real-agent evidence covers the schedule
+  and cross-tree families—not arbitrary visual understanding.
+- The host chooses exactly one policy family. `auto` does not inspect a prompt
+  or page to select among policies.
+- An eligible default `browser_snapshot` may add at most one hidden, read-only
+  boxed snapshot. The layer performs no hidden actions, page-code evaluation,
+  screenshots, or internal retries.
+- Unsupported input, parser drift, hidden failure, changed state, or incomplete
+  proof returns Playwright's original result unchanged.
+- The current 32-task result is favorable development evidence from a reused,
+  unsealed corpus; public package and generalization claims remain gated.
 
-[Architecture](docs/ARCHITECTURE.md) ·
-[Agent benchmark](docs/AGENT_BENCHMARK.md) ·
-[Security](SECURITY.md) ·
+The older full-graph `@browserir/mcp` runtime remains in this repository as a
+separate legacy/experimental interface. Its archived Drops were inconclusive
+and are not evidence for the thin layer measured above. See the
+[thin-layer architecture](docs/ADAPTIVE_PLAYWRIGHT_ARCHITECTURE.md),
+[measurement design](docs/ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md), or
+[archived evidence](docs/EVIDENCE_DROPS.md).
+
+[Documentation](docs/README.md) · [Security](SECURITY.md) ·
 [Troubleshooting](docs/TROUBLESHOOTING.md) ·
-[Contributing](CONTRIBUTING.md) ·
-[Changelog](CHANGELOG.md)
+[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
 ## License
 

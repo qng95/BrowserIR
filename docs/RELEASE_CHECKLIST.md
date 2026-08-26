@@ -1,17 +1,21 @@
-# BrowserIR 0.1 public release checklist
+# Legacy full-graph BrowserIR 0.1 release checklist
 
-Status: blocked. BrowserIR 0.1 is alpha and has not been published.
+Status: archived and blocked. The three-package full-graph runtime has not been
+published, and this is not the release path for the private
+`@browserir/playwright-mcp` thin layer.
+
+This checklist remains because release-verification code and tests consume its
+three-package artifact contract. It must not be read as current product
+availability or as authorization to publish the thin layer.
 
 This checklist distinguishes source readiness from an actual public release. A
 green build is not permission to publish, and creating documentation does not
 resolve package ownership or publication decisions.
 
-The dated local qualification evidence and the exact reasons publication is
-still blocked are recorded in [the alpha release-readiness
-assessment](RELEASE_READINESS.md). Checklist items below remain unchecked until
-they are repeated or confirmed against the selected clean release commit.
-The machine-readable gate matrix, source-binding rules, and dossier format are
-defined in [the release-evidence guide](RELEASE_EVIDENCE.md).
+Checklist items below remain unchecked until they are repeated or confirmed
+against a selected clean legacy release commit. The machine-readable gate
+matrix, source-binding rules, and dossier format are defined in the
+[legacy release-evidence guide](RELEASE_EVIDENCE.md).
 
 ## Release identity blockers
 

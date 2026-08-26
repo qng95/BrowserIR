@@ -1,4 +1,12 @@
-# BrowserIR evidence drops
+# Legacy full-graph BrowserIR evidence archive
+
+This file indexes the sealed complete-interface experiments for the separately
+retained full-graph runtime. The current thin `@browserir/playwright-mcp`
+development comparison is not an Evidence Drop; use its
+[canonical result](BROWSERIR_REAL_AGENT_RESULTS.md) and
+[runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md). The checksummed files under
+`docs/evidence-drops/` are immutable provenance records and are intentionally
+not rewritten to match the current product narrative.
 
 ## Why the evidence ships in small drops
 
@@ -346,51 +354,12 @@ multi-workflow generalization result, or superiority claim.
 [Read the outcome analysis](evidence-drops/drop-02/analysis.md) ·
 [Inspect the frozen protocol](evidence-drops/drop-02/sealed.protocol.json)
 
-## Thin adaptive Playwright development evidence (not an Evidence Drop)
-
-On 2026-08-26, the private `@browserir/playwright-mcp` thin layer completed a
-32-task matched development run with `qwen/qwen3.8-27b`, the OpenRouter
-`alibaba` route, and `max_retry=2`. Product mode `auto` solved **31/32
-(96.875%)** tasks and the same wrapper in mode `off` solved **24/32 (75.00%)**,
-an observed difference of **+21.875 percentage points**. The paired outcomes
-were 7 `auto`-only, 0 `off`-only, 24 both successful, and 1 neither. Exact
-paired and case-cluster sign sensitivities were both `p=0.015625`.
-
-The thin layer passed through all 16 semantic-sufficient tasks and projected
-15 of 16 opaque tasks. Its independent relation audit found 15/15 complete
-projections on demonstrated-recoverable layouts, one safe Catalog fallback,
-and zero demonstrated projection misses. With the three-fresh-attempt cap,
-`auto` used 34 physical calls, 58,264 tokens, and $0.03137911; `off` used 49
-calls, 85,839 tokens, and $0.05456337. The 83 calls used 144,103 tokens and cost
-$0.08594248; usage and cost coverage were complete. Pass@1 was 31/32 for `auto`
-versus 23/32 for `off`; pass@2 and pass@3 were 31/32 versus 24/32.
-
-The `/3` receipt measures scheduler-independent active task time from before
-fresh-arm setup through the exact-oracle terminal. Success-conditioned medians
-were 4,930 ms for `auto` (`n=31`) and 5,118 ms for `off` (`n=24`), but those
-per-arm distributions contain different survivors. On the primary 24-task
-common-success paired set, `auto` was faster on 17 tasks and `off` on 7, with a
-mean `auto - off` difference of −1,088.71 ms. These timings remain descriptive.
-
-This result is published as **development evidence**, not registered as Drop
-03. The corpus was reused after the preceding policy `/2` round was inspected,
-and the receipt does not serialize the executed product policy version or a
-product-source hash. The favorable point estimate and exact sensitivity
-therefore do not create a confirmatory, general-superiority, public-release, or
-advertising claim. The next Evidence Drop still requires prospective sealing
-and an untouched source-bound corpus.
-
-[Read the full result and integrity record](BROWSERIR_REAL_AGENT_RESULTS.md) ·
-[Read the reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md)
-
 ## Drop registry
 
 | Drop | Question | Status | Public result |
 | --- | --- | --- | --- |
 | 01 | Playwright MCP accessibility-snapshot interface vs BrowserIR on one database-judged validation-recovery workflow | Adaptive v2 complete; v1 aborted diagnostic retained | **Inconclusive:** BrowserIR 30/30 vs control 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
 | 02 | Playwright MCP accessibility-snapshot interface vs BrowserIR on `query-three-conditions` with fixed Qwen3.8-Max | Published; result tag and checksummed bundle retained | **Inconclusive:** BrowserIR 21/30 vs control 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
-| 03 | WebArena-Verified Hard pilot | Planned | Not run |
-| 04 | WorkArena enterprise workflows | Planned | Not run |
 
-The registry grows one released row at a time. Later multi-model and multi-agent
-matrices extend the evidence; they do not rewrite earlier drops.
+Future work must create a new prospectively sealed protocol; it must not be
+presented as an already scheduled Drop in this archive.

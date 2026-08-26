@@ -1,46 +1,13 @@
-# BrowserIR Architecture
+# Legacy full-graph BrowserIR architecture
 
-Status: implemented source-alpha thin layer plus separately selected full graph runtime
+Status: archived implementation reference; not the current product contract
 Last updated: 2026-08-26
 
-> **Product-direction update:** the default source-alpha product is now a
-> lightweight adaptive observation layer around official Playwright MCP. The
-> full graph runtime documented below remains a separately selected
-> legacy/experimental mode. See
-> [Adaptive Playwright architecture](ADAPTIVE_PLAYWRIGHT_ARCHITECTURE.md).
-
-## Thin adaptive Playwright layer
-
-The `@browserir/playwright-mcp` package keeps official Playwright MCP as the
-browser driver, target namespace, action surface, and fallback observation. Its
-middleware adds one narrow decision step:
-
-```text
-official Playwright snapshot
-  -> deterministic BrowserIR relation analysis
-  -> fixed host-selected policy
-  -> safe projection, or original-snapshot passthrough
-  -> unchanged Playwright actions and opaque targets
-```
-
-The layer is intentionally not a second browser agent. It does not ask a model
-to rewrite the page, replace Playwright's actionability checks, or invent a
-relation when evidence is insufficient. The fixed task-independent policy sees
-the snapshot, never the task prompt or oracle, and projects only a complete
-relation set it can prove. Otherwise the official snapshot remains the model
-input.
-
-The current reference-policy schedule is `/3`. Its schedule-resource/root
-containment rule allows a one-pixel rendering-boundary tolerance only for that
-specific relationship; a two-pixel gap is rejected. In the checked zero-model
-preflight, all 15 recoverable relations project, one unresolved case safely
-falls back, and there are zero projection misses.
-
-A 32-pair unsealed development run with the single model
-`qwen/qwen3.8-27b` recorded 31/32 successes with the adaptive layer and 24/32
-with passthrough, but that is descriptive evidence rather than a general
-architecture guarantee. See [the result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md)
-and [the reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
+> This file documents the separately retained `@browserir/core`,
+> `@browserir/playwright`, and `@browserir/mcp` graph runtime. It is not the
+> contract measured by the current thin-layer benchmark and is not the setup
+> path from the root README. See the canonical
+> [thin-layer architecture](ADAPTIVE_PLAYWRIGHT_ARCHITECTURE.md).
 
 ## Product goal
 
@@ -58,7 +25,7 @@ The representation presented to an LLM must be **as simple as possible, but not 
 - revisioned, so stale observations cannot silently drive current browser state;
 - progressive, with overview, focused inspection, and small deltas instead of repeated full dumps.
 
-BrowserIR is being prepared for release as two public products:
+This legacy design originally planned two public products:
 
 1. a reusable browser-independent core; and
 2. an MCP server that exposes the core to external AI agents.
@@ -148,7 +115,7 @@ None of the public-candidate packages are published yet. The thin
 driver, and full MCP server form the separately selected full graph runtime.
 The fixture and benchmark packages remain private development infrastructure.
 
-The two production dependency directions are:
+The two source runtime directions are:
 
 ```text
 default: official Playwright MCP <- thin adaptive middleware
@@ -833,9 +800,8 @@ The core must be testable with a deterministic fake driver. Time, generated IDs,
 
 ## Implementation milestones and acceptance gates
 
-The milestones below define target acceptance gates, not a claim that every
-item is already implemented. Current completion status is tracked in
-`docs/KANBAN.md`.
+The milestones below are retained as historical design gates, not as current
+thin-layer release status and not as a claim that every item is implemented.
 
 ### M0: Contracts and scaffolding
 

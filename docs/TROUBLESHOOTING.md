@@ -1,96 +1,106 @@
-# BrowserIR troubleshooting
+# BrowserIR thin-layer troubleshooting
 
-This guide covers the supported local stdio alpha. BrowserIR does not currently
-support a hosted or multi-tenant deployment.
+This guide covers the private `@browserir/playwright-mcp` source alpha. The
+package is host-side middleware around an already-connected official MCP
+`Client`; it is not a drop-in MCP server, browser launcher, hosted service, or
+published npm package.
 
-## The MCP server does not start
+## The package does not build or import
 
-Build the workspace first, then start the compiled executable with an absolute
-path:
+Use Node.js 22.13+ and the repository's pinned pnpm version, then build only the
+thin-layer package:
 
 ```sh
+npm install --global corepack@0.34.7
+corepack enable
+corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm build
-node /absolute/path/to/BrowserIR/packages/mcp-server/dist/cli.js
+pnpm --filter @browserir/playwright-mcp build
+pnpm --filter @browserir/playwright-mcp test
 ```
 
-Use Node.js 22.13 or newer. Keep stdout reserved for MCP messages; diagnostics
-belong on stderr. Run the executable with `--help` or `--version` outside an MCP
-connection to verify that the expected build is being used.
+Import the wrapper from `@browserir/playwright-mcp` and a concrete first-party
+policy from `@browserir/playwright-mcp/reference-policies`. Do not start
+`packages/mcp-server/dist/cli.js`; that executable belongs to the separate
+legacy full-graph runtime.
 
-## Chromium is missing
+## A second wrapper is rejected
 
-Install the browser version owned by the pinned Playwright dependency:
+One raw client object may have only one active adaptive wrapper. Route every
+`listTools` and `callTool` operation through that wrapper, stop admitting host
+work, and await `tools.dispose()` before creating another wrapper for the same
+client.
+
+The caller owns the client and transport. `dispose()` drains accepted wrapper
+work but does not close either one.
+
+## `auto` never performs a hidden read
+
+Only an exact default `browser_snapshot` request is eligible. Confirm that:
+
+- mode is `auto`;
+- the host supplied exactly one policy appropriate for that integration;
+- the request has no explicit `boxes`, filename, depth, target, or other
+  snapshot arguments;
+- the visible result is successful and contains exactly one supported inline
+  snapshot with a page URL; and
+- the supplied timeout budget and abort signal still permit a second raw call.
+
+Other tools and explicit snapshot variants intentionally pass through. `auto`
+does not choose among policy families by reading the task prompt or page.
+
+## `auto` returns the original Playwright result
+
+That is the fail-closed behavior, not necessarily an error. The original
+visible result is returned unchanged when semantics are already sufficient, a
+policy is not applicable, the deadline is exhausted, the hidden call fails,
+page state changes between reads, or the projector cannot prove a complete
+mapping.
+
+Enable bounded telemetry only while diagnosing. Its complete `outcome` set is
+`disabled`, `not-applicable`, `passthrough`, `cancelled-before-hidden`,
+`deadline-exhausted`, `hidden-failed`, `state-mismatch`,
+`projection-unresolved`, `projected`, and `visible-failed`. Events contain no
+page text, URLs, refs, labels, prompts, arguments, durations, or raw payloads.
+
+## Refs changed after projection
+
+That is expected. A successful projection uses refs from the fresh hidden
+recapture, never refs from the earlier visible snapshot. The returned snapshot
+contains those current refs, strips all box metadata, and appends a complete
+`### Adaptive context` section. Dispatch later Playwright actions only with
+refs from that returned result.
+
+## A projection is missing or looks partial
+
+The first-party policies are complete-or-none. Ambiguous geometry, duplicate
+labels, missing boxes, unsupported structure, conflicting roots, or an
+incomplete bijection must produce the original visible result rather than
+partial facts. Reduce a suspected miss to a fixture and run:
 
 ```sh
-pnpm exec playwright install chromium
+pnpm --filter @browserir/playwright-mcp test
 ```
 
-If a clean consumer installation uses strict dependency layouts, install the
-documented exact Playwright version in that consumer project before running the
-browser installation command.
+The current real-agent evidence covers strict schedule-coordinate and
+cross-tree-label families. The grid-coordinate handle exists but has no current
+retained live qualification. None of these policies is a general visual
+reasoner.
 
-## No browser window appears
+## The real-agent benchmark cannot read the OpenRouter key
 
-Headless mode is the default. Add `--headful` to the MCP executable arguments to
-watch the same isolated fixed-viewport session. BrowserIR never attaches to the
-user's normal Chrome profile.
+The benchmark wrapper expects macOS Keychain account `BrowserIR` and service
+`OPENROUTER_API_KEY`. Follow the exact setup and existence-only verification in
+the [real-agent runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md); never paste the
+secret into logs, documentation, or chat.
 
-## An action reports a stale revision or target
+## The browser or MCP transport fails
 
-The page changed after the reference was produced. Call `browser_observe`, use
-the returned current revision and entity references, then decide whether the
-action is still appropriate. Do not retry a mutating action automatically when
-the earlier result says it may already have dispatched.
+Those resources belong to the caller's official Playwright MCP integration,
+not this middleware. Diagnose connection, Chromium, profile, and transport
+failures there. BrowserIR propagates a visible upstream throw and never retries
+it internally.
 
-## A visible control is missing
-
-First inspect the compact view's omissions. Exact counts mean BrowserIR knew how
-many candidates were dropped; an `at least` count means a bounded raw scan ended
-before the unseen cardinality was knowable. Then check whether the control is:
-
-- covered, outside the viewport, hidden, inert, or disabled;
-- inside a closed shadow root, inaccessible cross-origin document, canvas, or
-  WebGL surface;
-- an unannotated custom control with no portable semantic or interaction
-  evidence; or
-- off-DOM data in a virtualized collection.
-
-Use a targeted `browser_inspect` request when the entity exists but the compact
-view omitted detail. A screenshot can help diagnose visual state, but screenshot
-content remains untrusted and potentially sensitive.
-
-## Capture is rejected
-
-`stale_revision` means the request began from an old view.
-`capture_invalidated` means represented state changed while pixels were being
-captured. `capture_verification_failed` means BrowserIR could not prove the
-post-capture state. Observe and retry only if another capture is still needed.
-`capture_invalid` means an embedding driver returned inconsistent identity,
-bytes, or geometry and should be treated as a driver defect.
-`capture_too_large` means the image exceeded 8,294,400 physical pixels or 16 MiB
-of encoded PNG data; use the fixed profile or an entity crop within those
-bounds.
-
-## The browser exits when the MCP client disconnects
-
-That is expected. The stdio connection owns its browser sessions and closes
-them on EOF, SIGINT, SIGTERM, or explicit close. If shutdown reports a cleanup
-failure, preserve stderr and the exact Node/Playwright/Chromium versions for a
-bug report rather than leaving the process running indefinitely.
-
-## A local browser test cannot bind a server or launch Chromium
-
-Some sandboxes prohibit loopback listeners, shared memory, or browser process
-creation. Run the test in a development/CI environment that permits a
-loopback-only fixture and sandboxed Chromium. Do not weaken the fixture to bind
-all network interfaces.
-
-## Package or release verification fails
-
-`pnpm verify:packages` checks built file allowlists and package contracts.
-`pnpm verify:packed-consumer` installs and drives real tarballs in a clean
-consumer. `pnpm verify:release` additionally requires the maintainer-selected
-license, public package settings, and consistent
-release identity. Those legal and ownership failures are intentional until the
-maintainer resolves them; do not bypass the verifier.
+For lifecycle and option-forwarding details, see the
+[closed-alpha integration guide](PLAYWRIGHT_MCP_ADAPTIVE_ALPHA.md) and
+[package guide](../packages/playwright-mcp/README.md).

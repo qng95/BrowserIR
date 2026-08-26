@@ -1,222 +1,81 @@
 # Changelog
 
-All notable changes to BrowserIR will be documented here. The project intends to follow Semantic Versioning after its public contracts stabilize.
+All notable changes to BrowserIR's current thin-layer product path are recorded
+here. The project intends to follow Semantic Versioning after its public
+contracts stabilize.
 
 Last updated: 2026-08-26
 
 ## Unreleased
 
-### Preparing 0.1.0 alpha
-
-BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and does not imply API stability or competitor superiority.
-
 ### Added
 
-- A source-alpha `@browserir/playwright-mcp` adaptive middleware that wraps the
-  official Playwright MCP observation path, applies one fixed task-independent
-  policy, projects only complete evidence-backed relationships, preserves
-  opaque Playwright target references, and passes the original snapshot through
-  when no safe projection is available.
-- A retry-, token-, latency-, and cost-aware OpenRouter A/B runner for the thin
-  adaptive layer. Its latest unsealed development run used only
-  `qwen/qwen3.8-27b`, 32 matched tasks evaluated in both modes,
-  `max_retry=2`, and 83 model
-  calls. Adaptive `auto` passed 31/32 (96.875%) versus 24/32 (75%) for `off`, a
-  +21.875-point descriptive difference with 7 auto-only wins, 0 off-only wins,
-  24 both passes, and 1 both failure. Both the exact paired McNemar test and the
-  case-cluster sign-test sensitivity check were `p=0.015625`. Pass@1 was 31/32
-  versus 23/32; pass@2 and pass@3 were 31/32 versus 24/32.
-- Publication-oriented analysis for that development run, including the
-  semantic/opaque split, projection audit, retries, 144,103 provider tokens,
-  $0.08594248 total cost, $0.03137911 adaptive-arm cost, and $0.00101222935
-  adaptive cost per successful task. See
-  [the result and claim boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md).
-- Scheduler-independent active task timing for the same `/3` receipt, beginning
-  before fresh-arm setup and ending at the exact-oracle terminal. Success-only
-  arm distributions retain their observed `n`; the primary comparative timing
-  is the 24-task common-success paired set, where `auto` was faster on 17 tasks,
-  `off` on 7, and mean `auto - off` time was −1,088.71 ms.
-
-- Browser-independent interaction graph with semantic entities, capabilities, relationships, evidence, confidence, revisions, and deltas.
-- Deterministic compact and structured views with character budgets, explicit omissions, focused inspection, and optional evidence.
-- Revision-bound entity references and stale-target rejection.
-- Typed browser actions for click, double-click, context-click, focus, hover, fill, type, select, check, uncheck, press, scroll, drag, and host-resolved upload.
-- Action receipts that distinguish blocked, verified, and dispatched-but-unverified outcomes.
-- Playwright and Chromium driver with fixed session viewport profiles, frame and popup tracking, open Shadow DOM traversal, native and ARIA controls, custom click evidence, choice normalization, validation state, and transient status content.
-- Exact and conservative inferred label relationships with deterministic ambiguity abstention.
-- Bounded native/ARIA table and grid normalization with table, row, and cell
-  entities; header roles, declared counts and indices; containment, `row-of`,
-  and `cell-of` relations; virtualized-record identity; and explicit scan-cap
-  omissions.
-- Evidence-backed double-click and drag capabilities from native, ARIA,
-  inline, framework, and safely tracked listener signals, including
-  conservative delegated double-click for focusable structural cells.
-- Centralized ARIA activation semantics for button/link/checkable/tab/tree/menu
-  roles, visible custom options, and transient menu items, with name-from-content
-  and hidden, occluded, inert, disabled, and native-option negatives.
-- Viewport and entity PNG capture with viewport, scale, scroll, and clip metadata, plus post-capture observation that discards pixels when represented state changes or stability cannot be verified.
-- Model-visible exact and lower-bound omission telemetry for bounded standard
-  controls/scopes/options, roleless interactions, semantic labels, and
-  structural table scans.
-- Per-connection browser, per-session page, per-observation frame-analysis, and
-  capture pixel/byte limits with negative regressions.
-- Local stdio MCP server targeting protocol version `2026-07-28` with create, navigate, observe, inspect, act, wait, pages, capture, and close tools.
-- Experimental Chromium-only `browser_evaluate_unsafe` escape hatch that is
-  absent from the default nine-tool catalog and requires explicit CLI/server
-  opt-in plus a host-provided audit sink. It enforces source, timeout, result,
-  serialization, cancellation, post-observation, revision-invalidation, and
-  fail-closed audit bounds.
-- Whole-pipeline unsafe-evaluation deadlines cover protocol-session acquisition,
-  execution, promise settlement, and bounded serialization. Timeout,
-  cancellation, or an unacknowledged protocol failure triggers bounded
-  termination, verified target closure, or irreversible logical-session
-  invalidation; evaluation is never retried.
-- Stock CLI help/version output and an explicit `--headful` mode for watching the same isolated, fixed-viewport Chromium session during development.
-- Deterministic ERP/DMS fixture backed by in-memory SQLite, 14 task oracles, and audit-log verification.
-- Benchmark library for task outcomes, representation precision/recall/F1, correct abstention, identity stability, omission accounting, payload measurement, deterministic reports, latency statistics, bootstrap intervals, and environment-matched regression gates.
-- Benchmark schema 1.1 reproducibility fields: stable run IDs, exact workload and fixture metadata, warmup counts, and seeded 95 percent p50/p95 confidence intervals; source provenance is retained without making cross-revision environment comparison impossible.
-- Apache-2.0 licensing, public alpha documentation, security boundary,
-  contribution workflow, benchmark methodology, and release checklist.
-- Manifest-driven paired agent comparisons between pinned official Playwright
-  MCP and BrowserIR under the same neutral LangChain agent, model, task,
-  browser profile, budgets, fresh fixture, and deterministic database/audit
-  oracle. The runner counterbalances arm order, verifies baseline equivalence
-  and model-facing catalogs, uses a conservative paired interval, separates
-  paired-valid from operational counts, and emits create-only checksummed
-  evidence.
-- Publication-safe paired artifacts replace browser inputs, page payloads,
-  model final text, and private oracle bodies with byte counts and SHA-256
-  digests while preserving local in-memory diagnostics for the benchmark
-  feedback loop.
-- Exact public-package allowlists, package-local READMEs, clean source-map-free builds, workspace dependency rewrite checks, and a fresh-consumer tarball smoke test that drives the installed stdio executable with the official MCP client.
-- Bounded CI gates for the minimum Node.js release, the qualified Node.js 24 release, capability coverage, all 14 database-backed tasks, representation quality, and archived qualification evidence; third-party Actions are pinned to immutable commits.
-- Create-only release-evidence fragments for seven logical gates, including
-  JSON/JUnit test reports, benchmark and qualification artifacts, packed-package
-  hashes, normalized production-audit classifications, runtime metadata, source
-  binding, stable before/after endpoint verification, and per-file SHA-256
-  checksums. Schema `1.1.0` fragments supersede and invalidate pre-verification
-  schema `1.0.0` evidence.
-- A fail-closed dossier assembler that requires all nine Node/gate variants from
-  one clean GitHub Actions commit and run attempt, verifies artifact allowlists
-  and checksums, recomputes source binding, retains the exact reviewed workspace
-  test-count policy ID, rejects source drift and stale count policies, and
-  retains checksummed assembly-failure evidence when possible.
-- Ninety-day CI retention for individual fragments and the assembled dossier,
-  with documented durable-promotion, integrity-versus-authenticity, and
-  dirty/unbound local-evidence policies.
-- A frozen, score-excluded official-control compatibility gate with five
-  precommitted attempts, exact database/audit/submission grading, create-only
-  checksummed artifacts, and start/end source, model-endpoint, runtime-package,
-  MCP-client, Playwright, and Chromium binding. The first retained run completed
-  5/5 attempts on the already-seen `create-customer` workflow with zero failed
-  or invalid attempts. It contains no BrowserIR arm and is not an uplift,
-  pass-rate, generalization, or competitor-superiority result.
-- A frozen Drop 01 paired protocol for 30 counterbalanced
-  `validation-recovery` blocks comparing BrowserIR with official Playwright MCP
-  `0.0.78` in accessibility-snapshot mode. Sealed execution now binds the
-  qualified OpenRouter model route/configuration, precommitted shared seeds,
-  sign-independent decision rule, start/end endpoint metadata, exact runtime
-  package and Chromium provenance, and final-child-only credential access. The
-  separately frozen adaptive-v2 recovery completed all 30 fresh matched blocks
-  with zero invalids: BrowserIR passed 30/30 and official Playwright MCP passed
-  27/30. Its +10.00-point paired estimate had a 95% bound of −39.59 to +59.59
-  points, making the predeclared result inconclusive.
-- Evidence Drop 02 completed its full sealed 30-block schedule on the
-  real-model-unexposed `query-three-conditions` fixture workflow with the
-  frozen Qwen3.8-Max configuration. BrowserIR passed 21/30 and official
-  Playwright MCP passed 20/30: 1 BrowserIR win, 0 control wins, 20 both pass,
-  9 both fail, and 0 invalid. The +3.33-point paired estimate has a 95% paired
-  Hoeffding interval of −46.26 to +52.92 points, so the predeclared verdict is
-  inconclusive. The shared tail is provider-contaminated and best explained by
-  exhausted OpenRouter credit; the frozen score remains unchanged. Publication
-  commit `294fd82` passed all ten hosted jobs in run `31625678956`, and
-  `evidence-drop-02-v1-result` binds that exact commit.
+- Private source-alpha `@browserir/playwright-mcp` middleware around a
+  caller-owned official MCP `Client`. It preserves the official tool catalog,
+  refs, actions, and lifecycle while adding only complete, evidence-backed
+  relationships to eligible snapshots.
+- Explicit first-party grid-coordinate, schedule-coordinate, and
+  cross-tree-label policy handles. The host selects exactly one fixed policy;
+  `auto` does not inspect the task prompt to route among families.
+- A real-browser, zero-model qualification over 64 arms. The current schedule
+  `/3` source projects all 15 independently demonstrated recoverable relations,
+  safely falls back once, performs no hidden actions, and has zero demonstrated
+  projection misses.
+- A retry-, pass@k-, task-time-, token-, and cost-aware real-agent A/B runner.
+  The retained Qwen3.8-27B development run solved 31/32 tasks in `auto` versus
+  24/32 with enrichment `off`, with 7 `auto`-only wins and no `off`-only wins.
+  See the [canonical result and claim
+  boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md).
+- Current architecture, integration, troubleshooting, measurement, reproduction,
+  and result documentation indexed in [docs/README.md](docs/README.md).
 
 ### Changed
 
-- Advanced the schedule-resource/root containment projector to reference-policy
-  schedule `/3`. The one-pixel boundary tolerance applies only to that
-  relationship; a two-pixel gap remains rejected. The current 64-arm zero-model
-  preflight projects all 15 recoverable relations, safely falls back once, and
-  records zero projection misses.
-- The thin-layer development comparison now reports retry economics and active
-  task latency rather than treating model fluctuation as a single terminal
-  outcome. Opaque tasks were 15/16 in `auto` versus 8/16 in `off`; semantic tasks
-  were 16/16 in both arms. Success-conditioned latency is explicitly separated
-  from the common-success paired comparison to expose survivor bias.
-  This run is unsealed descriptive evidence: the corpus was reused after the
-  prior round was inspected, and its receipt does not serialize policy-version
-  or product-source provenance. It is not independent confirmation or a broad
-  superiority claim.
-
-- Flattened the model-facing `browser_act` and `browser_wait` inputs. Action or
-  wait `kind`, revision-bound refs, and kind-specific values now occupy one
-  strict JSON object; nested and stringified payloads, bracketed refs, and
-  unrelated fields fail before browser dispatch. The runtime still translates
-  validated calls into BrowserIR's strongly typed core actions.
-- Retained public-safe partial agent telemetry when a run times out or fails,
-  including model turns and usage already observed plus pre-broker adapter
-  rejection counts. Raw model messages and tool arguments remain excluded.
-- Froze Evidence Drop 02 before its first scored call at protocol SHA-256
-  `a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3`.
-  The clean freeze commit `1b4f78a` passed all ten hosted v17 jobs in run
-  `31616555262` and is bound by `evidence-drop-02-protocol-v1`. The sealed run
-  retained every scheduled attempt and does not support raw-DOM,
-  pure-representation, unseen-site, generalization, or superiority claims.
-- The first Drop 01 v1 execution was operator-stopped after nine complete
-  matched blocks, with a tenth control arm complete and its treatment arm in
-  flight. The prefix has no score or interval. Diagnosis showed the model
-  stringifying the old nested action object and LangChain rejecting it before
-  the BrowserIR broker. Two score-excluded canaries on the already-seen
-  `create-customer` workflow passed after the flat-contract fix. The v2 run is
-  an adaptive recovery: it reuses the exact 30 seeds and arm orders, restarts
-  every arm, and is not independent confirmation. Adaptive v2 completed with
-  27 both-passed blocks, 3 treatment wins, and no control wins, both-failed
-  blocks, or invalid blocks. It compares complete interfaces rather than
-  representation alone and does not establish raw-DOM uplift, independent
-  confirmation, generalization, or superiority.
+- Advanced the schedule/resource projector to `schedule-coordinate-policy/3`.
+  A one-pixel serialized final-resource overhang is accepted only at the
+  schedule root edge; a two-pixel gap and all other incomplete or ambiguous
+  mappings remain unresolved.
+- Replaced single-terminal-outcome reporting with fresh-attempt retry counts,
+  pass@1/pass@2/pass@3, physical model calls, provider tokens and cost, final
+  cost per success, success-conditioned task time, and common-success paired
+  task time.
+- Made the thin layer the primary documented product. The older full-graph
+  packages and evidence are now explicitly labelled legacy/experimental.
 
 ### Security
 
-- Stock MCP deployment is local stdio only and owns browser cleanup for its connection.
-- Arbitrary page evaluation is absent from default tool discovery and disabled
-  by default. Enabling the experimental escape hatch is an explicit security
-  boundary change and still requires mandatory redacted intent/completion
-  auditing.
-- Navigation schema accepts only HTTP and HTTPS URLs; hosts remain responsible for egress and SSRF policy.
-- Playwright source targets remain private to the driver and are not written into page DOM properties or exposed through MCP.
-- Sensitive native/custom field values and credential-bearing URL components
-  are minimized before model-facing output; screenshots remain explicitly
-  sensitive.
-- Automatic downloads are rejected by the maintained browser context, the
-  benchmark fixture binds only to loopback, and failed browser cleanup remains
-  retryable and reports aggregate failure.
-- Playwright's process-signal hooks default off in the maintained backend so
-  the BrowserIR stdio owner can close real browser sessions before SIGINT 130
-  or SIGTERM 143; EOF remains a normal code-0 disconnect.
-- Fixture startup rejects listen failures promptly instead of leaking an
-  unhandled server error and timing out its caller.
+- Only an exact default `browser_snapshot` request can trigger adaptation.
+- One eligible call can make at most one hidden boxed snapshot; the package
+  performs no hidden action, navigation, evaluation, screenshot, or retry.
+- Successful output uses current refs, strips raw boxes, and requires a complete
+  projection over unchanged state. Every unsafe, failed, or unresolved path
+  returns the exact original visible result object.
+- Snapshot parsing is bounded and opt-in telemetry contains only five
+  content-free fields. The caller continues to own the MCP server, browser,
+  transport, authorization, network policy, data handling, and shutdown.
 
 ### Known limitations
 
-- Chromium is the only supported browser backend.
-- Packages remain unpublished pending npm scope ownership, an alpha version/tag
-  decision, public-package privacy changes, and the publication step itself.
-- The two completed sealed paired real-model Evidence Drops are inconclusive
-  complete-interface controlled-fixture pilots. Neither is a raw-DOM
-  comparison, multi-workflow generalization result, or broad superiority
-  result; Drop 01 is adaptive and Drop 02 is one new real-model slice within
-  the same known fixture.
-- The separate 32-pair adaptive-Playwright result is an unsealed, inspected-
-  corpus development study. Its favorable 31/32 versus 24/32 outcome is useful
-  engineering evidence, but it is not a third sealed Evidence Drop and cannot
-  support a confirmatory or general-superiority claim until a future protocol
-  binds source and policy provenance prospectively.
-- Closed Shadow DOM, canvas-only interfaces, fully unannotated choices,
-  higher-level table semantics such as general sort/filter/pagination ownership,
-  persisted auth profiles, managed downloads, continuation views, historical
-  views, and a stock remote HTTP deployment are not supported public 0.1
-  features.
-- Screenshot capture is guarded by a post-capture representation check, but is not pixel/observation atomic and cannot detect a purely visual race outside the BrowserIR graph.
-- Child-frame replacement currently invalidates references page-wide.
-- Public API compatibility may change during the 0.1 alpha series.
+- `@browserir/playwright-mcp` remains private and unpublished; the source API
+  may change before a public alpha.
+- Only exact default snapshots are eligible. The host must select one policy
+  family, and the current layer is not a prompt-driven general visual reasoner.
+- The real-agent run covers schedule-coordinate and cross-tree-label challenge
+  cases. Grid policies have source and zero-model coverage but no claim-grade
+  real-agent result yet.
+- The favorable 32-task comparison is an unsealed development study on a corpus
+  reused after an earlier projector round. Its receipt omits product source and
+  policy-version provenance, so it is not independent confirmation, unseen-site
+  generalization, or a broad superiority claim.
+
+## Legacy full-graph research line
+
+The unreleased `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`
+runtime, its nine-tool interface, deterministic 14-workflow qualification,
+release-evidence pipeline, and Evidence Drops 01/02 remain in source and
+checksummed archives. They are a separate historical interface, not a prior
+release of the current thin layer and not evidence for its 31/32 result.
+
+See the [legacy architecture](docs/ARCHITECTURE.md), [evidence
+archive](docs/EVIDENCE_DROPS.md), and immutable `docs/evidence-drops/`
+artifacts. Both sealed legacy Evidence Drops were inconclusive.

@@ -6,8 +6,8 @@ Last updated: 2026-08-26
 ## Current implementation status
 
 The product layer now lives in the private `@browserir/playwright-mcp` package.
-The repository also contains a live official-Playwright-MCP adapter, eight-site
-development corpus, fresh-state retry executor, exact database oracle,
+The repository also contains a live official-Playwright-MCP adapter, an
+eight-case fixture corpus, fresh-state retry executor, exact database oracle,
 append-only physical-call journal, projection audit, `pass@k`, and complete
 token/cost accounting.
 
@@ -16,8 +16,8 @@ cross-tree-label families. It projected 15/15 independently demonstrated
 recoverable relations, retained one safe fallback, recorded zero projection
 misses, made no model calls, and performed no task mutation.
 
-One paid two-mode development study then ran with `qwen/qwen3.8-27b`, OpenRouter
-`alibaba`, provider fallback disabled, and `max_retry=2`. On 32 paired tasks,
+One real-model two-mode development study then ran with `qwen/qwen3.8-27b`,
+OpenRouter `alibaba`, provider fallback disabled, and `max_retry=2`. On 32 paired tasks,
 `auto` solved 31/32 and `off` solved 24/32: +21.875 percentage points, with 7
 `auto`-only, 0 `off`-only, 24 both, and 1 neither. At `pass@1`, `auto` reached
 31/32 and `off` 23/32; at `pass@2` and `pass@3`, they reached 31/32 and 24/32.
@@ -43,15 +43,6 @@ round was inspected, and the receipt does not serialize the product policy
 version or product-source hash. A durable journal exists, but an untouched
 prospective corpus, frozen power analysis, source-bound runtime contract, and
 the full P/A/F study remain future work.
-
-Current implementation references:
-
-- `packages/playwright-mcp/src/index.ts`
-- `packages/playwright-mcp/src/reference-policies.ts`
-- `packages/benchmark/src/agent-benchmark/adaptive-product-ab-broker.ts`
-- `packages/benchmark/src/agent-benchmark/browserir-retry-executor.ts`
-- `packages/benchmark/src/agent-benchmark/browserir-retry-analysis.ts`
-- `packages/benchmark/src/browserir-openrouter-real-ab-smoke.ts`
 
 ## Product decision
 
@@ -86,44 +77,26 @@ authorize the following unqualified claims:
 
 After a clean sealed study, a benchmark-scoped comparison is allowed only when
 all hard guardrails pass and the lower bound of the frozen paired 95% interval
-for `Delta(A,P)` is above zero. The wording must name the scope rather than
-silently generalize beyond it:
+for `Delta(A,P)` is above zero. Any wording must name the tested corpus, model,
+retry policy, sample size, interval, and limitations. A representative shadow
+sample is still required before translating challenge-corpus lift into a
+product-wide claim.
 
-> In our sealed [site-count]-site benchmark of structurally ambiguous
-> interfaces, BrowserIR Adaptive improved exact task completion from [P]% to
-> [A]% versus plain Playwright MCP (paired 95% interval [lower, upper]).
-
-The public evidence page must bind the exact corpus, protocol, implementation,
-model/runtime, scored result, interval method, sample size, safety outcomes,
-cost definition, limitations, and artifact checksums. Observed provider cost
-and the no-cache counterfactual are reported separately. A representative
-shadow sample is required before translating challenge-corpus lift into a
-product-wide lift claim.
-
-The in-repository advertising decision helper is deliberately feature-only
-until a publisher opens and independently rederives those sealed artifacts.
-Hash-shaped strings, copied rates, and caller-authored eligibility booleans are
-never sufficient to authorize comparative copy.
-
-Marketing effectiveness is a separate experiment. Once substantiated copy
-exists, compare the factual feature claim with the benchmark-scoped claim on
-qualified signup, activation, retained usage, CAC, and churn. Ad conversion
-cannot substitute for evidence that the technical performance claim is true.
-
-## Arms
+## Prospective benchmark arms
 
 The primary experiment uses three fresh-state arms with the same model, task,
 Playwright action catalog, browser profile, budgets, and deterministic judge.
 
-- `P-PLAIN`: official safe Playwright MCP without host enrichment.
-- `A-ADAPTIVE`: the adaptive broker in `geometry:auto` mode.
+- `P-PLAIN`: exact official Playwright MCP pass-through without host enrichment.
+- `A-ADAPTIVE`: package mode `auto` with one frozen, host-selected policy.
 - `F-FORCE-COMPACT`: the same projector and box-free output contract as A, with
   acquisition forced for every snapshot the frozen policy marks applicable.
 
 F isolates the policy's `sufficient` versus `requires feature` routing from the
 value of the structural representation. It does not detect false negatives in
 the earlier applicability decision; deterministic qualification tests those
-separately. F is not raw boxed Playwright. A separate `R-RAW-BOX` diagnostic is
+separately. F is a benchmark-only intervention, not a public package mode, and
+is not raw boxed Playwright. A separate `R-RAW-BOX` diagnostic is
 allowed only when the question is whether compaction itself helps; it is not a
 substitute for F because it changes both routing and model-facing representation.
 
@@ -230,7 +203,8 @@ It needs a development slice and an untouched sealed slice containing:
 - schedule coordinates;
 - cross-tree labels;
 - matched semantic-sufficient negatives for each supported family;
-- at least two independently implemented sites per supported family.
+- at least two independently authored fixture implementations per supported
+  family.
 
 Virtualized or recycled-row identity is a v1 fail-closed boundary, not a supported
 positive. It requires temporal identity and revision evidence and must become a

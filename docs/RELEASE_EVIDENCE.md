@@ -1,4 +1,10 @@
-# BrowserIR release evidence
+# Legacy full-graph BrowserIR release evidence
+
+Scope: retained three-package release pipeline for `@browserir/core`,
+`@browserir/playwright`, and `@browserir/mcp`. It is not a release dossier or
+promotion path for the private `@browserir/playwright-mcp` thin layer. The
+pipeline remains documented because its scripts, schemas, and tests still
+exist in this repository.
 
 BrowserIR records release checks as create-only, machine-readable evidence. The
 purpose is to make a release claim traceable to one exact source tree, not to

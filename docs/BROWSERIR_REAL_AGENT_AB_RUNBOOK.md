@@ -13,11 +13,12 @@
 - Isolation: fresh fixture process, in-memory database, Playwright MCP process,
   Chromium context, page, and model response for every arm
 
-The v2 development corpus contains eight independently implemented sites, four
-hidden worlds per site, and two matched product modes. A full run contains 32
-task pairs. With `max_retry=2`, it makes at least 64 and at most 192 physical
+The v2 development corpus contains eight independently authored fixture cases,
+four hidden worlds per case, and two matched product modes. A full run contains
+32 task pairs. With `max_retry=2`, it makes at least 64 and at most 192 physical
 model calls; early stopping determines the actual count. It is descriptive
-development evidence, not a sealed confirmatory claim.
+development evidence, not a sealed confirmatory claim or an eight-website
+generalization study.
 
 Every retry gets a fresh fixture process, in-memory database, Playwright MCP
 process, Chromium context, page, snapshot, and Qwen response. `off` and `auto`
@@ -167,12 +168,6 @@ and only then checks that relation against the fixture oracle:
 - `unresolvedWithoutRecoverabilityProof`: fallbacks where no complete relation
   was demonstrated from the captured representation.
 
-The paid Qwen receipt from 2026-08-25 is bound to
-`schedule-coordinate-policy/2`: its 16 opaque-auto cells contain 13 product
-projections and 3 safe fallbacks, including two demonstrated Harbor RTL
-projection misses. Do not relabel that historical receipt after a projector
-change.
-
 `schedule-coordinate-policy/3` admits only a one-pixel serialized resource-box
 overhang at the schedule root edge, while retaining the overlap, center,
 completeness, unique-ref, and unique-coordinate guards. Its full 64-arm
@@ -181,50 +176,13 @@ demonstrated projection misses, and 15/15 projection recall on independently
 demonstrated recoverable relations. The remaining Catalog localization
 `opaque-p1` layout places both controls below the two labels, so the witness
 cannot form a 2-by-2 bijection; that cell remains a fixture/layout limitation.
-These are zero-model qualification facts, not a replacement paid accuracy
-score. It was followed by a fresh `/3` paid result and must not be merged with
-the historical `/2` receipt.
+These are zero-model qualification facts, not a replacement real-model
+accuracy score.
 
-## Retained `/3` development result
+## Canonical retained result
 
-The canonical `browserir-openrouter-real-ab-20260826T142617Z` run used
-`qwen/qwen3.8-27b`, OpenRouter `alibaba`, provider fallback disabled, and
-`max_retry=2`. It completed 32 paired tasks with 83 physical model calls:
-
-- `auto`: 31/32 (96.875%); `off`: 24/32 (75.00%); lift +21.875 points;
-- 7 `auto`-only, 0 `off`-only, 24 both successful, and 1 neither;
-- exact paired McNemar and case-cluster sign sensitivities: `p=0.015625`;
-- `pass@1`: `auto` 31/32, `off` 23/32, +25 points, paired
-  `auto-only`/`off-only`/both/neither 8/0/23/1;
-- `pass@2` and `pass@3`: `auto` 31/32, `off` 24/32, +21.875 points,
-  paired `auto-only`/`off-only`/both/neither 7/0/24/1;
-- success-on-attempt: `auto` [31, 0, 0], `off` [23, 1, 0]; one `auto` and
-  eight `off` tasks failed at the retry cap;
-- 15 opaque projections, 1 safe fallback, 0 demonstrated projection misses;
-- 144,103 tokens and $0.08594248 total cost at 100% usage/cost coverage;
-- `auto`: 34 calls, 58,264 tokens, $0.03137911 total, and $0.00101222935 per
-  succeeded task; `off`: 49 calls, 85,839 tokens, $0.05456337, and
-  $0.00227347375 per succeeded task;
-- success-conditioned active time to success: `auto` `n=31`, mean 4,928.71 ms,
-  median 4,930 ms, p95 5,298 ms; `off` `n=24`, mean 5,982.71 ms, median 5,118 ms,
-  p95 9,385 ms;
-- retry-exhausted terminal time: `auto` `n=1`, 16,164 ms; `off` `n=8`, mean
-  20,781 ms, median 19,372.5 ms, p95 27,319 ms;
-- common-success paired timing (`n=24`): `auto` faster 17, `off` faster 7,
-  mean `auto - off` −1,088.71 ms, median −151.5 ms;
-- model outcomes: 81 decisions, 1 dispatch failure, 1 malformed response, and
-  0 provider failures.
-
-These are descriptive development numbers. The corpus was reused after the
-preceding `/2` round was inspected, and the current receipt schema does not
-serialize the product policy version or product-source hash. The run was made
-from the `/3` workspace after the 64-arm zero-model preflight and its route
-behavior matches `/3`, but a claim-grade follow-up must bind those exact bytes
-inside the receipt before its first scored call.
-
-See [the complete result, artifact checksums, and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md).
-
-The JSON receipt computes both pair-level exact McNemar sensitivity and a more
-conservative exact sign sensitivity over site/case clusters. Treat worlds from
-one site as related observations; do not claim significance from the pair-level
-number alone.
+The runbook intentionally does not duplicate result tables. See the
+[canonical result, latency analysis, artifact checksums, and claim
+boundary](BROWSERIR_REAL_AGENT_RESULTS.md). Treat the four worlds from one case
+as related observations; do not generalize a case-cluster sensitivity into an
+unseen-site claim.

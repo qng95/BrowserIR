@@ -1,9 +1,15 @@
-# BrowserIR agent benchmark
+# Legacy full-graph BrowserIR agent benchmark
 
 ## Purpose and status
 
-The agent benchmark measures end-to-end task completion: can a model, given a
-task prompt and only the safe BrowserIR MCP surface, change an application into
+This file documents the retained complete-interface benchmark for the legacy
+nine-tool `@browserir/mcp` graph runtime and its historical Evidence Drops. It
+does not describe the current thin-layer intervention. For that benchmark, use
+the [measurement design](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md), [runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md),
+and [canonical result](BROWSERIR_REAL_AGENT_RESULTS.md).
+
+The legacy agent benchmark measures end-to-end task completion: can a model,
+given a task prompt and only the BrowserIR MCP surface, change an application into
 the required business state and return any required result? It complements the
 representation benchmark; it does not replace it. A task can fail because of
 the model, the agent loop, BrowserIR's representation, an action, or the target
@@ -44,17 +50,6 @@ fake-model test validates benchmark wiring and grading, not model capability or
 generalization. The current CLI is suitable for local development and
 characterization; it is not yet a hardened public scoring service. See the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
-
-A separate thin adaptive Playwright runner has now produced an unsealed
-development result. Using only `qwen/qwen3.8-27b`, adaptive `auto` passed 31/32
-matched tasks while passthrough `off` passed 24/32. Each task was evaluated in
-both modes; its latest receipt also records scheduler-independent active task
-time and keeps success-conditioned arm distributions separate from the
-common-success paired timing comparison. This study uses a
-different intervention and evidence boundary from the sealed Drops; its corpus
-had already been inspected and its receipt lacks product-policy and source
-provenance. It is not independent confirmation or a general-superiority claim.
-See [Thin adaptive Playwright development result](#thin-adaptive-playwright-development-result).
 
 ## What is a scored target?
 
@@ -370,60 +365,6 @@ rewrite Drop 02.
 
 [Inspect the completed result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
 [Read the outcome analysis](evidence-drops/drop-02/analysis.md)
-
-### Thin adaptive Playwright development result
-
-This runner isolates the thin-layer intervention. Both arms use official
-Playwright MCP's snapshot, opaque target references, and action path. In
-`auto`, the fixed task-independent BrowserIR policy may add a complete proven
-structural relation set; in `off`, the same snapshot passes through unchanged.
-The executed workspace used reference-policy schedule `/3`.
-
-The latest unsealed run fixed one model, `qwen/qwen3.8-27b`, and evaluated 32
-matched tasks in both modes: 16 semantic tasks where Playwright already exposed
-the needed label and 16 opaque tasks where the relation mattered. It allowed at
-most two retries after the first attempt (`max_retry=2`) and made 83 physical
-model calls.
-
-| Outcome | `auto` | `off` |
-| --- | ---: | ---: |
-| Final success | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@1 | 31/32 (96.875%) | 23/32 (71.875%) |
-| Pass@2 | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
-| Opaque | 15/16 | 8/16 |
-| Semantic | 16/16 | 16/16 |
-
-The paired outcomes were 7 `auto`-only wins, 0 `off`-only wins, 24 both passes,
-and 1 both failure, for a descriptive difference of +21.875 percentage points.
-The exact two-sided McNemar test on pairs was `p=0.015625`; a two-sided
-case-cluster sign-test sensitivity analysis was also `p=0.015625`. These are
-descriptive sensitivity statistics, not a preregistered confirmatory test.
-
-Across the 16 opaque cases, the projector handled all 15 recoverable relations,
-safely fell back once, and recorded zero projection misses. The whole run used
-144,103 tokens and cost $0.08594248. The `auto` arm made 34 calls and cost
-$0.03137911, equivalent to $0.00101222935 per successful task; `off` made 49
-calls and cost $0.05456337, or $0.00227347375 per successful task.
-
-Active task time begins before the fresh arm opens and includes setup,
-authentication, navigation, snapshotting, BrowserIR, model, click, and oracle.
-Failed attempts include cleanup/reset when another retry follows; terminal
-cleanup, journal/logging, and time spent on the opposite A/B arm are excluded.
-Success-conditioned median time to success was 4,930 ms for `auto` (`n=31`) and
-5,118 ms for `off` (`n=24`). Those are different survivor sets. On the primary
-24-task common-success paired set, `auto` was faster on 17 tasks and `off` on 7,
-with mean `auto - off` time of −1,088.71 ms and median −151.5 ms.
-
-This corpus was reused after the preceding round had been inspected, so the
-result cannot be treated as an independent holdout. The receipt also does not
-serialize the executed policy version or product-source hash. Publication must
-therefore label it **unsealed descriptive development evidence**, not an
-Evidence Drop, population estimate, confirmatory result, or proof of general
-BrowserIR superiority.
-
-[Read the full result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md) ·
-[Reproduce the run](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md)
 
 ## Score-excluded official-control qualification
 

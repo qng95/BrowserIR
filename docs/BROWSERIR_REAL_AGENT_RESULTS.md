@@ -1,6 +1,6 @@
 # BrowserIR thin-layer real-agent result
 
-Status: published development evidence; not sealed or confirmatory
+Status: retained development evidence; not sealed or confirmatory
 
 Run date: 2026-08-26
 
@@ -29,7 +29,7 @@ version or product-source hash.
 | Evaluation retries | `max_retry=2`; three fresh attempts maximum |
 | Retry rule | Stop a mode after its first exact-oracle success |
 | Provider retries inside an attempt | 0 |
-| Corpus | 8 independently implemented sites × 4 hidden worlds = 32 paired tasks |
+| Corpus | 8 independently authored fixture cases × 4 hidden worlds = 32 paired tasks |
 | Oracle | Exact hidden fixture-database result after one model-selected click |
 | Isolation | Fresh fixture, database, MCP process, Chromium context, page, and model response per attempt |
 | Cost stop | USD 0.10 |

@@ -2,8 +2,7 @@
 
 Status: private, host-integrator closed alpha
 
-Evidence boundary: historical packed `/2` qualification plus current `/3`
-zero-model and real-agent development evidence
+Evidence boundary: current `/3` zero-model and real-agent development evidence
 
 Last reviewed: 2026-08-26
 
@@ -164,14 +163,13 @@ Visible request/options and raw results are forwarded with their normal MCP
 semantics. A hidden call may receive only an already supplied safe `signal`
 and the remaining `timeout`/`maxTotalTimeout` budget. It never inherits
 progress callbacks, resumptions, transport controls, or a caller-provided tool
-definition. Qualification `-006` exercised snapshot calls without options; it
-did not live-attest signal forwarding.
+definition.
 
 ## Explicit policy scope
 
 Choose one family because the integration already knows which page structure
 it supports. Unsupported, ambiguous, incomplete, changed, or unprovable input
-fails open to the exact visible result.
+fails closed by returning the exact visible result.
 
 | Factory | Closed-alpha scope | Current policy | Current evidence |
 | --- | --- | --- | --- |
@@ -187,35 +185,6 @@ Do not enable or advertise the grid policy as live-qualified until a separate
 retained live gate covers its exact release bytes. The schedule and cross-tree
 results do not establish support for other schedule libraries, arbitrary grids,
 virtualized/recycled rows, every website, or every ambiguous interface.
-
-## Historical exact `-006` compatibility record
-
-The retained `browserir-packed-product-qualification-m2-20260824-006` result
-qualifies one exact local Darwin mechanism run of the earlier schedule policy
-`/2`, not current `/3` source and not a general support range:
-
-| Component | Exact retained value |
-| --- | --- |
-| `@browserir/playwright-mcp` | Private `0.1.0` packed tarball |
-| Node.js | `v22.19.0` |
-| npm | `10.9.3` |
-| pnpm | `10.30.3` |
-| TypeScript used for build | `5.9.3` |
-| `@modelcontextprotocol/client` | `2.0.0` |
-| `@playwright/mcp` | `0.0.78` |
-| `playwright` / `playwright-core` | `1.62.0-alpha-1783623505000` |
-| Browser | Chromium `151.0.7922.34` |
-| OS confinement | Darwin sandbox, loopback-only for the qualification process tree |
-
-The package manifest declares Node.js `>=22.13.0`, but historical `-006` alone does not
-qualify Node 24, Linux, Windows, another Playwright MCP snapshot format, or a
-future server/client version. Parser drift safely passes through the visible
-result; that fail-open behavior is not evidence of feature compatibility.
-Darwin network confinement describes the qualification harness only. The
-package does not sandbox the caller, browser, MCP server, or network.
-
-The VM harness used `--experimental-vm-modules` to load verified packed bytes;
-normal ESM consumers do not inherit that as a product runtime requirement.
 
 ## Telemetry boundary
 
@@ -234,56 +203,14 @@ performance claims, user analytics, or proof that a model succeeded.
 
 ## Evidence and claims boundary
 
-Historical qualification `-006` retained 16 score-excluded `/2` cells: 8 schedule and 8
-cross-tree cells, with 8 semantic passthroughs and 8 geometry escalations. It
-recorded `score: null`, `modelCalls: 0`, `publicationEligible: false`,
-`advertisingAuthority: false`, `upliftQualified: false`,
-`autoRouterQualified: false`, and `gridLiveQualified: false`.
-
-It is mechanism evidence for those exact packed bytes and frozen fixtures. It
-does not authorize a public npm release or claims that BrowserIR is better,
-more successful, faster, cheaper, more token-efficient, broadly compatible, or
-proven with an LLM. Do not turn the 16 deterministic host-oracle outcomes into
-a model-performance percentage or relabel them as `/3`.
-
 Current `/3` source separately passed a 64-arm real-browser zero-model
 preflight: 15/15 independently demonstrated recoverable relations were
 projected, one Catalog layout safely fell back, and there were zero demonstrated
-projection misses. A paid development run then used only
-`qwen/qwen3.8-27b`, OpenRouter `alibaba`, and `max_retry=2`. `auto` solved 31/32
-tasks and `off` solved 24/32; the paired table was 7 `auto`-only, 0 `off`-only,
-24 both, and 1 neither. Pass@1 was 31/32 versus 23/32; pass@2 and pass@3 were
-31/32 versus 24/32. The 83 calls used 144,103 tokens and cost $0.08594248;
-`auto` cost $0.03137911, or $0.00101222935 per success.
+projection misses. The canonical real-model development run produced `auto`
+31/32 versus `off` 24/32 and measured retries, physical calls, usage, cost, and
+active task time. See the [complete result and
+checksums](BROWSERIR_REAL_AGENT_RESULTS.md) instead of copying its tables here.
 
-The receipt's active task time starts before fresh-arm setup and ends at the
-exact-oracle terminal while excluding opposite-arm scheduling. Per-arm
-success-conditioned medians were 4,930 ms for `auto` (`n=31`) and 5,118 ms for
-`off` (`n=24`), so they are not directly comparable without survivor bias. On
-the primary 24-task common-success set, `auto` was faster on 17 tasks and `off`
-on 7; mean `auto - off` time was −1,088.71 ms.
-
-Those numbers are published as descriptive development evidence. The corpus
-was reused after the prior `/2` round was inspected, and the receipt does not
-serialize policy `/3` or a product-source hash. They do not authorize general
-uplift, speed, cost, compatibility, npm, or advertising claims. See the
-[complete result and checksums](BROWSERIR_REAL_AGENT_RESULTS.md).
-
-## Safe closed-alpha announcement
-
-The following factual copy is intentionally limited to a private alpha or
-waitlist and still requires the normal product, security, and legal review:
-
-> BrowserIR Adaptive is a private closed alpha for teams that already own an
-> official Playwright MCP client integration. A host-controlled toggle can add
-> box-free structural relations to exact default snapshots for selected
-> schedule or cross-tree layouts, or return the original Playwright result when
-> the relation cannot be proven. Policy selection is explicit; there is no
-> automatic page-family router.
-
-Do not replace “private closed alpha” with an npm-install or general-availability
-claim until a separate public-release candidate passes its release gates. Do
-not add unqualified comparative, uplift, speed, cost, coverage, grid-live, or
-autonomous-routing language. The development comparison may be quoted only
-with its 32-task scope, model, retry cap, and nonconfirmatory provenance caveat
-from the retained result page.
+That result is descriptive evidence from a reused fixture corpus. It does not
+authorize general uplift, compatibility, npm availability, automatic routing,
+or unseen-site claims.

@@ -2,52 +2,14 @@
 
 ## Status
 
-BrowserIR's central claim is about representation quality: give an AI model enough reliable information to choose and execute the next action, while keeping the representation compact. That claim requires two separate measurements:
+This file is a benchmark-method compendium for two different product eras. The
+current thin-layer intervention is `@browserir/playwright-mcp` mode `auto`
+versus the same wrapper in mode `off`; its canonical design, run instructions,
+and result live in [Adaptive Playwright measurement](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md),
+[the real-agent runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md), and
+[the retained result](BROWSERIR_REAL_AGENT_RESULTS.md).
 
-1. Did the agent complete the task in the real application?
-2. Did the representation expose the right entities, capabilities, and relationships at an acceptable payload cost?
-
-The repository contains the measuring components, two completed sealed
-comparative pilots, and one unsealed thin-layer development comparison. It
-currently includes:
-
-- a deterministic ERP/DMS fixture with 14 database-backed task oracles;
-- representation, identity, omission, payload, and task-outcome metrics;
-- sample statistics and seeded bootstrap quantile intervals;
-- deterministic JSON, NDJSON, Markdown, and JUnit report renderers;
-- environment-matched latency and payload regression gates;
-- an executable BrowserIR observation runner covering seven representative fixture screens;
-- an executable, checked-in representation ground-truth corpus covering choice technologies, semantic labels, table/grid structure, identity, and omission accounting; and
-- an optional LangChain/BrowserIR agent runner with deterministic database/audit
-  judging and per-attempt Wilson score reporting.
-
-Evidence Drop 01 adaptive v2 completed a sealed 30-block comparison between the
-complete BrowserIR interface and official Playwright MCP `0.0.78` in
-accessibility-snapshot mode. BrowserIR passed 30/30 and the control passed
-27/30; the observed +10.00-point paired estimate had a conservative 95% bound
-of −39.59 to +59.59 points, so the predeclared result is **inconclusive**. It is
-an adaptive one-workflow controlled-fixture pilot—not a raw-DOM baseline, pure
-representation ablation, independent confirmation, generalization result, or
-superiority claim. Drop 01 v1 was operator-stopped and remains a diagnostic
-prefix with no score or interval.
-
-Evidence Drop 02 completed a new sealed 30-block schedule on the
-`query-three-conditions` known-fixture workflow. BrowserIR passed 21/30 and the
-same control passed 20/30; the +3.33-point estimate had a conservative 95%
-paired bound of −46.26 to +52.92 points, so its predeclared verdict is also
-**inconclusive**. The last nine pairs are provider-contaminated and best
-explained by exhausted OpenRouter credit; they remain scored with no rerun.
-This does not change the complete-interface,
-one-workflow, no-raw-DOM, no-generalization claim boundary.
-
-The checked-in fake-model vertical slice validates the harness rather than
-model generalization. The official-client 14-task runner uses a deterministic
-reference planner to qualify representation and action reachability; it also
-does not measure model generalization. The checked-in representation corpus
-qualifies only its declared supported cases. Do not interpret those engineering
-qualifications as another comparative result.
-
-### Thin adaptive Playwright development result
+## Current thin adaptive Playwright method
 
 The current thin-layer A/B compares the same official Playwright MCP snapshot
 and action path with BrowserIR adaptation set to `auto` or `off`. The `auto`
@@ -56,48 +18,43 @@ reference policy; schedule cases use policy `/3`. The `off` arm always passes
 the Playwright snapshot through.
 Both arms retain Playwright's opaque targets and actions.
 
-One unsealed run used only `qwen/qwen3.8-27b`, 32 matched tasks (16
-semantic and 16 opaque), OpenRouter `alibaba` with fallback disabled,
-`max_retry=2`, and 83 provider calls. The results were:
+The current corpus has eight independently authored fixture cases with four
+worlds each: 16 semantic-sufficient tasks and 16 structurally opaque tasks.
+Each physical attempt receives a fresh fixture, database, MCP process, browser,
+page, and model response. A hidden database oracle scores exactly one
+model-selected click, and `max_retry=2` permits at most three fresh attempts.
 
-| Metric | `auto` | `off` |
-| --- | ---: | ---: |
-| Final success | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@1 | 31/32 (96.875%) | 23/32 (71.875%) |
-| Pass@2 | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
-| Semantic tasks | 16/16 | 16/16 |
-| Opaque tasks | 15/16 | 8/16 |
+The thin-layer report keeps these measurements separate:
 
-The matched table was 7 `auto`-only wins, 0 `off`-only wins, 24 both passes,
-and 1 both failure: a +21.875-percentage-point descriptive difference. The
-exact paired McNemar test and a case-cluster sign-test sensitivity analysis
-both yield `p=0.015625`. These p-values describe this run; they do not convert
-an adaptive development study into a confirmatory experiment.
+- final success and observed `pass@1`, `pass@2`, and `pass@3`;
+- semantic versus opaque outcomes;
+- complete projections, safe fallbacks, and independently demonstrated misses;
+- physical model calls, tokens, provider cost, and cost per success; and
+- scheduler-independent active task time, with the common-success paired set
+  as the primary latency comparison.
 
-Across the 16 opaque relation cases, the policy projected 15 recoverable
-relationships, safely fell back once, and recorded zero projection misses.
-Total provider usage was 144,103 tokens and $0.08594248. The `auto` arm made 34
-calls and cost $0.03137911, or $0.00101222935 per successful task; `off` made 49
-calls and cost $0.05456337, or $0.00227347375 per successful task.
+Do not copy result tables into this method compendium. Use the
+[canonical result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md), the
+[task-time analysis](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z-analysis.md),
+and the [reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
-This receipt's task-latency metric is scheduler-independent active time. An
-attempt starts before fresh-arm setup and includes authentication, navigation,
-snapshotting, BrowserIR, the model call, click, and oracle evaluation. A failed
-attempt includes post-terminal cleanup/reset when another retry follows; the
-terminal attempt's cleanup, journal/log writing, and opposite A/B arm time are
-excluded. The success-conditioned medians were 4,930 ms for `auto` (`n=31`) and
-5,118 ms for `off` (`n=24`). Because those distributions have different
-survivors, the primary comparison is the 24-task common-success paired set:
-`auto` was faster on 17, `off` on 7, and mean `auto - off` was −1,088.71 ms.
+## Legacy full-graph and separate research methods
 
-This result is deliberately separate from the sealed Evidence Drops. The
-corpus was reused after the preceding round had been inspected, and the receipt
-does not serialize the executed policy version or product-source hash. It is
-useful development evidence, not independent confirmation, a population
-estimate, or a claim that BrowserIR is generally superior. See
-[the full result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md) and the
-[reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
+The remaining representation, 14-workflow qualification, nine-tool agent, and
+Evidence Drop sections apply to the separately retained full-graph runtime or
+to explicitly labelled research mechanisms. They must not be used as proof for
+the thin layer, and their counts must not be mixed with the 32-task A/B.
+
+That legacy program measures both task completion and whether its canonical
+graph exposes the expected entities, capabilities, and relationships at an
+acceptable payload cost. Its deterministic runners, representation corpus,
+statistics, report renderers, and exact fixture oracles remain in source. Its
+two sealed complete-interface Evidence Drops were inconclusive; see the
+[archive](EVIDENCE_DROPS.md) for their exact results and limitations.
+
+The fake-model vertical slice, deterministic 14-task planner, and checked-in
+representation corpus qualify only their declared engineering behavior. They
+do not measure model or site generalization.
 
 ## Fixture and task oracles
 

@@ -1,23 +1,27 @@
 # Contributing to BrowserIR
 
-BrowserIR is an alpha project built around one rule: behavior starts with a failing test. Contributions should improve the model-facing representation or runtime without teaching it the quirks of one production site.
+BrowserIR's current product is a thin deterministic relationship layer over
+official Playwright MCP. Contributions should preserve Playwright's public
+tools, refs, actions, and lifecycle while improving only relationships that can
+be proved from bounded observation evidence.
 
 ## Before contributing
 
-BrowserIR is licensed under the [Apache License 2.0](LICENSE). Unless you
-explicitly state otherwise, a contribution intentionally submitted for
-inclusion in BrowserIR is provided under the same license, as described by
-Section 5. Only submit work that you have the authority to contribute.
+BrowserIR is licensed under the [Apache License 2.0](LICENSE). Unless you state
+otherwise, a contribution intentionally submitted for inclusion is provided
+under the same license as described by Section 5. Submit only work you have the
+authority to contribute.
 
-For security issues, follow [SECURITY.md](SECURITY.md) rather than opening a public issue.
+Report security issues through [SECURITY.md](SECURITY.md), not a public issue.
 
 ## Development setup
 
 Requirements:
 
-- Node.js 22.13 or newer
-- pnpm 10.30.3 through a current Corepack, or a compatible pnpm 10 installation
-- Chromium installed by Playwright
+- Node.js 22.13 or newer;
+- pnpm 10.30.3 through a current Corepack, or a compatible pnpm 10 install; and
+- Chromium installed by Playwright for browser-backed integration tests and
+  benchmarks.
 
 ```sh
 npm install --global corepack@0.34.7
@@ -30,131 +34,149 @@ pnpm typecheck
 pnpm test
 ```
 
-The Corepack upgrade is required on the minimum Node.js 22.13 runtime: its
-bundled Corepack predates npm's signing-key rotation. Version 0.34.7 has the
-updated keys and remains compatible with Node.js 22.13. Do not bypass package
+The Corepack upgrade is required on the minimum Node.js 22.13 runtime because
+its bundled Corepack predates npm's signing-key rotation. Do not bypass package
 manager signature verification.
 
-The main workspace packages are:
+## Workspace map
 
-| Directory | Responsibility |
+| Directory | Status and responsibility |
 | --- | --- |
-| `packages/browser-ir` | Browser-independent contracts, reconciliation, revisions, deltas, and view compilation. |
-| `packages/playwright-driver` | Chromium observation, opaque target binding, typed browser actions, and screenshots. |
-| `packages/mcp-server` | Local stdio MCP schemas and the thin application adapter. |
-| `packages/fixture-app` | Deterministic ERP/DMS acceptance fixture and database-backed task oracles. |
-| `packages/benchmark` | Representation metrics, statistics, reports, and regression gates. |
+| `packages/playwright-mcp` | **Current product:** private adaptive middleware and first-party reference policies. |
+| `packages/benchmark` | Current and historical measurement runners, exact oracles, reports, and evidence tooling. |
+| `packages/fixture-app` | Deterministic test fixtures and database-backed task oracles. |
+| `packages/browser-ir` | Legacy/experimental full-graph core retained in source. |
+| `packages/playwright-driver` | Legacy/experimental full-graph Chromium driver retained in source. |
+| `packages/mcp-server` | Legacy/experimental full-graph stdio MCP server retained in source. |
 
-The vendored Browser-Use, Stagehand, Treegress, Playwright, and Playwright MCP trees are reference material only. They are excluded from this workspace and should not be modified as part of a BrowserIR change.
+The vendored Browser-Use, Stagehand, Treegress, Playwright, and Playwright MCP
+trees are reference material only. They are excluded from the workspace and
+should not be modified as part of a BrowserIR change.
+
+## Thin-layer invariants
+
+A change to `@browserir/playwright-mcp` must preserve these properties:
+
+- only an exact default `browser_snapshot` request is eligible;
+- sufficient, unsupported, failed, cancelled, changed-state, and unresolved
+  paths return the exact original visible result object;
+- one eligible call may perform at most one hidden boxed snapshot and never a
+  hidden action, retry, evaluation, navigation, or screenshot;
+- the host selects one fixed, task-independent first-party policy family;
+  policies do not read the agent prompt, expected answer, or grading oracle;
+- successful projection uses only refs from the fresh hidden recapture, strips
+  all boxes, and emits a complete relationship set or nothing;
+- policy evaluation is synchronous, bounded, and cannot re-enter the wrapper;
+- telemetry is opt-in, content-free, and limited to its five-field schema;
+- one raw client has at most one active wrapper; `dispose()` drains accepted
+  work and never closes the caller-owned client; and
+- non-eligible tool calls and `listTools` preserve the caller's official MCP
+  surface rather than substituting a BrowserIR tool catalog.
+
+Do not add fixture text, URLs, class names, application-specific selectors, or
+model-specific prompt tricks to a production policy.
 
 ## Test-driven workflow
 
 For every behavior change:
 
-1. Add the smallest technology-neutral fixture that demonstrates the behavior.
-2. Add a focused test against the public representation, MCP contract, or typed runtime boundary.
-3. Run it and confirm it fails for the intended reason.
-4. Implement the smallest general rule that makes it pass.
-5. Add adversarial cases for false positives, ambiguity, stale state, and failure cleanup.
-6. Run the focused test, the affected package suite, and workspace type checking.
-7. Update public documentation when a schema, behavior, limit, or security boundary changes.
+1. Add the smallest fixture that demonstrates the missing relation or unsafe
+   projection.
+2. Add a focused test and observe it fail for the intended reason.
+3. Implement the smallest general, task-independent rule that makes it pass.
+4. Add matched negatives for ambiguity, incompleteness, stale or duplicate
+   refs, state drift, malformed input, and hidden-call failure as applicable.
+5. Assert exact pass-through identity, logical hidden-call count, current refs,
+   complete-or-none output, and absence of raw geometry.
+6. Run the focused suite, package typecheck/build, and any affected benchmark
+   preflight.
+7. Update public docs when behavior, limits, evidence, or security boundaries
+   change.
 
-Do not weaken, skip, or delete a legitimate assertion to make a change green. Do not add fixture text, URLs, class names, or application-specific selectors to production inference rules.
+Do not weaken, skip, or delete a legitimate assertion merely to make a change
+green.
 
-Useful commands:
+Useful current-path commands:
 
 ```sh
-# All workspace tests and checks
-pnpm test
-pnpm typecheck
-pnpm build
-
-# One package
-pnpm --filter @browserir/core test
-pnpm --filter @browserir/playwright test
-pnpm --filter @browserir/mcp test
-pnpm --filter @think-dom/fixture-app test
-pnpm --filter @browserir/benchmark test
-
-# Package and public-release verification
-pnpm verify:packages
-pnpm verify:packed-consumer
-pnpm verify:release
-
-# One create-only release-evidence fragment
-pnpm release:evidence workspace-verification \
-  --output output/release-evidence/workspace-local-1 \
-  --run-id workspace-local-1
+pnpm --filter @browserir/playwright-mcp typecheck
+pnpm --filter @browserir/playwright-mcp build
+pnpm --filter @browserir/playwright-mcp test
+pnpm --filter @browserir/playwright-mcp exec vitest run tests/reference-policies.test.ts
 ```
 
-`pnpm verify:packed-consumer` creates real tarballs, installs them in a clean
-temporary project, type-checks all three public imports, and drives the installed
-stdio executable with the official MCP client. It may download the Chromium build
-selected by the packed Playwright dependency. `pnpm verify:release` is expected
-to fail until the explicit publication blockers in
-[docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) are resolved.
+Run the full workspace checks when shared fixtures, benchmark contracts, or
+legacy packages are affected:
 
-The release-evidence recorder retains structured JSON, JUnit where applicable,
-gate reports, command logs, source hashes, and `SHA256SUMS`. Use a new output
-directory for every attempt; the recorder will not overwrite prior evidence.
-A locally passing fragment may still be marked dirty or source-unbound and is
-therefore not a release qualification. The seven-gate CI matrix, nine required
-runtime fragments, dossier assembler, and retention rules are documented in
-[docs/RELEASE_EVIDENCE.md](docs/RELEASE_EVIDENCE.md).
-
-## Representation principles
-
-A contribution should preserve these invariants:
-
-- The representation is simple, but not simpler than the next correct decision requires.
-- The core remains browser-independent and model-independent.
-- Playwright selectors, element handles, and source IDs never enter canonical IR or MCP schemas.
-- Every actionable model reference is bound to a page revision.
-- A stale or ambiguous target fails safely rather than being guessed.
-- Direct observations and inferred meaning carry distinguishable evidence and confidence.
-- Inference favors precision and explicit abstention over broad but unstable coverage.
-- Off-DOM, inaccessible, or not-yet-loaded content is not presented as observed.
-- View budgets cover the complete model payload and report omissions explicitly.
-- Repeated identical observation is deterministic.
-- A dispatched action is not called successful until its requested effect is observed.
+```sh
+pnpm typecheck
+pnpm build
+pnpm test
+```
 
 ## Choosing a fixture
 
-Prefer small, independent fixtures that vary technology while preserving the same semantics. Good test matrices include:
+Prefer small cases that isolate one semantic question. The current policy test
+matrix should include:
 
-- native HTML, explicit ARIA, roleless custom elements, and open Shadow DOM;
-- separate label and control trees, repeated labels in named scopes, and ambiguous decoys;
-- same-URL sibling frames and cross-document replacement;
-- server-rendered forms, WebForms-style postbacks, AJAX replacement, and client-side rerenders;
-- delayed, portal-mounted, virtualized, transient, occluded, and initially absent controls.
+- a semantic-sufficient snapshot that must pass through unchanged;
+- positive schedule-coordinate, cross-tree-label, or grid-coordinate evidence;
+- overlapping, ambiguous, incomplete, out-of-bound, and duplicate structures;
+- stale, missing, or duplicate actionable refs;
+- visible/hidden state mismatch and parser drift;
+- oversized snapshots, cancellation, deadlines, and hidden-call failure; and
+- a real-browser task graded by an exact external oracle when agent behavior is
+  part of the claim.
 
-Tests should grade the BrowserIR output or a real application side effect, not implementation details. When a task mutates the fixture application, verify database state and the audit log so seeded state cannot create a false pass.
+Tests should grade the returned Playwright result or real application side
+effect, not implementation details. Mutating tasks must verify seeded database
+state and the audit log so already-true state cannot create a false pass.
 
-## Package boundaries
+## Package boundary
 
-Keep dependencies flowing toward the core port:
+The current runtime dependency direction is intentionally narrow:
 
 ```text
-MCP server -> BrowserIR core <- Playwright driver
+host agent -> @browserir/playwright-mcp -> caller-owned official MCP Client
 ```
 
-Changes to MCP input must be represented by a strict schema and matching TypeScript type. Changes to public packages must keep ESM output and declarations in `dist`, because release packages allowlist that directory only.
+The fixture and benchmark packages measure that path but are not runtime
+dependencies. The older full-graph dependency direction is documented only in
+[the legacy architecture](docs/ARCHITECTURE.md).
 
-Do not add arbitrary page evaluation as a shortcut for missing representation. If a genuinely necessary escape hatch is proposed, it must remain explicit, opt-in, bounded, disabled by default, and covered by a security review.
+## Legacy full-graph maintenance
+
+Changes specifically targeting the retained full-graph packages may use their
+package suites and release-evidence tooling:
+
+```sh
+pnpm --filter @browserir/core test
+pnpm --filter @browserir/playwright test
+pnpm --filter @browserir/mcp test
+pnpm verify:packages
+pnpm verify:packed-consumer
+```
+
+That unpublished three-package release path is archived, not the release path
+for the thin layer. Its test-coupled records remain in the [legacy release
+checklist](docs/RELEASE_CHECKLIST.md) and [release-evidence
+documentation](docs/RELEASE_EVIDENCE.md).
 
 ## Pull request checklist
 
 Before requesting review, confirm:
 
 - [ ] The issue and intended public behavior are described.
-- [ ] A focused test was observed failing before implementation.
-- [ ] Adversarial and failure behavior is covered.
-- [ ] No site-specific production heuristic was introduced.
-- [ ] `pnpm typecheck` passes.
-- [ ] The affected package tests pass.
+- [ ] A focused test failed before the implementation change.
+- [ ] Positive, ambiguity, and failure behavior are covered.
+- [ ] No site-, fixture-, prompt-, oracle-, or model-specific heuristic was introduced.
+- [ ] Pass-through identity and hidden-call accounting remain exact.
+- [ ] Successful projections use current refs, contain no boxes, and are complete.
+- [ ] The affected package tests and typecheck pass.
 - [ ] `pnpm build` passes when public output changed.
-- [ ] Public schemas, docs, changelog, and benchmark expectations are updated where applicable.
-- [ ] New dependencies are necessary, pinned appropriately, and reviewed for license and security impact.
+- [ ] Docs, changelog, evidence boundaries, and benchmark expectations are updated where applicable.
+- [ ] New dependencies are necessary and reviewed for license and security impact.
 - [ ] No credentials, cookies, customer data, captures, local outputs, or auth profiles are included.
 
-Keep changes focused. Separate representation behavior, protocol changes, benchmark methodology, and unrelated cleanup when they can be reviewed independently.
+Keep changes focused. Separate policy behavior, measurement methodology, legacy
+maintenance, and unrelated cleanup when they can be reviewed independently.

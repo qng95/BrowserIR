@@ -1,13 +1,21 @@
-# `@browserir/playwright`
+# `@browserir/playwright` — legacy full-graph driver
 
-The maintained Playwright and Chromium driver for BrowserIR. It translates
+> **Status:** source-only legacy/experimental package. It backs the retained
+> full-graph runtime and is not used by the current BrowserIR thin layer. For
+> current integration, use
+> [`@browserir/playwright-mcp`](../playwright-mcp/README.md).
+
+The retained Playwright and Chromium driver for the full-graph runtime. It translates
 browser state into normalized entities, relationships, capabilities, evidence,
 and private action targets consumed by `@browserir/core`.
 
-BrowserIR 0.1 is an unreleased alpha line. Public contracts may change between
-0.1 releases.
+This private package has not been published. Its contracts may change while the
+legacy runtime remains in source.
 
-## Install
+## Planned package install
+
+The following command applies only if publication of the full-graph packages
+resumes; it does not work from the public registry today.
 
 ```sh
 pnpm add @browserir/core @browserir/playwright "playwright@1.62.0"
@@ -18,7 +26,7 @@ The package is ESM-only and requires Node.js 22.13 or newer.
 Playwright is listed explicitly so its browser-installation CLI is available
 under strict package-manager layouts such as pnpm's.
 
-## Use
+## Legacy source use
 
 ```ts
 import { BrowserIRRuntime } from '@browserir/core';
@@ -30,7 +38,7 @@ const runtime = new BrowserIRRuntime(createPlaywrightBrowserDriver());
 The backend defaults to at most 32 tracked pages per session and 64 analyzed
 documents per observation. Embedders can lower those bounds with
 `maxPagesPerSession` and `maxFramesPerObservation`. Automatic downloads are
-not accepted, and viewport/entity PNG captures are subject to the public core
+not accepted, and viewport/entity PNG captures are subject to the legacy core
 pixel and byte limits.
 
-Chromium is the only supported browser backend in BrowserIR 0.1.
+Chromium is the only backend implemented for this legacy 0.1 source line.
