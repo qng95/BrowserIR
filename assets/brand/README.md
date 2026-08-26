@@ -44,7 +44,7 @@ not current launch graphics and should not be used to market the thin layer:
 
 One line:
 
-> Give Playwright the relationships agents are missing.
+> Keep Playwright. Stop making agents guess.
 
 Short description:
 
@@ -55,12 +55,13 @@ Short description:
 
 Scoped development result:
 
-> In a 32-task Qwen3.8-27B development benchmark with up to three fresh
-> attempts per mode, BrowserIR `auto` solved 31/32 tasks versus 24/32 with
-> enrichment `off`. The matched outcomes were seven `auto`-only successes,
-> zero `off`-only successes, 24 both successes, and one both failure. This is
-> favorable evidence on reused schedule-coordinate and cross-tree-label fixture
-> cases, not a sealed, unseen-site, or general-superiority result.
+> In a Qwen3.8-27B development benchmark of 8 checked-in browser fixtures × 4
+> deterministic worlds, BrowserIR `auto` reached 31/32 `pass@1` versus 23/32
+> with enrichment `off`. At the three-attempt cap it solved 31/32 versus 24/32:
+> seven `auto`-only successes, zero `off`-only successes, 24 both successes,
+> and one both failure. It used 30.6% fewer model calls and 55.5% lower provider
+> cost per successful task in this run. This is favorable evidence on a reused
+> local development corpus, not a sealed unseen-site result.
 
 When using the result, link the [canonical metrics and claim
 boundary](../../docs/BROWSERIR_REAL_AGENT_RESULTS.md). Do not omit the model,
@@ -78,6 +79,8 @@ task count, retry cap, development status, or reuse caveat.
   nine-tool interface as evidence for the thin layer.
 - Prefer task success, pass@k, physical model calls, task-level latency, total
   cost, and cost per success exactly as defined in the canonical result.
+- Define the population as 8 fixture prompts × 4 deterministic worlds; never
+  imply that the run covered 32 independent websites.
 
 ## Logo usage
 

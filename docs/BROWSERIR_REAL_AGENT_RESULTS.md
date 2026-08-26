@@ -29,14 +29,49 @@ version or product-source hash.
 | Evaluation retries | `max_retry=2`; three fresh attempts maximum |
 | Retry rule | Stop a mode after its first exact-oracle success |
 | Provider retries inside an attempt | 0 |
-| Corpus | 8 independently authored fixture cases × 4 hidden worlds = 32 paired tasks |
-| Oracle | Exact hidden fixture-database result after one model-selected click |
+| Corpus | 8 distinct checked-in fixture cases/layout implementations × 4 hidden worlds = 32 paired tasks |
+| Oracle | Exact hidden database/audit result; success requires one correct dispatched click and no collateral mutation |
 | Isolation | Fresh fixture, database, MCP process, Chromium context, page, and model response per attempt |
 | Cost stop | USD 0.10 |
 | Receipt | `browserir-openrouter-real-ab-20260826T142617Z`; schema `browserir-openrouter-real-ab-smoke/3` |
 
 The two modes share the same task and attempt seed. The model never sees a
 previous attempt, the hidden world, the expected target, or the oracle result.
+The harness performs login, navigation, and snapshot acquisition. The model
+receives the task, snapshot, and one `browser_click` tool, and is asked for one
+click decision before stopping; the harness dispatches at most one click.
+
+## What the 32 task identities were
+
+The scored population is **8 exact fixture prompts × 4 deterministic worlds =
+32 case-world tasks**. It is not 32 independent websites or 32 unrelated
+prompts. Every task requires one model-selected click.
+
+| Family | Exact task | Candidates sharing one visible action label |
+| --- | --- | ---: |
+| Schedule coordinate | “Choose the open imaging slot for CT Suite on Thursday 10:40, then stop.” | 6 × `Choose opening` |
+| Schedule coordinate | “Reserve maintenance for West service rail at 11:30, then stop.” | 6 × `Reserve window` |
+| Schedule coordinate | “Choose the open slot for Bay 4 on Tuesday 09:30, then stop.” | 4 × `Choose open slot` |
+| Schedule coordinate | “Assign the South crew to the 14:00 shift, then stop.” | 4 × `Assign shift` |
+| Cross-tree label | “Open the batch aligned with German catalog queue, then stop.” | 2 × `Open batch` |
+| Cross-tree label | “Inspect the load aligned with Cold-chain intake, then stop.” | 2 × `Inspect load` |
+| Cross-tree label | “Open the case aligned with the Routine queue, then stop.” | 2 × `Open case` |
+| Cross-tree label | “Review the request aligned with Finance review, then stop.” | 2 × `Review request` |
+
+Each prompt has four checked-in worlds:
+
+| World | Relationship in the normal Playwright snapshot | Assignment |
+| --- | --- | --- |
+| `opaque-p0` | Missing from the normal semantic snapshot | Base |
+| `opaque-p1` | Still missing; task and semantic content stay fixed | Deterministically permuted |
+| `semantic-p0` | Explicit through ARIA; normal Playwright snapshot is sufficient | Base |
+| `semantic-p1` | Explicit through ARIA; normal Playwright snapshot is sufficient | The same deterministic permutation as opaque `p1` |
+
+The `p1` permutation changes which opaque target ID occupies the requested
+visual cell or lane while keeping the prompt fixed. It prevents a stable
+button-order guess from solving both variants. The corpus is synthetic local
+fixture data checked into the repository; it contains no scraped site,
+customer-session, or production-traffic data.
 
 ## Accuracy and paired outcomes
 
@@ -48,6 +83,23 @@ previous attempt, the hidden world, the expected target, or the oracle result.
 | `pass@1` | 23/32 (71.875%) | **31/32 (96.875%)** |
 | `pass@2` | 24/32 (75.00%) | **31/32 (96.875%)** |
 | `pass@3` | 24/32 (75.00%) | **31/32 (96.875%)** |
+
+Here `pass@k` is cumulative fresh-attempt reliability: the fraction of the 32
+tasks solved within the first `k` sequential attempts in that mode. It is not
+the combinatorial code-generation estimator that is also called `pass@k`.
+
+Final (`pass@3`) outcome by world:
+
+| World | Playwright enrichment off | BrowserIR auto |
+| --- | ---: | ---: |
+| `opaque-p0` | 8/8 | 8/8 |
+| `opaque-p1` | 0/8 | **7/8** |
+| `semantic-p0` | 8/8 | 8/8 |
+| `semantic-p1` | 8/8 | 8/8 |
+
+The result separates the intended mechanism from generic difficulty:
+permuting the opaque target mapping exposed the missing relationship, while
+the semantic twins remained fully solvable in both modes.
 
 | Cumulative paired outcome | `off` solved | `auto` solved | `auto - off` | `auto` only / `off` only / both / neither |
 | --- | ---: | ---: | ---: | ---: |

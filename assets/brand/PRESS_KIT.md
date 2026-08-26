@@ -5,15 +5,14 @@
 
 ## Headline
 
-**BrowserIR gives Playwright agents the relationships their snapshots are
-missing.**
+**Keep Playwright. Stop making browser agents guess.**
 
 ## Deck
 
 BrowserIR is a thin adaptive semantic layer for official Playwright MCP. It
-adds only complete relationships it can prove, preserves Playwright's tools and
-current refs, and returns the original snapshot whenever evidence is sufficient
-or unresolved.
+turns missing label-to-control and row-by-column relationships into exact,
+current Playwright refs. It adds only complete mappings it can prove and
+returns the original snapshot whenever evidence is sufficient or unresolved.
 
 ## Repository description
 
@@ -33,12 +32,13 @@ to current Playwright refs. Otherwise it returns Playwright's original result
 unchanged. It never performs a hidden action, evaluation, navigation, screenshot,
 or retry.
 
-In the retained 32-task Qwen3.8-27B development benchmark, `auto` solved 31/32
-tasks versus 24/32 with enrichment `off` under a three-fresh-attempt cap. It
-used 34 physical model calls versus 49 and cost $0.001012 per successful task
-versus $0.002273. The result is favorable development evidence on reused
-schedule-coordinate and cross-tree-label fixture cases—not a sealed study,
-unseen-site validation, or general-superiority claim.
+In the retained Qwen3.8-27B development benchmark, BrowserIR reached **31/32
+`pass@1` versus 23/32** with enrichment off. At the three-fresh-attempt cap it
+solved 31/32 versus 24/32—seven matched task wins, zero matched losses. It used
+34 physical model calls versus 49 and cost $0.001012 per successful task versus
+$0.002273. The population was 8 checked-in fixture prompts × 4 deterministic
+worlds, not 32 websites. The result is favorable development evidence on a
+reused local corpus, not a sealed unseen-site study.
 
 ## Facts
 
@@ -51,6 +51,9 @@ unseen-site validation, or general-superiority claim.
 - First-party families: bounded grid coordinates, schedule coordinates, and
   cross-tree labels; the host selects exactly one.
 - Current agent evidence: schedule and cross-tree fixture cases only.
+- Benchmark population: 8 deterministic fixture prompts × 4 worlds = 32
+  matched task identities; every identity is evaluated in both modes.
+- Reliability: `pass@1` 31/32 vs 23/32; `pass@2` and `pass@3` 31/32 vs 24/32.
 - Canonical result: [metrics, economics, checksums, and claim
   boundary](../../docs/BROWSERIR_REAL_AGENT_RESULTS.md).
 - Reproduction: [real-agent A/B
@@ -59,15 +62,18 @@ unseen-site validation, or general-superiority claim.
 ## Approved result wording
 
 > In a 32-task Qwen3.8-27B development benchmark with up to three fresh
-> attempts per mode, BrowserIR `auto` solved 31/32 tasks versus 24/32 with
-> enrichment `off`. The matched outcomes were seven `auto`-only successes,
-> zero `off`-only successes, 24 both successes, and one both failure. This is
-> favorable evidence on reused schedule-coordinate and cross-tree-label fixture
-> cases, not a sealed, unseen-site, or general-superiority result.
+> attempts per mode, BrowserIR `auto` reached 31/32 `pass@1` versus 23/32
+> with enrichment `off`, then finished 31/32 versus 24/32 at `pass@3`. The
+> matched final outcomes were seven `auto`-only successes, zero `off`-only
+> successes, 24 both successes, and one both failure. The population was 8
+> checked-in fixture prompts × 4 deterministic worlds. This is favorable
+> evidence on a reused local development corpus, not a sealed unseen-site or
+> general-superiority result.
 
-Do not shorten this to “97% success,” “30% fewer calls,” or “55% cheaper” without
-also naming the comparison, corpus size, model, retry cap, and development
-boundary.
+Shorter copy may lead with “31/32 pass@1,” “30.6% fewer calls,” or “55.5% lower
+provider cost per success” when it also names the enrichment-off comparison,
+Qwen3.8-27B, the 8×4 development corpus, the three-attempt stop-on-success
+policy, and links the canonical result.
 
 ## FAQ
 
