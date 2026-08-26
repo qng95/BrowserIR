@@ -1,6 +1,6 @@
 # BrowserIR 0.1 alpha release readiness
 
-Assessment updated: 2026-08-12 (Europe/Berlin)
+Assessment updated: 2026-08-26 (Europe/Berlin)
 
 Status: **the Apache-2.0 source alpha and Evidence Drops 01 and 02 are public.
 Drop 02 result-publication commit `294fd82` passed all ten hosted v17 jobs in
@@ -10,6 +10,14 @@ result is inconclusive. npm packages and a product release remain unpublished.**
 Publication gates must
 not be bypassed by weakening the release verifier or by presenting
 dirty/unbound local evidence as release evidence.
+
+The repository now also retains a favorable 2026-08-26 thin adaptive
+Playwright development comparison: `auto` 31/32 versus `off` 24/32 with
+`qwen/qwen3.8-27b`. It is deliberately **not** part of the v17 release dossier
+or an Evidence Drop. The development corpus was reused after an earlier round,
+and its receipt lacks the product policy version and product-source hash. See
+the [full result](BROWSERIR_REAL_AGENT_RESULTS.md) for the exact retry,
+projection, cost, checksum, and claim boundaries.
 
 ## Source and hosted release behavior
 
@@ -313,6 +321,12 @@ is unusable in this local store: pnpm reports a missing Playwright package index
 even after a frozen reinstall.
 
 ## Publication blockers
+
+The adaptive result does not remove any blocker below. Before it can support a
+release or confirmatory comparison, a new clean candidate must bind
+`@browserir/playwright-mcp`, `schedule-coordinate-policy/3`, the product-source
+hash, model/runtime configuration, and an untouched prospective schedule in
+the retained evidence before the first scored call.
 
 1. Configure the canonical GitHub repository's private security reporting
    location before launch.

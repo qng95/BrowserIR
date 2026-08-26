@@ -38,6 +38,9 @@ importers:
       '@browserir/playwright':
         specifier: workspace:*
         version: link:../playwright-driver
+      '@browserir/playwright-mcp':
+        specifier: workspace:*
+        version: link:../playwright-mcp
       '@langchain/core':
         specifier: 1.2.5
         version: 1.2.5(openai@6.49.0(zod@4.4.3))
@@ -97,6 +100,12 @@ importers:
       playwright:
         specifier: 1.62.0
         version: 1.62.0
+
+  packages/playwright-mcp:
+    dependencies:
+      '@modelcontextprotocol/client':
+        specifier: 2.0.0
+        version: 2.0.0
 
 packages:
 

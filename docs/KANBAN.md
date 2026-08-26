@@ -1,6 +1,6 @@
 # BrowserIR Kanban
 
-Last updated: 2026-08-12
+Last updated: 2026-08-26
 
 This is the working implementation board. Cards move from **Backlog** to
 **Ready**, then **In Progress**, and finally **Done**. A card is not Done merely
@@ -30,6 +30,16 @@ Publication gates and durable promotion of the qualified dossier remain open;
 see the
 [release-readiness assessment](RELEASE_READINESS.md) and
 [release-evidence guide](RELEASE_EVIDENCE.md).
+
+Since that source-bound release snapshot, the repository has added the private
+`@browserir/playwright-mcp` thin adaptive layer and a new development corpus.
+Its 2026-08-26 real-agent run produced `auto` 31/32 versus `off` 24/32 with
+`qwen/qwen3.8-27b`, 7 `auto`-only wins, no `off`-only wins, and 15/15 complete
+projections on independently demonstrated recoverable relations. This is
+published development evidence, not a v17 dossier update, Evidence Drop, npm
+release, or general superiority claim. The historical exact test counts above
+remain bound to their named source commits and must not be presented as counts
+for the current adaptive workspace.
 
 In an earlier 2026-08-11 local evidence run, the post-hardening deterministic reference
 planner completed all 14 isolated database-backed tasks through the stock
@@ -275,9 +285,11 @@ Current limitations:
   revision-bound identity, explicit omissions, and action-effect receipts.
 - Never market system qualification, representation conformance, unit-test
   counts, or a score-excluded control check as comparative uplift.
-- Show DOM/accessibility improvement only after a matched, precommitted run uses
-  the same model, prompt, tasks, browser profile, budgets, and hidden oracle.
-  Until then the comparative cells must say **not measured yet**.
+- Show a comparative result only with its actual design status and matching
+  model, prompt, tasks, browser profile, budgets, retry policy, and hidden
+  oracle. A post-inspection development run may be reported as development
+  evidence, but it must not be promoted to a precommitted or confirmatory
+  headline.
 - Keep detailed evidence one click away and retain negative, invalid, and
   inconclusive results rather than optimizing the public story around wins.
 
@@ -291,6 +303,33 @@ Definition of Done for every implementation card:
 - documentation is updated when a public contract changes.
 
 ## Completed evidence drops
+
+### BIR-101 — Thin adaptive Playwright development comparison
+
+- [x] Implement a private `@browserir/playwright-mcp` wrapper that preserves
+  official Playwright tools, refs, actions, and exact pass-through results.
+- [x] Keep policy choice explicit and allow at most one hidden read-only boxed
+  snapshot; emit only a complete box-free relation set or the original result.
+- [x] Advance the schedule projector to `schedule-coordinate-policy/3`, with a
+  one-pixel serialized resource/root containment tolerance and all overlap,
+  center, completeness, unique-ref, and unique-coordinate guards retained.
+- [x] Pass the 64-arm real-browser zero-model preflight: 15/15 demonstrated
+  recoverable relations projected, one safe Catalog fallback, zero projection
+  misses, no model calls, and no task mutation.
+- [x] Add fresh-state retries, `pass@k`, retry-cap failures, physical-call
+  accounting, exact token/cost coverage, and cost per success.
+- [x] Run one matched 32-task development comparison with only
+  `qwen/qwen3.8-27b`, OpenRouter `alibaba`, fallback disabled, and
+  `max_retry=2`: `auto` 31/32, `off` 24/32, +21.875 points, 7 `auto`-only and 0
+  `off`-only outcomes, 84 physical calls, 146,312 tokens, and $0.09136310.
+- [x] Retain the receipt, append-only journal, analysis, checksums, exact
+  limitations, and rerun instructions.
+
+Current state: favorable and publication-worthy as **development evidence**.
+The corpus was reused after the prior `/2` result was inspected, and the
+receipt does not serialize policy version or product-source hash, so the work
+does not satisfy the sealed advertising or product-default gate. See the
+[result](BROWSERIR_REAL_AGENT_RESULTS.md) and [runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
 ### BIR-100 — Evidence Drop 02: independent query-three-conditions comparison
 

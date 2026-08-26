@@ -64,6 +64,16 @@ by exhausted OpenRouter credit; they remain scored and were not rerun. This is
 one complete-interface workflow in a known fixture—not raw-DOM evidence,
 generalization, or a superiority result.
 
+A separate 2026-08-26 thin-layer development comparison used only
+`qwen/qwen3.8-27b` on 32 paired schedule-coordinate and cross-tree-label tasks,
+with up to three wholly fresh attempts per mode. BrowserIR Adaptive solved
+31/32 tasks; the same wrapped Playwright surface with enrichment off solved
+24/32. The paired outcomes were seven Adaptive-only successes, zero off-only
+successes, 24 both successful, and one neither. This is favorable development
+evidence, not Evidence Drop 03 or independent confirmation: the corpus was
+reused after an earlier policy round and the receipt does not bind the product
+policy version or source hash.
+
 ## Current source-bound engineering evidence
 
 The latest hosted result publication was reproduced on v17 Drop 02 commit
@@ -101,6 +111,10 @@ resolve to the earlier freeze commit.
   remain scored with no rerun.
 - Drop 02 boundary: one complete-interface known-fixture workflow, not raw DOM,
   generalization, or superiority.
+- Thin adaptive Playwright development A/B: `qwen/qwen3.8-27b`, `auto` 31/32
+  versus `off` 24/32 under a three-fresh-attempt cap; 7 `auto`-only, 0
+  `off`-only, 24 both, 1 neither. Published with receipt, journal, cost, and
+  checksums; not sealed, source-bound, or a general claim.
 - Status: public Apache-2.0 source alpha; packages are not yet published to npm.
 
 ## Quote
@@ -130,6 +144,10 @@ Evidence Drop 02: BrowserIR 21/30; the same control 20/30. Observed lift +3.33
 pp; 95% paired interval −46.26 to +52.92 pp. **Inconclusive.** The final nine
 pairs are provider-contaminated, best explained by exhausted OpenRouter credit,
 and remain scored.
+
+Thin-layer development result with Qwen3.8-27B: BrowserIR Adaptive 31/32;
+enrichment off 24/32 under a three-fresh-attempt cap. Seven Adaptive-only wins,
+zero off-only wins. Favorable, but unsealed and not a general-superiority claim.
 
 ### Long
 
@@ -167,6 +185,15 @@ points, so this result is also **inconclusive**. Provider credit exhaustion
 is the best explanation for the provider-contaminated final nine both-failed
 pairs; the frozen protocol retains them and permits no selective rerun. This is
 one known-fixture workflow, not unseen-site or multi-workflow generalization.
+
+The newer thin-layer development A/B asks a narrower product question: does a
+small deterministic observation layer improve a Playwright agent on supported
+structural ambiguities? With Qwen3.8-27B, Adaptive solved 31/32 tasks and the
+same wrapper with enrichment off solved 24/32 under a three-fresh-attempt cap.
+All 15 independently demonstrated recoverable relations were projected; one
+unsupported layout safely fell back. Because the corpus was reused after the
+previous projector round and the receipt omits policy/source provenance, this
+result is development evidence rather than a sealed headline.
 
 ## FAQ
 
@@ -207,6 +234,16 @@ credit; they remain part of the frozen result and were not rerun. Drop 02 is a
 new real-model slice within the same known fixture, not a raw-DOM comparison,
 generalization result, or superiority claim.
 
+### Did the thin adaptive Playwright result prove general superiority?
+
+No. It is a strong development signal on a 32-task challenge corpus: Adaptive
+solved 31 tasks versus 24 with enrichment off, with seven Adaptive-only and no
+off-only successes. But the corpus was reused after an earlier round and the
+receipt does not bind the exact policy/source bytes. It supports a scoped
+development statement and motivates a prospectively sealed untouched study;
+it does not establish product-wide prevalence, unseen-site generalization, or
+superiority over arbitrary Playwright deployments.
+
 ### Why should anyone trust the 14/14 score?
 
 Each task runs in a separate worker with a fresh seeded database, browser,
@@ -227,8 +264,9 @@ boundaries exist precisely so progress can be measured without overstating it.
 
 No. Evidence Drops 01 and 02 are narrow matched comparisons against the
 official Playwright MCP accessibility-snapshot control, and both results are
-inconclusive. They do not establish market superiority or performance against
-raw DOM.
+inconclusive. The newer 31/32 versus 24/32 thin-layer result is explicitly
+unsealed development evidence. None establishes market superiority or
+performance against raw DOM.
 
 ## Media assets
 

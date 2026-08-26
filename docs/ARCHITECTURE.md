@@ -1,7 +1,46 @@
 # BrowserIR Architecture
 
-Status: implemented alpha architecture plus explicitly marked target-state work
-Last updated: 2026-08-10
+Status: implemented source-alpha thin layer plus separately selected full graph runtime
+Last updated: 2026-08-26
+
+> **Product-direction update:** the default source-alpha product is now a
+> lightweight adaptive observation layer around official Playwright MCP. The
+> full graph runtime documented below remains a separately selected
+> legacy/experimental mode. See
+> [Adaptive Playwright architecture](ADAPTIVE_PLAYWRIGHT_ARCHITECTURE.md).
+
+## Thin adaptive Playwright layer
+
+The `@browserir/playwright-mcp` package keeps official Playwright MCP as the
+browser driver, target namespace, action surface, and fallback observation. Its
+middleware adds one narrow decision step:
+
+```text
+official Playwright snapshot
+  -> deterministic BrowserIR relation analysis
+  -> fixed host-selected policy
+  -> safe projection, or original-snapshot passthrough
+  -> unchanged Playwright actions and opaque targets
+```
+
+The layer is intentionally not a second browser agent. It does not ask a model
+to rewrite the page, replace Playwright's actionability checks, or invent a
+relation when evidence is insufficient. The fixed task-independent policy sees
+the snapshot, never the task prompt or oracle, and projects only a complete
+relation set it can prove. Otherwise the official snapshot remains the model
+input.
+
+The current reference-policy schedule is `/3`. Its schedule-resource/root
+containment rule allows a one-pixel rendering-boundary tolerance only for that
+specific relationship; a two-pixel gap is rejected. In the checked zero-model
+preflight, all 15 recoverable relations project, one unresolved case safely
+falls back, and there are zero projection misses.
+
+A 32-pair unsealed development run with the single model
+`qwen/qwen3.8-27b` recorded 31/32 successes with the adaptive layer and 24/32
+with passthrough, but that is descriptive evidence rather than a general
+architecture guarantee. See [the result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md)
+and [the reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
 ## Product goal
 
@@ -96,6 +135,7 @@ Every action revalidates its target against the current revision before dispatch
 The current workspace packages are:
 
 ```text
+packages/playwright-mcp/      @browserir/playwright-mcp; default thin adaptive Playwright layer
 packages/browser-ir/          @browserir/core; intended public core contracts and runtime
 packages/playwright-driver/   @browserir/playwright; intended public Playwright driver
 packages/mcp-server/          @browserir/mcp; intended public MCP adapter and stdio CLI
@@ -103,13 +143,16 @@ packages/fixture-app/         @think-dom/fixture-app; private acceptance environ
 packages/benchmark/           @browserir/benchmark; private benchmark and report tooling
 ```
 
-The three intended public packages are not yet published. The fixture and
-benchmark packages remain private development infrastructure.
+None of the public-candidate packages are published yet. The thin
+`@browserir/playwright-mcp` package is the default product direction; the core,
+driver, and full MCP server form the separately selected full graph runtime.
+The fixture and benchmark packages remain private development infrastructure.
 
-The production dependency direction is:
+The two production dependency directions are:
 
 ```text
-MCP server -> BrowserIR core <- Playwright driver
+default: official Playwright MCP <- thin adaptive middleware
+full graph mode: MCP server -> BrowserIR core <- Playwright driver
 ```
 
 Private development dependencies are separate: the benchmark package consumes

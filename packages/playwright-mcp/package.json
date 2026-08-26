@@ -1,0 +1,39 @@
+{
+  "name": "@browserir/playwright-mcp",
+  "version": "0.1.0",
+  "description": "Adaptive middleware for the official Playwright MCP client tools.",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./reference-policies": {
+      "types": "./dist/reference-policies.d.ts",
+      "import": "./dist/reference-policies.js",
+      "default": "./dist/reference-policies.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "prebuild": "node ./scripts/clean-dist.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.0.0"
+  }
+}

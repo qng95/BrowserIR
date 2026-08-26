@@ -47,6 +47,13 @@ option outside its control, a custom `div` owns the real click handler, or a
 WebForms postback replaces the whole document. Playwright remains the browser
 driver; BrowserIR provides the model-facing meaning and safety boundary.
 
+The current default product direction is a **thin adaptive layer around
+official Playwright MCP**. It keeps Playwright's snapshot and action contract,
+projects only complete structural relationships that its selected fixed policy
+can prove, and passes
+the original snapshot through when it cannot. The full BrowserIR graph runtime
+remains available as a separate legacy/experimental mode.
+
 ## Evidence, not promises
 
 <table>
@@ -65,11 +72,36 @@ driver; BrowserIR provides the model-facing meaning and safety boundary.
   BrowserIR matched 31/31 entities, 44/44 capabilities, 28/28 relationships,
   and 1/1 required abstention, with no false facts or misses.
 
-| Matched agent comparison | Published result |
+| Matched agent comparison | Recorded result and boundary |
 | --- | ---: |
+| Thin adaptive Playwright: `auto` vs `off` | **Unsealed development evidence** — 31/32 vs 24/32; +21.875 pp |
 | BrowserIR vs raw-DOM serialization | **Not measured yet** |
 | Drop 02: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 21/30 vs 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
 | Drop 01: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
+
+The latest thin-layer development run used one model only,
+`qwen/qwen3.8-27b`, on 32 matched tasks evaluated in both modes (16 semantic
+and 16 opaque)
+with `max_retry=2`. With the reference-policy schedule `/3`, adaptive `auto`
+passed **31/32 (96.875%)** and passthrough `off` passed **24/32 (75%)**:
+7 auto-only wins, 0 off-only wins, 24 both-pass pairs, and 1 both-fail pair.
+The exact paired McNemar test and a case-cluster sign-test sensitivity check
+both give **p=0.015625**. Opaque tasks improved from 8/16 to 15/16; semantic
+tasks were 16/16 in both arms. Pass@1 was 30/32 versus 24/32, while pass@3 was
+31/32 versus 24/32.
+
+Among the 16 opaque relation cases, BrowserIR projected 15 proven relations,
+safely passed Playwright through once, and recorded zero projection misses.
+Across 84 model calls the run used 146,312 tokens and cost **$0.09136310**
+total. The adaptive arm cost **$0.03526395**, or **$0.00113755 per successful
+task**.
+
+Those numbers are descriptive development evidence, not a confirmatory or
+general-superiority claim. The corpus was reused after the preceding round had
+been inspected, the artifacts are not a sealed Evidence Drop, and the receipt
+does not serialize the executed policy version or product-source hash. See the
+[full result and claim boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md) and the
+[reproduction runbook](docs/BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
 Drop 02 used Qwen3.8-Max on 30 fresh matched `query-three-conditions` blocks:
 1 BrowserIR win, 0 control wins, 20 both pass, 9 both fail, and 0 invalid. The

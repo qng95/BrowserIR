@@ -7,8 +7,9 @@ BrowserIR's central claim is about representation quality: give an AI model enou
 1. Did the agent complete the task in the real application?
 2. Did the representation expose the right entities, capabilities, and relationships at an acceptable payload cost?
 
-The repository contains the measuring components and two completed comparative
-pilots. It currently includes:
+The repository contains the measuring components, two completed sealed
+comparative pilots, and one unsealed thin-layer development comparison. It
+currently includes:
 
 - a deterministic ERP/DMS fixture with 14 database-backed task oracles;
 - representation, identity, omission, payload, and task-outcome metrics;
@@ -45,6 +46,45 @@ reference planner to qualify representation and action reachability; it also
 does not measure model generalization. The checked-in representation corpus
 qualifies only its declared supported cases. Do not interpret those engineering
 qualifications as another comparative result.
+
+### Thin adaptive Playwright development result
+
+The current thin-layer A/B compares the same official Playwright MCP snapshot
+and action path with BrowserIR adaptation set to `auto` or `off`. The `auto`
+arm may project a complete deterministic relation under the fixed selected
+reference policy; schedule cases use policy `/3`. The `off` arm always passes
+the Playwright snapshot through.
+Both arms retain Playwright's opaque targets and actions.
+
+One unsealed run used only `qwen/qwen3.8-27b`, 32 matched tasks (16
+semantic and 16 opaque), `max_retry=2`, and 84 provider calls. The results were:
+
+| Metric | `auto` | `off` |
+| --- | ---: | ---: |
+| Final success | 31/32 (96.875%) | 24/32 (75%) |
+| Pass@1 | 30/32 (93.75%) | 24/32 (75%) |
+| Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
+| Semantic tasks | 16/16 | 16/16 |
+| Opaque tasks | 15/16 | 8/16 |
+
+The matched table was 7 `auto`-only wins, 0 `off`-only wins, 24 both passes,
+and 1 both failure: a +21.875-percentage-point descriptive difference. The
+exact paired McNemar test and a case-cluster sign-test sensitivity analysis
+both yield `p=0.015625`. These p-values describe this run; they do not convert
+an adaptive development study into a confirmatory experiment.
+
+Across the 16 opaque relation cases, the policy projected 15 recoverable
+relationships, safely fell back once, and recorded zero projection misses.
+Total provider usage was 146,312 tokens and $0.09136310. The `auto` arm cost
+$0.03526395, or $0.00113755 per successful task.
+
+This result is deliberately separate from the sealed Evidence Drops. The
+corpus was reused after the preceding round had been inspected, and the receipt
+does not serialize the executed policy version or product-source hash. It is
+useful development evidence, not independent confirmation, a population
+estimate, or a claim that BrowserIR is generally superior. See
+[the full result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md) and the
+[reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
 
 ## Fixture and task oracles
 
@@ -400,7 +440,9 @@ adaptive v2 was 30/30 for BrowserIR versus 27/30 for official Playwright MCP
 (+10.00 points; 95% paired bound −39.59 to +59.59). Drop 02 was 21/30 versus
 20/30 (+3.33 points; bound −46.26 to +52.92). These are complete-interface
 controlled-fixture pilots, not raw-DOM baselines, pure representation
-ablations, generalization results, or superiority claims.
+ablations, generalization results, or superiority claims. A separate unsealed
+thin-layer study recorded 31/32 for adaptive `auto` versus 24/32 for `off`; it
+uses a different runner and claim boundary described above.
 
 See [Agent benchmark](AGENT_BENCHMARK.md) for the trust boundary, deterministic
 judge contract, trial schedule, interpretation, report artifacts, and current
@@ -445,10 +487,12 @@ A cross-system comparison is valid only when every system receives:
 Tool surfaces do not need to be identical, but their differences and resulting token cost must be reported. Failed setup, tool crashes, blocked actions, and unsupported tasks remain results. Do not tune prompts on the test set, run one system until it succeeds, or publish only favorable slices.
 
 BrowserIR comparisons use matched blocks with a fresh target and conversation
-for each arm. The intervention must be named precisely—currently the complete
-official Playwright MCP interface versus the complete BrowserIR MCP interface—
-and the same neutral agent prompt and configuration must be verified from
-recorded hashes. Arm order is counterbalanced from a committed seed.
+for each arm. The intervention must be named precisely. The sealed Evidence
+Drops compare the complete official Playwright MCP interface with the complete
+BrowserIR MCP interface. The thin-layer development runner instead compares
+official Playwright MCP with deterministic adaptation set to `auto` or `off`.
+The same neutral agent prompt and configuration must be verified from recorded
+metadata, and arm order must follow the declared schedule.
 
 Development tasks may be used to repair adapters and general BrowserIR defects.
 The sealed task slice may not be used as an iterative tuning set. A negative

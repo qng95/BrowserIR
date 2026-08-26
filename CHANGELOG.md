@@ -2,7 +2,7 @@
 
 All notable changes to BrowserIR will be documented here. The project intends to follow Semantic Versioning after its public contracts stabilize.
 
-Last updated: 2026-08-12
+Last updated: 2026-08-26
 
 ## Unreleased
 
@@ -11,6 +11,26 @@ Last updated: 2026-08-12
 BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and does not imply API stability or competitor superiority.
 
 ### Added
+
+- A source-alpha `@browserir/playwright-mcp` adaptive middleware that wraps the
+  official Playwright MCP observation path, applies one fixed task-independent
+  policy, projects only complete evidence-backed relationships, preserves
+  opaque Playwright target references, and passes the original snapshot through
+  when no safe projection is available.
+- A retry-, token-, latency-, and cost-aware OpenRouter A/B runner for the thin
+  adaptive layer. Its latest unsealed development run used only
+  `qwen/qwen3.8-27b`, 32 matched tasks evaluated in both modes,
+  `max_retry=2`, and 84 model
+  calls. Adaptive `auto` passed 31/32 (96.875%) versus 24/32 (75%) for `off`, a
+  +21.875-point descriptive difference with 7 auto-only wins, 0 off-only wins,
+  24 both passes, and 1 both failure. Both the exact paired McNemar test and the
+  case-cluster sign-test sensitivity check were `p=0.015625`. Pass@1 was 30/32
+  versus 24/32 and pass@3 was 31/32 versus 24/32.
+- Publication-oriented analysis for that development run, including the
+  semantic/opaque split, projection audit, retries, 146,312 provider tokens,
+  $0.09136310 total cost, $0.03526395 adaptive-arm cost, and $0.00113755
+  adaptive cost per successful task. See
+  [the result and claim boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md).
 
 - Browser-independent interaction graph with semantic entities, capabilities, relationships, evidence, confidence, revisions, and deltas.
 - Deterministic compact and structured views with character budgets, explicit omissions, focused inspection, and optional evidence.
@@ -109,6 +129,19 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 
 ### Changed
 
+- Advanced the schedule-resource/root containment projector to reference-policy
+  schedule `/3`. The one-pixel boundary tolerance applies only to that
+  relationship; a two-pixel gap remains rejected. The current 64-arm zero-model
+  preflight projects all 15 recoverable relations, safely falls back once, and
+  records zero projection misses.
+- The thin-layer development comparison now reports retry economics rather than
+  treating model fluctuation as a single terminal outcome. Opaque tasks were
+  15/16 in `auto` versus 8/16 in `off`; semantic tasks were 16/16 in both arms.
+  This run is unsealed descriptive evidence: the corpus was reused after the
+  prior round was inspected, and its receipt does not serialize policy-version
+  or product-source provenance. It is not independent confirmation or a broad
+  superiority claim.
+
 - Flattened the model-facing `browser_act` and `browser_wait` inputs. Action or
   wait `kind`, revision-bound refs, and kind-specific values now occupy one
   strict JSON object; nested and stringified payloads, bracketed refs, and
@@ -162,11 +195,16 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - Chromium is the only supported browser backend.
 - Packages remain unpublished pending npm scope ownership, an alpha version/tag
   decision, public-package privacy changes, and the publication step itself.
-- The two completed paired real-model results are inconclusive
+- The two completed sealed paired real-model Evidence Drops are inconclusive
   complete-interface controlled-fixture pilots. Neither is a raw-DOM
   comparison, multi-workflow generalization result, or broad superiority
   result; Drop 01 is adaptive and Drop 02 is one new real-model slice within
   the same known fixture.
+- The separate 32-pair adaptive-Playwright result is an unsealed, inspected-
+  corpus development study. Its favorable 31/32 versus 24/32 outcome is useful
+  engineering evidence, but it is not a third sealed Evidence Drop and cannot
+  support a confirmatory or general-superiority claim until a future protocol
+  binds source and policy provenance prospectively.
 - Closed Shadow DOM, canvas-only interfaces, fully unannotated choices,
   higher-level table semantics such as general sort/filter/pagination ownership,
   persisted auth profiles, managed downloads, continuation views, historical

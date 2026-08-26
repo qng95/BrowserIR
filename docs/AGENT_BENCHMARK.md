@@ -45,6 +45,15 @@ generalization. The current CLI is suitable for local development and
 characterization; it is not yet a hardened public scoring service. See the
 [development feedback ledger](EVIDENCE_DROPS.md#development-feedback-ledger).
 
+A separate thin adaptive Playwright runner has now produced an unsealed
+development result. Using only `qwen/qwen3.8-27b`, adaptive `auto` passed 31/32
+matched tasks while passthrough `off` passed 24/32. Each task was evaluated in
+both modes. This study uses a
+different intervention and evidence boundary from the sealed Drops; its corpus
+had already been inspected and its receipt lacks product-policy and source
+provenance. It is not independent confirmation or a general-superiority claim.
+See [Thin adaptive Playwright development result](#thin-adaptive-playwright-development-result).
+
 ## What is a scored target?
 
 A canonical score must run against an application BrowserIR controls: an owned,
@@ -224,10 +233,17 @@ model-facing tool traces, and provider usage metadata are recorded when
 available. Binary image bodies are represented in traces by MIME type and byte
 length rather than duplicated as base64.
 
-There is not yet a hard token or monetary-cost budget in the runner. A
-publication must disclose that limitation and report provider token usage where
-available; a fair cross-system score additionally requires identical token and
-cost policies. Do not describe model-turn count as token control.
+There is not yet a hard token or monetary-cost budget in this general
+BrowserIR-agent runner. A publication using it must disclose that limitation
+and report provider token usage where available; a fair cross-system score
+additionally requires identical token and cost policies. Do not describe
+model-turn count as token control.
+
+The dedicated thin adaptive Playwright runner is separate. It caps retries per
+task, retains provider-reported token and cost fields per physical model-call
+record, and stops the campaign at a configured observed-cost ceiling (default
+$0.10). Its retry cap and cost ceiling are part of that run's settings and
+cannot be silently compared with the general runner's model-turn budget.
 
 Budget values are part of the benchmark protocol. Changing one creates a new
 schedule and comparison cohort rather than retroactively changing an old score.
@@ -353,6 +369,49 @@ rewrite Drop 02.
 [Inspect the completed result](evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
 [Read the outcome analysis](evidence-drops/drop-02/analysis.md)
 
+### Thin adaptive Playwright development result
+
+This runner isolates the thin-layer intervention. Both arms use official
+Playwright MCP's snapshot, opaque target references, and action path. In
+`auto`, the fixed task-independent BrowserIR policy may add a complete proven
+structural relation set; in `off`, the same snapshot passes through unchanged.
+The executed workspace used reference-policy schedule `/3`.
+
+The latest unsealed run fixed one model, `qwen/qwen3.8-27b`, and evaluated 32
+matched tasks in both modes: 16 semantic tasks where Playwright already exposed
+the needed label and 16 opaque tasks where the relation mattered. It allowed at
+most two retries after the first attempt (`max_retry=2`) and made 84 physical
+model calls.
+
+| Outcome | `auto` | `off` |
+| --- | ---: | ---: |
+| Final success | 31/32 (96.875%) | 24/32 (75%) |
+| Pass@1 | 30/32 (93.75%) | 24/32 (75%) |
+| Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
+| Opaque | 15/16 | 8/16 |
+| Semantic | 16/16 | 16/16 |
+
+The paired outcomes were 7 `auto`-only wins, 0 `off`-only wins, 24 both passes,
+and 1 both failure, for a descriptive difference of +21.875 percentage points.
+The exact two-sided McNemar test on pairs was `p=0.015625`; a two-sided
+case-cluster sign-test sensitivity analysis was also `p=0.015625`. These are
+descriptive sensitivity statistics, not a preregistered confirmatory test.
+
+Across the 16 opaque cases, the projector handled all 15 recoverable relations,
+safely fell back once, and recorded zero projection misses. The whole run used
+146,312 tokens and cost $0.09136310. The `auto` arm cost $0.03526395,
+equivalent to $0.00113755 per successful task.
+
+This corpus was reused after the preceding round had been inspected, so the
+result cannot be treated as an independent holdout. The receipt also does not
+serialize the executed policy version or product-source hash. Publication must
+therefore label it **unsealed descriptive development evidence**, not an
+Evidence Drop, population estimate, confirmatory result, or proof of general
+BrowserIR superiority.
+
+[Read the full result and claim boundary](BROWSERIR_REAL_AGENT_RESULTS.md) ·
+[Reproduce the run](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md)
+
 ## Score-excluded official-control qualification
 
 Before freezing a paired uplift protocol, BrowserIR has a narrow compatibility
@@ -403,6 +462,17 @@ the workspace root with an exact model version:
 ```sh
 pnpm benchmark:agent -- --model MODEL_ID --run-id local-agent-1
 ```
+
+The thin adaptive Playwright comparison has a dedicated launcher and fixed
+model. It reads the OpenRouter credential from the documented macOS Keychain
+entry and writes create-only receipt and journal files:
+
+```sh
+pnpm benchmark:browserir-real-ab
+```
+
+Use the [thin-layer runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md) for the
+preflight, retry and cost-stop settings, output checks, and claim boundary.
 
 For a small, explicit development run:
 

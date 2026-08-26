@@ -81,6 +81,14 @@ development, but it cannot qualify a release. In particular, evidence from the
 current pre-commit or dirty workspace must be described as **local,
 dirty/unbound evidence**, not as a release dossier or public baseline.
 
+The 2026-08-26 thin adaptive Playwright A/B is one such separately retained
+development result. Its receipt and append-only journal are checksummed and
+useful for reproducing the reported 31/32 versus 24/32 outcome, but they are not
+release-evidence fragments: the corpus was reused after inspection and the
+receipt omits the product policy version and product-source hash. Do not place
+that bundle inside a release dossier or infer release qualification from its
+statistical result. See [BrowserIR thin-layer real-agent result](BROWSERIR_REAL_AGENT_RESULTS.md).
+
 ## Dossier assembly
 
 CI uploads each fragment independently, then the dossier job downloads the

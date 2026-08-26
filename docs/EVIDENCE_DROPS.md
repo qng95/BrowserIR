@@ -346,6 +346,34 @@ multi-workflow generalization result, or superiority claim.
 [Read the outcome analysis](evidence-drops/drop-02/analysis.md) ·
 [Inspect the frozen protocol](evidence-drops/drop-02/sealed.protocol.json)
 
+## Thin adaptive Playwright development evidence (not an Evidence Drop)
+
+On 2026-08-26, the private `@browserir/playwright-mcp` thin layer completed a
+32-task matched development run with `qwen/qwen3.8-27b`, the OpenRouter
+`alibaba` route, and `max_retry=2`. Product mode `auto` solved **31/32
+(96.875%)** tasks and the same wrapper in mode `off` solved **24/32 (75.00%)**,
+an observed difference of **+21.875 percentage points**. The paired outcomes
+were 7 `auto`-only, 0 `off`-only, 24 both successful, and 1 neither. Exact
+paired and case-cluster sign sensitivities were both `p=0.015625`.
+
+The thin layer passed through all 16 semantic-sufficient tasks and projected
+15 of 16 opaque tasks. Its independent relation audit found 15/15 complete
+projections on demonstrated-recoverable layouts, one safe Catalog fallback,
+and zero demonstrated projection misses. With the three-fresh-attempt cap,
+`auto` used 36 physical calls, 62,019 tokens, and $0.03526395; `off` used 48
+calls, 84,293 tokens, and $0.05609915. Usage and cost coverage were complete.
+
+This result is published as **development evidence**, not registered as Drop
+03. The corpus was reused after the preceding policy `/2` round was inspected,
+and the receipt does not serialize the executed product policy version or a
+product-source hash. The favorable point estimate and exact sensitivity
+therefore do not create a confirmatory, general-superiority, public-release, or
+advertising claim. The next Evidence Drop still requires prospective sealing
+and an untouched source-bound corpus.
+
+[Read the full result and integrity record](BROWSERIR_REAL_AGENT_RESULTS.md) ·
+[Read the reproduction runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md)
+
 ## Drop registry
 
 | Drop | Question | Status | Public result |

@@ -107,8 +107,25 @@ formulation:
 > not an LLM or competitor score.
 
 Do not use `100% agent success`, `production-ready`, `fastest`, `most compact`,
-or superiority claims. Both available paired results are inconclusive and do
-not support them.
+or general superiority claims. The two sealed Evidence Drops are inconclusive;
+the favorable thin-layer comparison below is post-inspection development
+evidence and does not override those verdicts.
+
+Use this exact scoped formulation for the 2026-08-26 thin-layer result:
+
+> In a 32-task development benchmark of schedule-coordinate and cross-tree-label
+> ambiguities using Qwen3.8-27B and up to three fresh attempts, BrowserIR
+> Adaptive solved 31/32 tasks versus 24/32 with enrichment off. The matched
+> outcomes were seven BrowserIR-only successes, zero off-only successes, 24
+> both successful, and one neither. The result is favorable development
+> evidence, not a sealed or general-superiority claim: the corpus was reused
+> after an earlier round, and the receipt lacks the product policy version and
+> source hash.
+
+When space permits, link the
+[complete result, economics, and checksums](../../docs/BROWSERIR_REAL_AGENT_RESULTS.md).
+Do not call it Evidence Drop 03, omit the retry cap, or convert the observed
+`p=0.015625` sensitivity into confirmatory advertising authority.
 
 The separate official-control compatibility result may be described only as:
 

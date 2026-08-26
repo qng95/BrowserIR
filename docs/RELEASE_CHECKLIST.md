@@ -28,6 +28,8 @@ publication decisions require maintainer authority:
 - [ ] **Perform the actual npm publication.** This is intentionally unresolved and requires an explicit maintainer decision after every prior gate passes.
 
 The fixture and benchmark packages remain private development packages.
+`@browserir/playwright-mcp` is also a private source-alpha integration package;
+the current development benchmark does not authorize publishing it to npm.
 
 ## Public scope confirmation
 
@@ -37,7 +39,9 @@ The fixture and benchmark packages remain private development packages.
 - [ ] Confirm arbitrary page-code execution is absent from the default
   nine-tool catalog and appears only after the explicit
   `--enable-unsafe-evaluate` startup flag.
-- [ ] Confirm the README labels 0.1 as alpha and makes no competitor-superiority claim.
+- [ ] Confirm the README labels 0.1 as alpha, labels the thin-layer A/B as
+  unsealed development evidence, and makes no general competitor-superiority
+  claim.
 - [ ] Review the supported and unsupported feature lists against the release commit.
 - [x] Remove unsupported URL and hidden-text wait variants from the public schema so advertised inputs match runtime behavior.
 
@@ -46,6 +50,10 @@ The fixture and benchmark packages remain private development packages.
 - [ ] Select the exact release commit and record its hash.
 - [ ] Confirm the release worktree contains no credentials, cookies, auth profiles, customer data, local screenshots, benchmark outputs, or generated archives.
 - [ ] Confirm local `output/`, `.claude/`, build output, and dependency directories are ignored.
+- [ ] If a development benchmark is published from an otherwise ignored output
+  directory, review and stage only the named receipt/journal/analysis files,
+  verify their SHA-256 values, scan them for credentials and sensitive page
+  payloads, and keep them outside the release-evidence dossier.
 - [ ] Install from the lockfile in a clean checkout:
 
 ```sh

@@ -37,6 +37,14 @@ import {
 import { applyFilters, dashboardPage, dashboardTile, filterBuilderPage, parseFilters } from './reports.js';
 import { STEPS, validateStep, wizardPage, type Step } from './wizard.js';
 import { esc } from './views.js';
+import {
+  adaptiveAccuracyHoldoutCases,
+  adaptiveAccuracyHoldoutPage,
+  isAdaptiveAccuracyHoldoutTarget,
+  recordAdaptiveAccuracyHoldoutSelection,
+  resolveAdaptiveAccuracyHoldoutBinding,
+  type AdaptiveAccuracyHoldoutBinding,
+} from './adaptive-accuracy-holdout.js';
 
 type Row = Record<string, unknown>;
 
@@ -57,6 +65,8 @@ export interface AppServerOptions {
   seed?: number;
   customers?: number;
   vehicles?: number;
+  /** Bind one v2 accuracy-development site route to a hidden server-side world. */
+  adaptiveAccuracyHoldout?: AdaptiveAccuracyHoldoutBinding;
 }
 
 export interface RunningAppServer {
@@ -83,6 +93,9 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
   const apiLatency = options.apiLatencyMs ?? 450;
   const pageLatency = options.pageLatencyMs ?? 120;
   const controlApiEnabled = options.enableControlApi === true;
+  const adaptiveAccuracyHoldout = options.adaptiveAccuracyHoldout === undefined
+    ? undefined
+    : resolveAdaptiveAccuracyHoldoutBinding(options.adaptiveAccuracyHoldout);
 
   const handler = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = new URL(req.url ?? '/', 'http://localhost');
@@ -262,6 +275,35 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     // step gets bounced here, which is a realistic first hurdle.
     if (path.startsWith('/app/') && !user) {
       return redirect(res, `/app/login?next=${encodeURIComponent(path + url.search)}`);
+    }
+
+    // The accuracy study uses a separate v2 catalog and audit
+    // namespace. Its case/world binding exists only in this server closure;
+    // neither the stable route nor the submitted form can select a world.
+    if (adaptiveAccuracyHoldout !== undefined) {
+      const study = adaptiveAccuracyHoldoutCases[adaptiveAccuracyHoldout.caseId];
+      if (path === study.path || path === study.selectionPath) {
+        if (path === study.path && method === 'GET') {
+          return html(res, adaptiveAccuracyHoldoutPage(ctx, adaptiveAccuracyHoldout));
+        }
+        if (path === study.selectionPath && method === 'POST') {
+          const form = await readForm(req);
+          const target = form['target'] ?? '';
+          if (!isAdaptiveAccuracyHoldoutTarget(study.caseId, target)) {
+            setFlash('error', 'That holdout action is no longer available.');
+            return redirect(res, study.path);
+          }
+          recordAdaptiveAccuracyHoldoutSelection(
+            db,
+            actor,
+            adaptiveAccuracyHoldout,
+            target,
+          );
+          setFlash('ok', 'Holdout action recorded.');
+          return redirect(res, study.path);
+        }
+        return html(res, notFoundPage(ctx), 404);
+      }
     }
 
     if (path === '/app/customers' && method === 'GET') return html(res, customerListPage(ctx));
