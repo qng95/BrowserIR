@@ -33,6 +33,7 @@ version or product-source hash.
 | Oracle | Exact hidden fixture-database result after one model-selected click |
 | Isolation | Fresh fixture, database, MCP process, Chromium context, page, and model response per attempt |
 | Cost stop | USD 0.10 |
+| Receipt | `browserir-openrouter-real-ab-20260826T142617Z`; schema `browserir-openrouter-real-ab-smoke/3` |
 
 The two modes share the same task and attempt seed. The model never sees a
 previous attempt, the hidden world, the expected target, or the oracle result.
@@ -44,9 +45,15 @@ previous attempt, the hidden world, the expected target, or the oracle result.
 | Final task success | 24/32 (75.00%) | **31/32 (96.875%)** |
 | Opaque worlds | 8/16 (50.00%) | **15/16 (93.75%)** |
 | Semantic-sufficient worlds | 16/16 (100%) | 16/16 (100%) |
-| `pass@1` | 24/32 (75.00%) | 30/32 (93.75%) |
-| `pass@2` | 24/32 (75.00%) | 30/32 (93.75%) |
+| `pass@1` | 23/32 (71.875%) | **31/32 (96.875%)** |
+| `pass@2` | 24/32 (75.00%) | **31/32 (96.875%)** |
 | `pass@3` | 24/32 (75.00%) | **31/32 (96.875%)** |
+
+| Cumulative paired outcome | `off` solved | `auto` solved | `auto - off` | `auto` only / `off` only / both / neither |
+| --- | ---: | ---: | ---: | ---: |
+| `pass@1` | 23/32 | 31/32 | +25.00 pp | 8 / 0 / 23 / 1 |
+| `pass@2` | 24/32 | 31/32 | +21.875 pp | 7 / 0 / 24 / 1 |
+| `pass@3` | 24/32 | 31/32 | +21.875 pp | 7 / 0 / 24 / 1 |
 
 The paired table was 7 `auto`-only successes, 0 `off`-only successes, 24 both
 successful, and 1 neither successful. Exact two-sided McNemar sensitivity was
@@ -86,47 +93,79 @@ overlap, center, completeness, unique-ref, and unique-coordinate guards.
 
 ## Retries and failure accounting
 
-`auto` used 36 physical model calls: 30 tasks succeeded on attempt 1, none on
-attempt 2, one on attempt 3, and one failed after the cap. `off` used 48 calls:
-24 tasks succeeded on attempt 1 and eight failed after all three attempts.
+`auto` used 34 physical model calls: 31 tasks succeeded on attempt 1, none on
+attempts 2 or 3, and one failed after the cap. `off` used 49 calls: 23 tasks
+succeeded on attempt 1, one on attempt 2, none on attempt 3, and eight failed
+after all three attempts.
 
-Across both modes the retained journal contains 80 decisions, 2 dispatch
-failures, and 2 malformed target selections. There were no recorded provider
-network failures. The two malformed selections occurred on a semantic
-passthrough task; a fresh third attempt recovered it. This is why `pass@k` is
-reported instead of treating one stochastic answer as the product score.
+Across both modes the retained journal contains 81 decisions, 1 dispatch
+failure, and 1 malformed response. There were 0 provider failures. This is why
+`pass@k` is reported instead of treating one stochastic answer as the product
+score.
+
+## Active task time
+
+Task time in this receipt is scheduler-independent active time. Each physical
+attempt starts before opening its fresh arm and includes fixture/browser setup,
+authentication, navigation, the initial snapshot, BrowserIR processing, the
+model request, click dispatch, and exact-oracle evaluation. When another retry
+follows, the failed attempt also includes its post-terminal cleanup and reset.
+The terminal attempt's cleanup, journal/log writing, and time spent running the
+opposite A/B arm are excluded.
+
+| Success-conditioned time to success | Playwright enrichment off | BrowserIR auto |
+| --- | ---: | ---: |
+| Successful tasks observed | 24 | 31 |
+| Mean | 5,982.71 ms | **4,928.71 ms** |
+| Median | 5,118 ms | **4,930 ms** |
+| p90 (nearest rank) | 9,375 ms | **5,160 ms** |
+| p95 (nearest rank) | 9,385 ms | **5,298 ms** |
+| Minimum | 4,523 ms | 4,542 ms |
+| Maximum | 10,252 ms | **5,706 ms** |
+
+The per-arm rows are conditioned on success and have different survivor sets,
+so they must be published with `n` and must not be read as the primary paired
+speed comparison. On the **24 tasks both arms solved**, `auto` was faster on 17,
+`off` was faster on 7, and none tied; `auto - off` averaged **−1,088.71 ms**
+with a median of **−151.5 ms**. That common-success paired set is the primary
+comparative timing view for this run.
+
+Retry-exhausted terminal time is reported separately rather than mixed into the
+success-conditioned distribution. The eight exhausted `off` tasks averaged
+20,781 ms (median 19,372.5 ms; p95 27,319 ms). The one exhausted `auto` task
+terminated after 16,164 ms.
 
 ## Tokens and provider cost
 
-Usage and cost coverage are 100% for all 84 physical calls.
+Usage and cost coverage are 100% for all 83 physical calls.
 
 | Metric | Playwright enrichment off | BrowserIR auto | Whole run |
 | --- | ---: | ---: | ---: |
-| Physical model calls | 48 | **36** | 84 |
-| Tokens | 84,293 | **62,019** | 146,312 |
-| Provider cost | $0.05609915 | **$0.03526395** | $0.09136310 |
-| Cost per succeeded task | $0.00233746 | **$0.00113755** | $0.00166115 per succeeded arm-task |
-| Tokens per succeeded task | 3,512.21 | **2,000.61** | — |
+| Physical model calls | 49 | **34** | 83 |
+| Tokens | 85,839 | **58,264** | 144,103 |
+| Provider cost | $0.05456337 | **$0.03137911** | $0.08594248 |
+| Cost per succeeded task | $0.00227347375 | **$0.00101222935** | $0.00156259055 per succeeded arm-task |
+| Tokens per succeeded task | 3,576.625 | **1,879.48387** | — |
 
-Within this round, `auto` used 25% fewer physical calls, 51.33% less provider
-cost per success, and 43.04% fewer tokens per success than `off`. Those are
+Within this round, `auto` used 30.61% fewer physical calls, 55.48% less provider
+cost per success, and 47.45% fewer tokens per success than `off`. Those are
 observed challenge-corpus economics under the early-stop retry policy, not a
 promise of savings on arbitrary sites. Provider latency and generated length
 are stochastic, so latency and round-to-round cost changes remain descriptive.
 
 ## Retained artifacts and integrity
 
-- [JSON receipt](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T103510Z.json)
-- [Append-only NDJSON journal](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T103510Z.ndjson)
-- [Round-to-round analysis](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T103510Z-analysis.md)
+- [JSON receipt](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z.json)
+- [Append-only NDJSON journal](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z.ndjson)
+- [Publication analysis](../packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z-analysis.md)
 
 | Artifact | SHA-256 |
 | --- | --- |
-| Receipt | `ae837839663650d6234c63dfcfd489a8856d5f6d6a247601b3688fa316aead26` |
-| Journal | `2b356d50b23ad5ee9bb6492ca65e522c1eca2725c4559bb2482854c7e186327b` |
-| Analysis | `4c3ba625891a6c564a6f81e9d97f837ea07549d350f2b969b8f21db3fd82ae14` |
+| Receipt | `a74d9b53c2343aeef761729f17ca653276baf5aac7c7fe555c0c9709c13eab57` |
+| Journal | `c179764f67ae1ee992614c6d1928805a493b87f8cab9413f19cfb7dfc67c7cc2` |
+| Analysis | `e5ced1f11bef00d78560945373e814b2f07a86e24577a61ebcbe56ab0b5f7b10` |
 
-The journal has exactly 84 records and is byte-for-byte equivalent to
+The journal has exactly 83 records and is record-for-record equivalent to
 `receipt.results`; every retained result has token and cost accounting. The
 artifacts contain response hashes, not provider response bodies or credentials.
 

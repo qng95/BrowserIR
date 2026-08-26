@@ -5,11 +5,16 @@
   </picture>
 </h1>
 
-<p align="center"><strong>DOM and accessibility are sensors. BrowserIR is the agent contract.</strong></p>
+<p align="center"><strong>Give Playwright the relationships agents are missing.</strong></p>
 
 <p align="center">
-  BrowserIR compiles a live interface into semantic entities, relationships,<br>
-  current actions, revision-bound targets, explicit omissions, receipts, and deltas.
+  BrowserIR is a thin, adaptive semantic layer for official Playwright MCP.<br>
+  It adds only relationships it can prove—and otherwise returns Playwright's original snapshot unchanged.
+</p>
+
+<p align="center">
+  <strong>31/32 tasks solved · 31/32 pass@1 · 34 model calls</strong><br>
+  <sub>vs 24/32 · 23/32 · 49 calls with enrichment off in a 32-task Qwen3.8-27B development benchmark</sub>
 </p>
 
 <p align="center">
@@ -20,16 +25,49 @@
 </p>
 
 <p align="center">
-  <a href="#why-browserir"><strong>Why BrowserIR</strong></a>
+  <a href="#measured-impact"><strong>Measured impact</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#why-the-thin-layer-works"><strong>How it works</strong></a>
   &nbsp;·&nbsp;
   <a href="#evidence-not-promises"><strong>Evidence</strong></a>
-  &nbsp;·&nbsp;
-  <a href="#how-the-scores-are-earned"><strong>Scoring</strong></a>
   &nbsp;·&nbsp;
   <a href="#try-the-source-alpha"><strong>Try it</strong></a>
 </p>
 
-## Why BrowserIR?
+## Measured impact
+
+Same model. Same 32 matched tasks. Same three-fresh-attempt cap. Every attempt
+used a fresh fixture, database, browser, MCP process, and model response, then
+passed or failed against an exact hidden oracle.
+
+| Real-agent metric | Playwright enrichment off | BrowserIR auto |
+| --- | ---: | ---: |
+| Final task success | 24/32 (75.0%) | **31/32 (96.9%)** |
+| `pass@1` | 23/32 (71.9%) | **31/32 (96.9%)** |
+| Physical model calls | 49 | **34 — 30.6% fewer** |
+| Cost per successful task | $0.002273 | **$0.001012 — 55.5% lower** |
+| Successful-task active time, mean | 5.983 s (`n=24`) | **4.929 s (`n=31`)** |
+| Successful-task active time, median | 5.118 s (`n=24`) | **4.930 s (`n=31`)** |
+
+Here `pass@1` means exact-oracle success on the first fresh attempt.
+Task time is end-to-end active execution, not model-call latency. It includes
+fresh browser and fixture setup, navigation, snapshot construction, BrowserIR
+processing when enabled, the model request, action dispatch, oracle
+verification, and retry reset where required. It excludes time spent running
+the opposite A/B arm and cleanup after the terminal outcome.
+
+Because the two modes solved different task sets, the cleaner speed comparison
+is the 24 tasks both completed: BrowserIR was faster on **17**, enrichment-off
+was faster on **7**, and BrowserIR's observed mean paired advantage was **1.089
+seconds** per successful task.
+
+These are descriptive results from a reused, unsealed development corpus—not a
+claim of general superiority or unseen-site generalization. Inspect the
+[receipt-backed result](docs/BROWSERIR_REAL_AGENT_RESULTS.md),
+[pass@k and task-time analysis](packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z-analysis.md),
+or [reproduce the run](docs/BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
+
+## Why the thin layer works
 
 The DOM describes the document. The accessibility tree exposes accessible
 semantics. Neither alone is a stable, complete action contract. An agent still
@@ -47,12 +85,29 @@ option outside its control, a custom `div` owns the real click handler, or a
 WebForms postback replaces the whole document. Playwright remains the browser
 driver; BrowserIR provides the model-facing meaning and safety boundary.
 
-The current default product direction is a **thin adaptive layer around
-official Playwright MCP**. It keeps Playwright's snapshot and action contract,
-projects only complete structural relationships that its selected fixed policy
-can prove, and passes
-the original snapshot through when it cannot. The full BrowserIR graph runtime
-remains available as a separate legacy/experimental mode.
+BrowserIR does not replace Playwright. It starts with Playwright's normal
+semantic snapshot:
+
+- When that snapshot already contains enough meaning, BrowserIR changes
+  nothing.
+- When relationships are split across trees or visible only through layout,
+  BrowserIR makes one bounded, read-only observation and adds complete,
+  provable relations using current Playwright references.
+- When evidence is incomplete, BrowserIR returns the original snapshot instead
+  of inventing a relationship.
+
+That distinction showed up directly in the real-agent run:
+
+| Task class | Playwright enrichment off | BrowserIR auto |
+| --- | ---: | ---: |
+| Semantic-sufficient | 16/16 | 16/16 |
+| Structurally opaque | 8/16 | **15/16** |
+
+The run produced 15 proven projections, one safe fallback, and zero
+demonstrated projection misses. The layer helped where relationships were
+missing while preserving Playwright's behavior where its semantics were already
+sufficient. The full BrowserIR graph runtime remains available as a separate
+legacy/experimental mode.
 
 ## Evidence, not promises
 
@@ -79,38 +134,12 @@ remains available as a separate legacy/experimental mode.
 | Drop 02: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 21/30 vs 20/30; +3.33 pp (95% paired CI −46.26 to +52.92 pp) |
 | Drop 01: BrowserIR vs official Playwright MCP accessibility snapshot | **Inconclusive** — 30/30 vs 27/30; +10.00 pp (95% paired CI −39.59 to +59.59 pp) |
 
-The latest thin-layer development run used one model only,
-`qwen/qwen3.8-27b`, on 32 matched tasks evaluated in both modes (16 semantic
-and 16 opaque)
-with `max_retry=2`. With the reference-policy schedule `/3`, adaptive `auto`
-passed **31/32 (96.875%)** and passthrough `off` passed **24/32 (75%)**:
-7 auto-only wins, 0 off-only wins, 24 both-pass pairs, and 1 both-fail pair.
-The exact paired McNemar test and a case-cluster sign-test sensitivity check
-both give **p=0.015625**. Opaque tasks improved from 8/16 to 15/16; semantic
-tasks were 16/16 in both arms. Pass@1 was 30/32 versus 24/32, while pass@3 was
-31/32 versus 24/32.
-
-Among the 16 opaque relation cases, BrowserIR projected 15 proven relations,
-safely passed Playwright through once, and recorded zero projection misses.
-Across 84 model calls the run used 146,312 tokens and cost **$0.09136310**
-total. The adaptive arm cost **$0.03526395**, or **$0.00113755 per successful
-task**.
-
-Those numbers are descriptive development evidence, not a confirmatory or
-general-superiority claim. The corpus was reused after the preceding round had
-been inspected, the artifacts are not a sealed Evidence Drop, and the receipt
-does not serialize the executed policy version or product-source hash. See the
-[full result and claim boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md) and the
-[reproduction runbook](docs/BROWSERIR_REAL_AGENT_AB_RUNBOOK.md).
-
-Drop 02 used Qwen3.8-Max on 30 fresh matched `query-three-conditions` blocks:
-1 BrowserIR win, 0 control wins, 20 both pass, 9 both fail, and 0 invalid. The
-interval crosses zero, so the predeclared verdict is **inconclusive**. This is a
-complete-interface test on one known fixture workflow—not raw-DOM evidence,
-generalization, or a superiority claim.
-
-The nine-pair tail is provider-contaminated, so the absolute arm rates are not
-clean interface-capability estimates. The frozen score remains unchanged.
+The thin adaptive result is the current product signal; its scope and caveats
+are stated in [Measured impact](#measured-impact). Earlier sealed Drops tested a
+broader full-BrowserIR interface against Playwright's accessibility snapshot.
+Their intervals crossed zero, so both retain their predeclared
+**inconclusive** verdicts. Drop 02's nine-pair tail was also provider
+contaminated; its frozen score remains unchanged.
 
 [Inspect Drop 02](docs/evidence-drops/drop-02/drop-02-qwen38max-query-three-conditions-v1-run-02/summary.md) ·
 [Read the analysis](docs/evidence-drops/drop-02/analysis.md) ·

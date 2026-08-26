@@ -19,10 +19,23 @@ misses, made no model calls, and performed no task mutation.
 One paid two-mode development study then ran with `qwen/qwen3.8-27b`, OpenRouter
 `alibaba`, provider fallback disabled, and `max_retry=2`. On 32 paired tasks,
 `auto` solved 31/32 and `off` solved 24/32: +21.875 percentage points, with 7
-`auto`-only, 0 `off`-only, 24 both, and 1 neither. `auto` reached 30/32 at
-`pass@1` and 31/32 at `pass@3`; `off` remained 24/32. The run made 84 physical
-model calls, used 146,312 tokens, and cost $0.09136310 with 100% accounting
-coverage. See [the retained result](BROWSERIR_REAL_AGENT_RESULTS.md).
+`auto`-only, 0 `off`-only, 24 both, and 1 neither. At `pass@1`, `auto` reached
+31/32 and `off` 23/32; at `pass@2` and `pass@3`, they reached 31/32 and 24/32.
+The run made 83 physical model calls, used 144,103 tokens, and cost $0.08594248
+with 100% accounting coverage. See
+[the retained result](BROWSERIR_REAL_AGENT_RESULTS.md).
+
+That `/3` receipt also records scheduler-independent active task time. Timing
+starts before fresh-arm setup and includes authentication, navigation, snapshot,
+BrowserIR, model, click, and oracle; cleanup/reset is included after a failed
+attempt when another retry follows. Terminal cleanup, journal/log writing, and
+the opposite A/B arm are excluded. Success-conditioned median/p95 time to
+success was 4,930/5,298 ms for `auto` (`n=31`) and 5,118/9,385 ms for `off`
+(`n=24`). Those arm distributions have different survivor sets. The primary
+comparative timing is the 24-task common-success set: `auto` was faster on 17,
+`off` on 7, with mean `auto - off` time −1,088.71 ms and median −151.5 ms.
+Retry-exhausted terminal time is reported separately (`off` `n=8`, mean
+20,781 ms; `auto` `n=1`, 16,164 ms).
 
 This closes the earlier “mock-only runner” gap, but it does not complete the
 confirmatory design below. The development corpus was reused after the `/2`

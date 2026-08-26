@@ -137,6 +137,17 @@ succeeded arm-task are published only at 100% receipt/usage coverage. When a
 provider response lacks accounting, the receipt retains observed partial totals
 but sets final totals and per-success economics to `null`.
 
+Keep provider response latency separate from active task time. Active task time
+is scheduler-independent: start before opening each fresh arm and include setup,
+authentication, navigation, the initial snapshot, BrowserIR, model, click, and
+oracle evaluation. If another retry follows, include the failed attempt's
+post-terminal cleanup/reset; exclude terminal-attempt cleanup, journal/logging,
+and time spent on the opposite A/B arm. Report success-conditioned per-arm
+distributions with their observed `n`, retry-exhausted terminal distributions
+separately, and use the common-success paired set as the primary comparative
+timing view. Otherwise differing survivor sets can create a misleading speed
+comparison.
+
 A positive point estimate is not proof when the paired interval or exact
 sensitivity still includes the null. Never merge runs made with different
 models, provider routes, retry caps, or cost-stop-truncated schedules into one
@@ -176,18 +187,33 @@ the historical `/2` receipt.
 
 ## Retained `/3` development result
 
-The full 2026-08-26 run used `qwen/qwen3.8-27b`, OpenRouter `alibaba`, provider
-fallback disabled, and `max_retry=2`. It completed 32 paired tasks with 84
-physical model calls:
+The canonical `browserir-openrouter-real-ab-20260826T142617Z` run used
+`qwen/qwen3.8-27b`, OpenRouter `alibaba`, provider fallback disabled, and
+`max_retry=2`. It completed 32 paired tasks with 83 physical model calls:
 
 - `auto`: 31/32 (96.875%); `off`: 24/32 (75.00%); lift +21.875 points;
 - 7 `auto`-only, 0 `off`-only, 24 both successful, and 1 neither;
 - exact paired McNemar and case-cluster sign sensitivities: `p=0.015625`;
-- `auto pass@1`: 30/32; `auto pass@3`: 31/32;
+- `pass@1`: `auto` 31/32, `off` 23/32, +25 points, paired
+  `auto-only`/`off-only`/both/neither 8/0/23/1;
+- `pass@2` and `pass@3`: `auto` 31/32, `off` 24/32, +21.875 points,
+  paired `auto-only`/`off-only`/both/neither 7/0/24/1;
+- success-on-attempt: `auto` [31, 0, 0], `off` [23, 1, 0]; one `auto` and
+  eight `off` tasks failed at the retry cap;
 - 15 opaque projections, 1 safe fallback, 0 demonstrated projection misses;
-- 146,312 tokens and $0.09136310 total cost at 100% usage/cost coverage;
-- `auto`: 36 calls, 62,019 tokens, $0.03526395 total, and $0.00113755 per
-  succeeded task.
+- 144,103 tokens and $0.08594248 total cost at 100% usage/cost coverage;
+- `auto`: 34 calls, 58,264 tokens, $0.03137911 total, and $0.00101222935 per
+  succeeded task; `off`: 49 calls, 85,839 tokens, $0.05456337, and
+  $0.00227347375 per succeeded task;
+- success-conditioned active time to success: `auto` `n=31`, mean 4,928.71 ms,
+  median 4,930 ms, p95 5,298 ms; `off` `n=24`, mean 5,982.71 ms, median 5,118 ms,
+  p95 9,385 ms;
+- retry-exhausted terminal time: `auto` `n=1`, 16,164 ms; `off` `n=8`, mean
+  20,781 ms, median 19,372.5 ms, p95 27,319 ms;
+- common-success paired timing (`n=24`): `auto` faster 17, `off` faster 7,
+  mean `auto - off` −1,088.71 ms, median −151.5 ms;
+- model outcomes: 81 decisions, 1 dispatch failure, 1 malformed response, and
+  0 provider failures.
 
 These are descriptive development numbers. The corpus was reused after the
 preceding `/2` round was inspected, and the current receipt schema does not

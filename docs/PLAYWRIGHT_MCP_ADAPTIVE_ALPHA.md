@@ -252,8 +252,16 @@ projected, one Catalog layout safely fell back, and there were zero demonstrated
 projection misses. A paid development run then used only
 `qwen/qwen3.8-27b`, OpenRouter `alibaba`, and `max_retry=2`. `auto` solved 31/32
 tasks and `off` solved 24/32; the paired table was 7 `auto`-only, 0 `off`-only,
-24 both, and 1 neither. The 84 calls used 146,312 tokens and cost $0.09136310;
-`auto` cost $0.03526395, or $0.00113755 per success.
+24 both, and 1 neither. Pass@1 was 31/32 versus 23/32; pass@2 and pass@3 were
+31/32 versus 24/32. The 83 calls used 144,103 tokens and cost $0.08594248;
+`auto` cost $0.03137911, or $0.00101222935 per success.
+
+The receipt's active task time starts before fresh-arm setup and ends at the
+exact-oracle terminal while excluding opposite-arm scheduling. Per-arm
+success-conditioned medians were 4,930 ms for `auto` (`n=31`) and 5,118 ms for
+`off` (`n=24`), so they are not directly comparable without survivor bias. On
+the primary 24-task common-success set, `auto` was faster on 17 tasks and `off`
+on 7; mean `auto - off` time was −1,088.71 ms.
 
 Those numbers are published as descriptive development evidence. The corpus
 was reused after the prior `/2` round was inspected, and the receipt does not

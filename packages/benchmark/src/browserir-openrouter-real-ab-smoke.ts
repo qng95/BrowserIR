@@ -113,7 +113,12 @@ interface ArmResult {
   readonly exactOracleSuccess: boolean;
   readonly mutationCount: number;
   readonly totalAuditMutationCount: number;
-  readonly latencyMs: number;
+  /** OpenRouter request/response time; diagnostic only, not task latency. */
+  readonly modelCallLatencyMs: number;
+  /** Full fresh-arm wall clock from setup through terminal oracle verification. */
+  readonly taskAttemptLatencyMs: number;
+  /** Cleanup/reset after the terminal oracle; counted only when another retry follows. */
+  readonly postTerminalCleanupLatencyMs: number;
   readonly promptTokens: number | null;
   readonly completionTokens: number | null;
   readonly costUsd: number | null;
@@ -440,7 +445,8 @@ const runArm = async (input: {
   mode: Mode;
   attemptNumber: number;
   seed: number;
-}): Promise<ArmResult> => {
+}): Promise<Omit<ArmResult, 'postTerminalCleanupLatencyMs'>> => {
+  const taskAttemptStarted = performance.now();
   const session = await dependencies.openArm({
     caseId: input.caseId,
     worldId: input.worldId,
@@ -549,7 +555,8 @@ const runArm = async (input: {
       exactOracleSuccess: oracle.exactSuccess,
       mutationCount: oracle.mutationCount,
       totalAuditMutationCount: oracle.totalAuditMutationCount,
-      latencyMs: decision.latencyMs,
+      modelCallLatencyMs: decision.latencyMs,
+      taskAttemptLatencyMs: Math.round(performance.now() - taskAttemptStarted),
       promptTokens: decision.promptTokens,
       completionTokens: decision.completionTokens,
       costUsd: decision.costUsd,
@@ -585,7 +592,8 @@ for (const pair of pairs) {
     maxRetries: MAX_RETRIES,
     baseSeed: 20_260_825,
     async runAttempt({ mode, attemptNumber, seed }) {
-      const result = await runArm({
+      const activeAttemptStarted = performance.now();
+      const untimedCleanupResult = await runArm({
         taskId,
         caseId: pair.caseId,
         worldId: pair.worldId,
@@ -593,6 +601,14 @@ for (const pair of pairs) {
         mode,
         attemptNumber,
         seed,
+      });
+      const result = Object.freeze({
+        ...untimedCleanupResult,
+        postTerminalCleanupLatencyMs: Math.max(
+          0,
+          Math.round(performance.now() - activeAttemptStarted) -
+            untimedCleanupResult.taskAttemptLatencyMs,
+        ),
       });
       results.push(result);
       if (journalPath !== undefined) {
@@ -602,7 +618,8 @@ for (const pair of pairs) {
         `REAL_AB_PROGRESS calls=${results.length}/${MAX_CALLS}-max ` +
         `${pair.caseId} ${pair.worldId} ${mode} attempt=${attemptNumber} ` +
         `oracle=${result.exactOracleSuccess ? 'success' : 'failure'} ` +
-        `route=${result.productOutcome} cost=${result.costUsd?.toFixed(6) ?? 'unknown'}\n`,
+        `route=${result.productOutcome} task_ms=${result.taskAttemptLatencyMs} ` +
+        `cost=${result.costUsd?.toFixed(6) ?? 'unknown'}\n`,
       );
       return result;
     },
@@ -647,7 +664,8 @@ const retryAnalysis = analyzeBrowserIrRetries({
     promptTokens: result.promptTokens,
     completionTokens: result.completionTokens,
     costUsd: result.costUsd,
-    latencyMs: result.latencyMs,
+    taskAttemptLatencyMs: result.taskAttemptLatencyMs,
+    postTerminalCleanupLatencyMs: result.postTerminalCleanupLatencyMs,
   })),
   maxRetries: MAX_RETRIES,
 });
@@ -673,7 +691,7 @@ const tiedCaseClusters = caseClusters.filter(({ difference }) => difference === 
 const opaqueRelationAudits = paired.flatMap(({ relationAudit }) =>
   relationAudit === null ? [] : [relationAudit]);
 const summary = Object.freeze({
-  schemaVersion: 'browserir-openrouter-real-ab-smoke/2',
+  schemaVersion: 'browserir-openrouter-real-ab-smoke/3',
   status: 'real-browser-real-openrouter-descriptive-smoke-not-confirmatory',
   fixtureCatalogVersion: ADAPTIVE_ACCURACY_HOLDOUT_VERSION,
   fixtureCatalogSha256: ADAPTIVE_ACCURACY_HOLDOUT_CATALOG_SHA256,
@@ -748,7 +766,14 @@ const summary = Object.freeze({
   }),
   retryAnalysis,
   totalObservedCostUsd: observedCostUsd,
-  meanLatencyMs: results.reduce((sum, { latencyMs }) => sum + latencyMs, 0) / results.length,
+  meanModelCallLatencyMs: results.reduce(
+    (sum, { modelCallLatencyMs }) => sum + modelCallLatencyMs,
+    0,
+  ) / results.length,
+  meanTaskAttemptLatencyMs: results.reduce(
+    (sum, { taskAttemptLatencyMs }) => sum + taskAttemptLatencyMs,
+    0,
+  ) / results.length,
   results,
 });
 

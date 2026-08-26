@@ -1,5 +1,5 @@
 export const BROWSERIR_RETRY_ANALYSIS_VERSION =
-  'browserir-retry-analysis/1' as const;
+  'browserir-retry-analysis/2' as const;
 
 export const BROWSERIR_RETRY_MODES = Object.freeze(['off', 'auto'] as const);
 export type BrowserIrRetryMode = (typeof BROWSERIR_RETRY_MODES)[number];
@@ -13,7 +13,14 @@ export interface BrowserIrRetryAttempt {
   readonly promptTokens: number | null;
   readonly completionTokens: number | null;
   readonly costUsd: number | null;
-  readonly latencyMs: number;
+  /**
+   * End-to-end wall-clock time for this fresh task attempt. This is not the
+   * provider/model-call latency: it includes runtime setup, browser/tool work,
+   * the model call, and oracle verification. Post-terminal cleanup is excluded.
+   */
+  readonly taskAttemptLatencyMs: number;
+  /** Reset/cleanup after this terminal oracle observation. */
+  readonly postTerminalCleanupLatencyMs: number;
 }
 
 export interface BrowserIrRetryTask {
@@ -48,6 +55,39 @@ export interface BrowserIrRetryArmTaskSummary {
   readonly solved: boolean;
   readonly firstSuccessAttempt: number | null;
   readonly failedAfterMaxRetries: boolean;
+  /** Sum of this arm's fresh task attempts through its terminal outcome. */
+  readonly timeToTerminalMs: number;
+  /** Null when the task is right-censored by the retry cap. */
+  readonly timeToSuccessMs: number | null;
+  readonly rightCensoredAtRetryCap: boolean;
+}
+
+export interface BrowserIrTaskLatencyDistribution {
+  readonly observedTasks: number;
+  readonly totalMs: number;
+  readonly meanMs: number | null;
+  readonly medianMs: number | null;
+  /** Nearest-rank percentile. */
+  readonly p90Ms: number | null;
+  /** Nearest-rank percentile. */
+  readonly p95Ms: number | null;
+  readonly minMs: number | null;
+  readonly maxMs: number | null;
+}
+
+export interface BrowserIrPairedSuccessfulTaskLatency {
+  readonly commonSuccessTasks: number;
+  readonly autoFaster: number;
+  readonly offFaster: number;
+  readonly tied: number;
+  readonly meanAutoMinusOffMs: number | null;
+  readonly medianAutoMinusOffMs: number | null;
+  readonly taskDeltas: readonly Readonly<{
+    taskId: string;
+    offTimeToSuccessMs: number;
+    autoTimeToSuccessMs: number;
+    autoMinusOffMs: number;
+  }>[];
 }
 
 export interface BrowserIrRetryArmSummary {
@@ -80,9 +120,12 @@ export interface BrowserIrRetryArmSummary {
     usdPerSucceededTask: number | null;
   }>;
   readonly latency: Readonly<{
-    totalMs: number;
-    meanPerAttemptMs: number;
-    meanPerTaskMs: number;
+    measurement: 'active-task-time-to-terminal-across-fresh-attempts';
+    oppositeAbArmTimeIncluded: false;
+    retryResetTimeIncluded: true;
+    terminalAttemptCleanupIncluded: false;
+    successfulTaskTimeToSuccess: BrowserIrTaskLatencyDistribution;
+    retryExhaustedTaskTimeToTerminal: BrowserIrTaskLatencyDistribution;
   }>;
   readonly taskResults: readonly BrowserIrRetryArmTaskSummary[];
 }
@@ -98,6 +141,8 @@ export interface BrowserIrRetryAnalysis {
   readonly physicalModelCalls: number;
   readonly arms: Readonly<Record<BrowserIrRetryMode, BrowserIrRetryArmSummary>>;
   readonly pairedPassAtK: readonly BrowserIrPairedPassAtKPoint[];
+  /** Restricted to tasks that both arms solved, avoiding survivor-set mismatch. */
+  readonly pairedSuccessfulTaskLatency: BrowserIrPairedSuccessfulTaskLatency;
   readonly economics: Readonly<{
     costCoverage: number;
     observedUsd: number;
@@ -143,6 +188,37 @@ const succeededBy = (
 ): boolean => attempts.some((attempt) =>
   attempt.attemptNumber <= k && attempt.exactOracleSuccess);
 
+const median = (values: readonly number[]): number | null => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1]! + sorted[middle]!) / 2
+    : sorted[middle]!;
+};
+
+const nearestRank = (values: readonly number[], percentile: number): number | null => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  return sorted[Math.ceil(percentile * sorted.length) - 1]!;
+};
+
+const summarizeTaskLatencies = (
+  values: readonly number[],
+): BrowserIrTaskLatencyDistribution => {
+  const totalMs = values.reduce((sum, value) => sum + value, 0);
+  return Object.freeze({
+    observedTasks: values.length,
+    totalMs,
+    meanMs: values.length === 0 ? null : totalMs / values.length,
+    medianMs: median(values),
+    p90Ms: nearestRank(values, 0.9),
+    p95Ms: nearestRank(values, 0.95),
+    minMs: values.length === 0 ? null : Math.min(...values),
+    maxMs: values.length === 0 ? null : Math.max(...values),
+  });
+};
+
 const summarizeArm = (
   tasks: readonly BrowserIrRetryTask[],
   attempts: readonly BrowserIrRetryAttempt[],
@@ -152,6 +228,12 @@ const summarizeArm = (
   const taskResults = tasks.map(({ taskId }): BrowserIrRetryArmTaskSummary => {
     const retained = armTaskAttempts(attempts, taskId, mode);
     const firstSuccess = retained.find(({ exactOracleSuccess }) => exactOracleSuccess);
+    const timeToTerminalMs = retained.reduce(
+      (sum, { taskAttemptLatencyMs, postTerminalCleanupLatencyMs }, index) =>
+        sum + taskAttemptLatencyMs +
+        (index === retained.length - 1 ? 0 : postTerminalCleanupLatencyMs),
+      0,
+    );
     return Object.freeze({
       taskId,
       attemptsExecuted: retained.length,
@@ -160,6 +242,9 @@ const summarizeArm = (
       firstSuccessAttempt: firstSuccess?.attemptNumber ?? null,
       failedAfterMaxRetries:
         firstSuccess === undefined && retained.length === maxAttemptsPerTask,
+      timeToTerminalMs,
+      timeToSuccessMs: firstSuccess === undefined ? null : timeToTerminalMs,
+      rightCensoredAtRetryCap: firstSuccess === undefined,
     });
   });
   const retainedAttempts = attempts.filter((attempt) => attempt.mode === mode);
@@ -181,7 +266,11 @@ const summarizeArm = (
   const observedUsd = costCovered.reduce((sum, { costUsd }) => sum + costUsd!, 0);
   const usageComplete = usageCovered.length === attemptsExecuted;
   const costComplete = costCovered.length === attemptsExecuted;
-  const totalLatencyMs = retainedAttempts.reduce((sum, { latencyMs }) => sum + latencyMs, 0);
+  const successfulTaskLatencies = taskResults.flatMap(({ timeToSuccessMs }) =>
+    timeToSuccessMs === null ? [] : [timeToSuccessMs]);
+  const retryExhaustedTaskLatencies = taskResults
+    .filter(({ rightCensoredAtRetryCap }) => rightCensoredAtRetryCap)
+    .map(({ timeToTerminalMs }) => timeToTerminalMs);
   return Object.freeze({
     tasks: tasks.length,
     solved,
@@ -225,9 +314,14 @@ const summarizeArm = (
       usdPerSucceededTask: costComplete && solved > 0 ? observedUsd / solved : null,
     }),
     latency: Object.freeze({
-      totalMs: totalLatencyMs,
-      meanPerAttemptMs: totalLatencyMs / attemptsExecuted,
-      meanPerTaskMs: totalLatencyMs / tasks.length,
+      measurement: 'active-task-time-to-terminal-across-fresh-attempts',
+      oppositeAbArmTimeIncluded: false,
+      retryResetTimeIncluded: true,
+      terminalAttemptCleanupIncluded: false,
+      successfulTaskTimeToSuccess: summarizeTaskLatencies(successfulTaskLatencies),
+      retryExhaustedTaskTimeToTerminal: summarizeTaskLatencies(
+        retryExhaustedTaskLatencies,
+      ),
     }),
     taskResults: Object.freeze(taskResults),
   });
@@ -264,7 +358,11 @@ export function analyzeBrowserIrRetries(input: Readonly<{
     if (attempt.promptTokens !== null) safeCount(attempt.promptTokens, 'promptTokens');
     if (attempt.completionTokens !== null) safeCount(attempt.completionTokens, 'completionTokens');
     if (attempt.costUsd !== null) finiteNonNegative(attempt.costUsd, 'costUsd');
-    safeCount(attempt.latencyMs, 'latencyMs');
+    safeCount(attempt.taskAttemptLatencyMs, 'taskAttemptLatencyMs');
+    safeCount(
+      attempt.postTerminalCleanupLatencyMs,
+      'postTerminalCleanupLatencyMs',
+    );
   }
   for (const { taskId } of input.tasks) {
     for (const mode of BROWSERIR_RETRY_MODES) {
@@ -317,6 +415,35 @@ export function analyzeBrowserIrRetries(input: Readonly<{
       });
     },
   ));
+  const offTaskResults = new Map(arms.off.taskResults.map((task) => [task.taskId, task]));
+  const autoTaskResults = new Map(arms.auto.taskResults.map((task) => [task.taskId, task]));
+  const successfulTaskLatencyDeltas = input.tasks.flatMap(({ taskId }) => {
+    const offTimeToSuccessMs = offTaskResults.get(taskId)?.timeToSuccessMs ?? null;
+    const autoTimeToSuccessMs = autoTaskResults.get(taskId)?.timeToSuccessMs ?? null;
+    return offTimeToSuccessMs === null || autoTimeToSuccessMs === null
+      ? []
+      : [Object.freeze({
+          taskId,
+          offTimeToSuccessMs,
+          autoTimeToSuccessMs,
+          autoMinusOffMs: autoTimeToSuccessMs - offTimeToSuccessMs,
+        })];
+  });
+  const latencyDeltas = successfulTaskLatencyDeltas.map(({ autoMinusOffMs }) => autoMinusOffMs);
+  const pairedSuccessfulTaskLatency = Object.freeze({
+    commonSuccessTasks: successfulTaskLatencyDeltas.length,
+    autoFaster: successfulTaskLatencyDeltas.filter(({ autoMinusOffMs }) =>
+      autoMinusOffMs < 0).length,
+    offFaster: successfulTaskLatencyDeltas.filter(({ autoMinusOffMs }) =>
+      autoMinusOffMs > 0).length,
+    tied: successfulTaskLatencyDeltas.filter(({ autoMinusOffMs }) =>
+      autoMinusOffMs === 0).length,
+    meanAutoMinusOffMs: latencyDeltas.length === 0
+      ? null
+      : latencyDeltas.reduce((sum, value) => sum + value, 0) / latencyDeltas.length,
+    medianAutoMinusOffMs: median(latencyDeltas),
+    taskDeltas: Object.freeze(successfulTaskLatencyDeltas),
+  });
   const physicalModelCalls = input.attempts.length;
   const coveredCosts = arms.off.cost.coveredAttempts + arms.auto.cost.coveredAttempts;
   const observedUsd = arms.off.cost.observedUsd + arms.auto.cost.observedUsd;
@@ -336,6 +463,7 @@ export function analyzeBrowserIrRetries(input: Readonly<{
     physicalModelCalls,
     arms,
     pairedPassAtK,
+    pairedSuccessfulTaskLatency,
     economics: Object.freeze({
       costCoverage: coveredCosts / physicalModelCalls,
       observedUsd,

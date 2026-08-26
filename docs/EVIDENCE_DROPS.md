@@ -360,8 +360,17 @@ The thin layer passed through all 16 semantic-sufficient tasks and projected
 15 of 16 opaque tasks. Its independent relation audit found 15/15 complete
 projections on demonstrated-recoverable layouts, one safe Catalog fallback,
 and zero demonstrated projection misses. With the three-fresh-attempt cap,
-`auto` used 36 physical calls, 62,019 tokens, and $0.03526395; `off` used 48
-calls, 84,293 tokens, and $0.05609915. Usage and cost coverage were complete.
+`auto` used 34 physical calls, 58,264 tokens, and $0.03137911; `off` used 49
+calls, 85,839 tokens, and $0.05456337. The 83 calls used 144,103 tokens and cost
+$0.08594248; usage and cost coverage were complete. Pass@1 was 31/32 for `auto`
+versus 23/32 for `off`; pass@2 and pass@3 were 31/32 versus 24/32.
+
+The `/3` receipt measures scheduler-independent active task time from before
+fresh-arm setup through the exact-oracle terminal. Success-conditioned medians
+were 4,930 ms for `auto` (`n=31`) and 5,118 ms for `off` (`n=24`), but those
+per-arm distributions contain different survivors. On the primary 24-task
+common-success paired set, `auto` was faster on 17 tasks and `off` on 7, with a
+mean `auto - off` difference of −1,088.71 ms. These timings remain descriptive.
 
 This result is published as **development evidence**, not registered as Drop
 03. The corpus was reused after the preceding policy `/2` round was inspected,

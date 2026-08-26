@@ -57,12 +57,14 @@ the Playwright snapshot through.
 Both arms retain Playwright's opaque targets and actions.
 
 One unsealed run used only `qwen/qwen3.8-27b`, 32 matched tasks (16
-semantic and 16 opaque), `max_retry=2`, and 84 provider calls. The results were:
+semantic and 16 opaque), OpenRouter `alibaba` with fallback disabled,
+`max_retry=2`, and 83 provider calls. The results were:
 
 | Metric | `auto` | `off` |
 | --- | ---: | ---: |
 | Final success | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@1 | 30/32 (93.75%) | 24/32 (75%) |
+| Pass@1 | 31/32 (96.875%) | 23/32 (71.875%) |
+| Pass@2 | 31/32 (96.875%) | 24/32 (75%) |
 | Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
 | Semantic tasks | 16/16 | 16/16 |
 | Opaque tasks | 15/16 | 8/16 |
@@ -75,8 +77,19 @@ an adaptive development study into a confirmatory experiment.
 
 Across the 16 opaque relation cases, the policy projected 15 recoverable
 relationships, safely fell back once, and recorded zero projection misses.
-Total provider usage was 146,312 tokens and $0.09136310. The `auto` arm cost
-$0.03526395, or $0.00113755 per successful task.
+Total provider usage was 144,103 tokens and $0.08594248. The `auto` arm made 34
+calls and cost $0.03137911, or $0.00101222935 per successful task; `off` made 49
+calls and cost $0.05456337, or $0.00227347375 per successful task.
+
+This receipt's task-latency metric is scheduler-independent active time. An
+attempt starts before fresh-arm setup and includes authentication, navigation,
+snapshotting, BrowserIR, the model call, click, and oracle evaluation. A failed
+attempt includes post-terminal cleanup/reset when another retry follows; the
+terminal attempt's cleanup, journal/log writing, and opposite A/B arm time are
+excluded. The success-conditioned medians were 4,930 ms for `auto` (`n=31`) and
+5,118 ms for `off` (`n=24`). Because those distributions have different
+survivors, the primary comparison is the 24-task common-success paired set:
+`auto` was faster on 17, `off` on 7, and mean `auto - off` was −1,088.71 ms.
 
 This result is deliberately separate from the sealed Evidence Drops. The
 corpus was reused after the preceding round had been inspected, and the receipt

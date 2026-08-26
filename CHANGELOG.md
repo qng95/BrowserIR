@@ -20,17 +20,22 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
 - A retry-, token-, latency-, and cost-aware OpenRouter A/B runner for the thin
   adaptive layer. Its latest unsealed development run used only
   `qwen/qwen3.8-27b`, 32 matched tasks evaluated in both modes,
-  `max_retry=2`, and 84 model
+  `max_retry=2`, and 83 model
   calls. Adaptive `auto` passed 31/32 (96.875%) versus 24/32 (75%) for `off`, a
   +21.875-point descriptive difference with 7 auto-only wins, 0 off-only wins,
   24 both passes, and 1 both failure. Both the exact paired McNemar test and the
-  case-cluster sign-test sensitivity check were `p=0.015625`. Pass@1 was 30/32
-  versus 24/32 and pass@3 was 31/32 versus 24/32.
+  case-cluster sign-test sensitivity check were `p=0.015625`. Pass@1 was 31/32
+  versus 23/32; pass@2 and pass@3 were 31/32 versus 24/32.
 - Publication-oriented analysis for that development run, including the
-  semantic/opaque split, projection audit, retries, 146,312 provider tokens,
-  $0.09136310 total cost, $0.03526395 adaptive-arm cost, and $0.00113755
+  semantic/opaque split, projection audit, retries, 144,103 provider tokens,
+  $0.08594248 total cost, $0.03137911 adaptive-arm cost, and $0.00101222935
   adaptive cost per successful task. See
   [the result and claim boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md).
+- Scheduler-independent active task timing for the same `/3` receipt, beginning
+  before fresh-arm setup and ending at the exact-oracle terminal. Success-only
+  arm distributions retain their observed `n`; the primary comparative timing
+  is the 24-task common-success paired set, where `auto` was faster on 17 tasks,
+  `off` on 7, and mean `auto - off` time was −1,088.71 ms.
 
 - Browser-independent interaction graph with semantic entities, capabilities, relationships, evidence, confidence, revisions, and deltas.
 - Deterministic compact and structured views with character budgets, explicit omissions, focused inspection, and optional evidence.
@@ -134,9 +139,11 @@ BrowserIR 0.1.0 is not yet published. It is an alpha-quality first release and d
   relationship; a two-pixel gap remains rejected. The current 64-arm zero-model
   preflight projects all 15 recoverable relations, safely falls back once, and
   records zero projection misses.
-- The thin-layer development comparison now reports retry economics rather than
-  treating model fluctuation as a single terminal outcome. Opaque tasks were
-  15/16 in `auto` versus 8/16 in `off`; semantic tasks were 16/16 in both arms.
+- The thin-layer development comparison now reports retry economics and active
+  task latency rather than treating model fluctuation as a single terminal
+  outcome. Opaque tasks were 15/16 in `auto` versus 8/16 in `off`; semantic tasks
+  were 16/16 in both arms. Success-conditioned latency is explicitly separated
+  from the common-success paired comparison to expose survivor bias.
   This run is unsealed descriptive evidence: the corpus was reused after the
   prior round was inspected, and its receipt does not serialize policy-version
   or product-source provenance. It is not independent confirmation or a broad

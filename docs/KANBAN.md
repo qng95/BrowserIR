@@ -35,11 +35,13 @@ Since that source-bound release snapshot, the repository has added the private
 `@browserir/playwright-mcp` thin adaptive layer and a new development corpus.
 Its 2026-08-26 real-agent run produced `auto` 31/32 versus `off` 24/32 with
 `qwen/qwen3.8-27b`, 7 `auto`-only wins, no `off`-only wins, and 15/15 complete
-projections on independently demonstrated recoverable relations. This is
-published development evidence, not a v17 dossier update, Evidence Drop, npm
-release, or general superiority claim. The historical exact test counts above
-remain bound to their named source commits and must not be presented as counts
-for the current adaptive workspace.
+projections on independently demonstrated recoverable relations. The latest
+`/3` receipt retained 83 physical calls plus scheduler-independent active task
+timing; on the 24 common-success pairs, `auto` was faster on 17 and `off` on 7.
+This is published development evidence, not a v17 dossier update, Evidence Drop,
+npm release, or general superiority claim. The historical exact test counts
+above remain bound to their named source commits and must not be presented as
+counts for the current adaptive workspace.
 
 In an earlier 2026-08-11 local evidence run, the post-hardening deterministic reference
 planner completed all 14 isolated database-backed tasks through the stock
@@ -321,7 +323,11 @@ Definition of Done for every implementation card:
 - [x] Run one matched 32-task development comparison with only
   `qwen/qwen3.8-27b`, OpenRouter `alibaba`, fallback disabled, and
   `max_retry=2`: `auto` 31/32, `off` 24/32, +21.875 points, 7 `auto`-only and 0
-  `off`-only outcomes, 84 physical calls, 146,312 tokens, and $0.09136310.
+  `off`-only outcomes, 83 physical calls, 144,103 tokens, and $0.08594248.
+- [x] Measure active task time from before fresh-arm setup through exact-oracle
+  terminal, excluding opposite-arm scheduling and terminal cleanup. Publish
+  success-conditioned arm distributions with `n`, exhausted-task terminal time,
+  and the 24-task common-success paired comparison to expose survivor bias.
 - [x] Retain the receipt, append-only journal, analysis, checksums, exact
   limitations, and rerun instructions.
 

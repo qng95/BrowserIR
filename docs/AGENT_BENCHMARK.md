@@ -48,7 +48,9 @@ characterization; it is not yet a hardened public scoring service. See the
 A separate thin adaptive Playwright runner has now produced an unsealed
 development result. Using only `qwen/qwen3.8-27b`, adaptive `auto` passed 31/32
 matched tasks while passthrough `off` passed 24/32. Each task was evaluated in
-both modes. This study uses a
+both modes; its latest receipt also records scheduler-independent active task
+time and keeps success-conditioned arm distributions separate from the
+common-success paired timing comparison. This study uses a
 different intervention and evidence boundary from the sealed Drops; its corpus
 had already been inspected and its receipt lacks product-policy and source
 provenance. It is not independent confirmation or a general-superiority claim.
@@ -380,13 +382,14 @@ The executed workspace used reference-policy schedule `/3`.
 The latest unsealed run fixed one model, `qwen/qwen3.8-27b`, and evaluated 32
 matched tasks in both modes: 16 semantic tasks where Playwright already exposed
 the needed label and 16 opaque tasks where the relation mattered. It allowed at
-most two retries after the first attempt (`max_retry=2`) and made 84 physical
+most two retries after the first attempt (`max_retry=2`) and made 83 physical
 model calls.
 
 | Outcome | `auto` | `off` |
 | --- | ---: | ---: |
 | Final success | 31/32 (96.875%) | 24/32 (75%) |
-| Pass@1 | 30/32 (93.75%) | 24/32 (75%) |
+| Pass@1 | 31/32 (96.875%) | 23/32 (71.875%) |
+| Pass@2 | 31/32 (96.875%) | 24/32 (75%) |
 | Pass@3 | 31/32 (96.875%) | 24/32 (75%) |
 | Opaque | 15/16 | 8/16 |
 | Semantic | 16/16 | 16/16 |
@@ -399,8 +402,18 @@ descriptive sensitivity statistics, not a preregistered confirmatory test.
 
 Across the 16 opaque cases, the projector handled all 15 recoverable relations,
 safely fell back once, and recorded zero projection misses. The whole run used
-146,312 tokens and cost $0.09136310. The `auto` arm cost $0.03526395,
-equivalent to $0.00113755 per successful task.
+144,103 tokens and cost $0.08594248. The `auto` arm made 34 calls and cost
+$0.03137911, equivalent to $0.00101222935 per successful task; `off` made 49
+calls and cost $0.05456337, or $0.00227347375 per successful task.
+
+Active task time begins before the fresh arm opens and includes setup,
+authentication, navigation, snapshotting, BrowserIR, model, click, and oracle.
+Failed attempts include cleanup/reset when another retry follows; terminal
+cleanup, journal/logging, and time spent on the opposite A/B arm are excluded.
+Success-conditioned median time to success was 4,930 ms for `auto` (`n=31`) and
+5,118 ms for `off` (`n=24`). Those are different survivor sets. On the primary
+24-task common-success paired set, `auto` was faster on 17 tasks and `off` on 7,
+with mean `auto - off` time of −1,088.71 ms and median −151.5 ms.
 
 This corpus was reused after the preceding round had been inspected, so the
 result cannot be treated as an independent holdout. The receipt also does not
