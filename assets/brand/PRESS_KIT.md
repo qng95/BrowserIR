@@ -5,14 +5,14 @@
 
 ## Headline
 
-**Keep Playwright. Stop making browser agents guess.**
+**Keep Playwright. Add the relationships enterprise UIs leave implicit.**
 
 ## Deck
 
-BrowserIR is a thin adaptive semantic layer for official Playwright MCP. It
-turns missing label-to-control and row-by-column relationships into exact,
-current Playwright refs. It adds only complete mappings it can prove and
-returns the original snapshot whenever evidence is sufficient or unresolved.
+BrowserIR targets relationship-heavy enterprise interface patterns such as
+planning grids, routing queues, and approval lanes. It adds complete mappings
+to current Playwright refs when it can prove them, and otherwise returns
+Playwright unchanged.
 
 ## Repository description
 
@@ -20,24 +20,19 @@ Thin, fail-closed relationship enrichment for official Playwright MCP.
 
 ## Short announcement
 
-Playwright already gives browser agents capable tools and actionable refs. The
-hard cases are often narrower: a snapshot contains the right labels and
-controls but omits the relation between them.
+ERP schedules, CRM routing boards, and approval lanes can be obvious to humans
+while flattening into disconnected labels and controls. BrowserIR wraps a
+caller-owned official Playwright MCP client and restores only complete
+relationships it can prove. It never performs a hidden action, navigation,
+screenshot, evaluation, or internal product retry. Benchmark retries were
+evaluator-controlled fresh attempts.
 
-BrowserIR wraps a caller-owned official MCP client. On an eligible default
-snapshot, one host-selected, task-independent policy may request one read-only
-boxed recapture. If it can prove a complete mapping over unchanged state,
-BrowserIR returns a box-free snapshot with the missing relationships attached
-to current Playwright refs. Otherwise it returns Playwright's original result
-unchanged. It never performs a hidden action, evaluation, navigation, screenshot,
-or retry.
-
-In the retained Qwen3.8-27B development benchmark, BrowserIR reached **31/32
-`pass@1` versus 23/32** with enrichment off. At the three-fresh-attempt cap it
-solved 31/32 versus 24/32—seven matched task wins, zero matched losses. It used
-34 physical model calls versus 49 and cost $0.001012 per successful task versus
-$0.002273. The population was 8 checked-in fixture prompts × 4 deterministic
-worlds, not 32 websites. The result is favorable development evidence on a
+At final `pass@3` in the retained Qwen3.8-27B development benchmark, BrowserIR
+solved **15/16 vs 8/16** tasks when the relationship was missing and matched
+Playwright at **16/16 vs 16/16** when ARIA was sufficient. Overall it reached
+**31/32 `pass@1` vs 23/32**, produced seven final wins and zero losses, and used
+34 model calls vs 49. The population was 8 checked-in fixture prompts × 4
+deterministic worlds, not 32 websites. This is development evidence on a
 reused local corpus, not a sealed unseen-site study.
 
 ## Facts
@@ -45,7 +40,8 @@ reused local corpus, not a sealed unseen-site study.
 - Current package: private, unpublished `@browserir/playwright-mcp` source alpha.
 - Integration: in-process wrapper around a caller-owned official MCP `Client`.
 - Eligible observation: exact default `browser_snapshot` only.
-- Hidden work: at most one logical `{ boxes: true }` snapshot call; no retry.
+- Hidden work: at most one logical `{ boxes: true }` snapshot call; no internal
+  product retry.
 - Output: exact original result or a complete box-free projection using current
   Playwright refs.
 - First-party families: bounded grid coordinates, schedule coordinates, and
@@ -110,6 +106,9 @@ and are not evidence for the current thin layer.
 - [`browserir-mark-mono.svg`](browserir-mark-mono.svg)
 - [`browserir-wordmark.svg`](browserir-wordmark.svg)
 - [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg)
+- [`browserir-dms-workshop.png`](browserir-dms-workshop.png) — synthetic render
+  of the checked-in `workshop-week-table / opaque-p1` fixture; not a paid-run
+  capture or treatment visualization.
 - [`browserir-hero.png`](browserir-hero.png)
 
 The remaining benchmark, architecture, representation, scoring, social-card,

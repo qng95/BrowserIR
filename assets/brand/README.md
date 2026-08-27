@@ -19,6 +19,7 @@ legacy full-graph core and nine-tool MCP server.
 | [`browserir-mark-mono.svg`](browserir-mark-mono.svg) | One-color mark. |
 | [`browserir-wordmark.svg`](browserir-wordmark.svg) | Wordmark for light backgrounds. |
 | [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg) | Wordmark for dark backgrounds. |
+| [`browserir-dms-workshop.png`](browserir-dms-workshop.png) | Synthetic browser render of checked-in `workshop-week-table / opaque-p1`; not a paid-run capture or treatment visualization. |
 | [`browserir-hero.png`](browserir-hero.png) | Text-free visual; verify surrounding copy against the current product boundary. |
 | [`PRESS_KIT.md`](PRESS_KIT.md) | Current thin-layer launch facts and scoped copy. |
 
@@ -44,14 +45,14 @@ not current launch graphics and should not be used to market the thin layer:
 
 One line:
 
-> Keep Playwright. Stop making agents guess.
+> Keep Playwright. Add the relationships enterprise UIs leave implicit.
 
 Short description:
 
-> BrowserIR is a thin adaptive semantic layer for official Playwright MCP. It
-> adds only complete relationships it can prove from a bounded read-only
-> recapture, keeps Playwright's tools and current refs, and otherwise returns
-> the original snapshot unchanged.
+> BrowserIR targets relationship-heavy enterprise interface patterns such as
+> planning grids, routing queues, and approval lanes. It adds complete mappings
+> to current Playwright refs when it can prove them, and otherwise returns
+> Playwright unchanged.
 
 Scoped development result:
 
@@ -81,6 +82,8 @@ task count, retry cap, development status, or reuse caveat.
   cost, and cost per success exactly as defined in the canonical result.
 - Define the population as 8 fixture prompts × 4 deterministic worlds; never
   imply that the run covered 32 independent websites.
+- Describe enterprise interface patterns as modeled by the checked-in fixtures,
+  not as validation on named commercial products.
 
 ## Logo usage
 
