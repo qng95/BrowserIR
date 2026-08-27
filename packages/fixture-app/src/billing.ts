@@ -177,7 +177,7 @@ button{padding:7px 15px;border:1px solid #ccd2d8;border-radius:5px;background:#f
 </style></head>
 <body>
 <h1>Invoice ${esc(inv['number'])}</h1>
-<div class="muted">Autohaus DMS GmbH · Hauptstrasse 1 · 80331 München</div>
+<div class="muted">Inventory ERP · Demo tenant</div>
 <div class="meta">
   <div><strong>Bill to</strong><br>${esc(inv['customer'])}<br>${esc(inv['street'] ?? '')}<br>
     ${esc(inv['postal_code'] ?? '')} ${esc(inv['city'])}<br>${esc(inv['country'])}<br>

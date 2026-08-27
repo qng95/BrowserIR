@@ -33,7 +33,7 @@ to lose when the page becomes a text tree:
 
 | Common UI pattern | Relationship the agent needs |
 | --- | --- |
-| ERP or dealer-management schedule | action → resource × time |
+| Inventory ERP schedule | action → resource × time |
 | CRM routing board | action → queue or record |
 | CMS or document-management workflow | action → locale, document, or lane |
 
@@ -41,12 +41,12 @@ Playwright may expose every label and every actionable ref while omitting the
 edge between them. BrowserIR targets that missing edge. It does not replace the
 browser, tools, or action layer.
 
-## See it on a dealer-management schedule
+## See it on an Inventory ERP schedule
 
 **Task:** “Choose the open slot for **Bay 4 on Tuesday 09:30**, then stop.”
 
 <p align="center">
-  <img src="assets/brand/browserir-dms-workshop.png" alt="Autohaus dealer-management workshop schedule where the requested Bay 4 by Tuesday target is the bottom-right of four visually identical Choose open slot buttons">
+  <img src="assets/brand/browserir-inventory-erp-workshop.png" alt="Inventory ERP workshop schedule where the requested Bay 4 by Tuesday target is the bottom-right of four visually identical Choose open slot buttons">
 </p>
 
 <sub>Rendered from the exact checked-in <code>workshop-week-table / opaque-p1</code>
@@ -183,8 +183,8 @@ for the complete lifecycle contract.
 Current first-party policies cover bounded grid, schedule-coordinate, and
 cross-tree-label relationships. The real-agent evidence above covers the latter
 two on reused local development fixtures. The benchmark models enterprise UI
-patterns; it is not validation on commercial ERP, CRM, CMS, dealer-management,
-or document-management products—or the general web. A sealed, untouched
+patterns; it is not validation on commercial ERP, CRM, CMS, inventory, or
+document-management products—or the general web. A sealed, untouched
 multi-site corpus remains the next step.
 
 [Documentation](docs/README.md) ·

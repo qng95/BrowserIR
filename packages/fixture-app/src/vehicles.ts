@@ -226,7 +226,7 @@ export function vehicleDetailPage(ctx: PageCtx, id: number): string {
 
 <div class="card">
   <h2>Valuation (legacy system)</h2>
-  <p class="muted">Served from the previous DMS. Runs in its own document.</p>
+  <p class="muted">Served from the previous Inventory ERP. Runs in its own document.</p>
   <iframe class="legacy" title="Legacy valuation tool" height="210"
           src="/legacy/valuation?vin=${encodeURIComponent(String(v['vin']))}"></iframe>
 </div>`;

@@ -106,7 +106,7 @@ and are not evidence for the current thin layer.
 - [`browserir-mark-mono.svg`](browserir-mark-mono.svg)
 - [`browserir-wordmark.svg`](browserir-wordmark.svg)
 - [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg)
-- [`browserir-dms-workshop.png`](browserir-dms-workshop.png) — synthetic render
+- [`browserir-inventory-erp-workshop.png`](browserir-inventory-erp-workshop.png) — synthetic render
   of the checked-in `workshop-week-table / opaque-p1` fixture; not a paid-run
   capture or treatment visualization.
 - [`browserir-hero.png`](browserir-hero.png)

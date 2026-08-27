@@ -10,7 +10,7 @@ const app = await startAppServer({
 
 process.stdout.write(
   [
-    `Autohaus DMS fixture app   ${app.origin}`,
+    `Inventory ERP fixture app   ${app.origin}`,
     `sign in                    test / test`,
     '',
     'screens:',

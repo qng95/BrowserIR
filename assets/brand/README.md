@@ -19,7 +19,7 @@ legacy full-graph core and nine-tool MCP server.
 | [`browserir-mark-mono.svg`](browserir-mark-mono.svg) | One-color mark. |
 | [`browserir-wordmark.svg`](browserir-wordmark.svg) | Wordmark for light backgrounds. |
 | [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg) | Wordmark for dark backgrounds. |
-| [`browserir-dms-workshop.png`](browserir-dms-workshop.png) | Synthetic browser render of checked-in `workshop-week-table / opaque-p1`; not a paid-run capture or treatment visualization. |
+| [`browserir-inventory-erp-workshop.png`](browserir-inventory-erp-workshop.png) | Synthetic browser render of checked-in `workshop-week-table / opaque-p1`; not a paid-run capture or treatment visualization. |
 | [`browserir-hero.png`](browserir-hero.png) | Text-free visual; verify surrounding copy against the current product boundary. |
 | [`PRESS_KIT.md`](PRESS_KIT.md) | Current thin-layer launch facts and scoped copy. |
 

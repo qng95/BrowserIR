@@ -7,7 +7,7 @@ import { taskById } from '../src/tasks.js';
 /**
  * Dashboard, invoices, tickets and the query builder.
  *
- * Between them these cover the last patterns a DMS needs and no snapshot can
+ * Between them these cover the last patterns an inventory ERP needs and no snapshot can
  * reach: tiles that settle independently, a print document in a second tab,
  * an editor that does not exist until a double click, and form rows that the
  * user has to create before they can be filled in.

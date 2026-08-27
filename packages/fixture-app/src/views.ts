@@ -104,12 +104,12 @@ export function layout(body: string, o: LayoutOptions): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(o.title)} — Autohaus DMS</title>
+<title>${esc(o.title)} — Inventory ERP</title>
 <style>${CSS}</style>
 </head>
 <body>
 <header class="appbar">
-  <a class="brand" href="/app/customers">Autohaus DMS</a>
+  <a class="brand" href="/app/customers">Inventory ERP</a>
   <div class="spacer"></div>
   ${
     o.user
