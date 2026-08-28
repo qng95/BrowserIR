@@ -1,5 +1,5 @@
 {
-  "name": "browserir",
+  "name": "browserir-workspace",
   "version": "0.1.0",
   "description": "The semantic browser layer for AI agents.",
   "license": "Apache-2.0",
@@ -28,13 +28,17 @@
     "release:evidence": "node scripts/record-release-evidence.mjs",
     "release:evidence:assemble": "node scripts/assemble-release-evidence.mjs",
     "test": "pnpm build && pnpm -r test",
+    "test:archive-auditor": "node --test scripts/audit-browserir-archive.test.mjs",
     "test:workspace": "pnpm -r test",
+    "test:release-verifier": "node --test scripts/verify-browserir-release.test.mjs",
     "test:qualification": "pnpm --filter @browserir/mcp qualification",
     "test:capabilities": "pnpm --filter @browserir/mcp test:capabilities",
     "typecheck": "pnpm -r typecheck",
     "verify:packages": "node scripts/verify-packages.mjs",
     "verify:packed-consumer": "node scripts/smoke-packed-consumer.mjs",
-    "verify:release": "node scripts/verify-release.mjs"
+    "verify:legacy-release": "node scripts/verify-release.mjs",
+    "verify:browserir-release": "node scripts/verify-browserir-release.mjs",
+    "verify:release": "node scripts/verify-browserir-release.mjs"
   },
   "devDependencies": {
     "@types/node": "22.13.0",

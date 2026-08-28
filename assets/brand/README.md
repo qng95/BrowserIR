@@ -71,8 +71,8 @@ task count, retry cap, development status, or reuse caveat.
 
 ## Copy rules
 
-- Describe the package as private source alpha, not published or
-  production-ready.
+- Describe `0.1.0` as the initial public release. Verify registry availability
+  before saying it can be installed, and do not call it production-ready.
 - Say the host selects one fixed policy family; `auto` is not a prompt-driven
   policy router.
 - Do not call the current result an Evidence Drop, independent confirmation,

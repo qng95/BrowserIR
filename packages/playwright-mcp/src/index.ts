@@ -104,15 +104,33 @@ interface SnapshotBlock {
   readonly document: InlineSnapshotDocument;
 }
 
+const MAX_RESULT_CONTENT_BLOCKS = 256;
+const MAX_RESULT_TEXT_UTF16_UNITS = 1_000_000;
+const MAX_RESULT_TEXT_UTF8_BYTES = 1_000_000;
+const resultTextEncoder = new TextEncoder();
+
 const mirrorExtensibility = <Value extends object>(source: object, clone: Value): Value => {
   if (!Object.isExtensible(source)) Object.preventExtensions(clone);
   return clone;
 };
 
 const findSnapshotBlock = (result: CallToolResult): SnapshotBlock | undefined => {
+  const content = result.content;
+  if (
+    !Array.isArray(content) ||
+    nodeUtilTypes.isProxy(content) ||
+    content.length > MAX_RESULT_CONTENT_BLOCKS
+  ) return undefined;
+
   const retained: SnapshotBlock[] = [];
-  for (const [index, block] of result.content.entries()) {
+  let totalTextUtf16Units = 0;
+  let totalTextUtf8Bytes = 0;
+  for (const [index, block] of content.entries()) {
     if (block.type !== 'text') continue;
+    totalTextUtf16Units += block.text.length;
+    if (totalTextUtf16Units > MAX_RESULT_TEXT_UTF16_UNITS) return undefined;
+    totalTextUtf8Bytes += resultTextEncoder.encode(block.text).byteLength;
+    if (totalTextUtf8Bytes > MAX_RESULT_TEXT_UTF8_BYTES) return undefined;
     const document = parseInlineSnapshot(block.text);
     if (document !== undefined) retained.push({ index, block, document });
   }

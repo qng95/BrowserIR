@@ -7,13 +7,13 @@ import {
   type AdaptivePlaywrightRawClient,
   type AdaptivePlaywrightTelemetry,
   type AdaptivePlaywrightTools,
-} from '@browserir/playwright-mcp';
+} from 'browserir';
 import {
   ADAPTIVE_REFERENCE_POLICIES_VERSION,
   createCrossTreeLabelReferencePolicy,
   createScheduleCoordinateReferencePolicy,
   type AdaptivePlaywrightReferencePolicySet,
-} from '@browserir/playwright-mcp/reference-policies';
+} from 'browserir/reference-policies';
 
 export const ADAPTIVE_PRODUCT_AB_BROKER_VERSION =
   'adaptive-product-ab-broker/1' as const;

@@ -1,9 +1,8 @@
 # BrowserIR thin-layer troubleshooting
 
-This guide covers the private `@browserir/playwright-mcp` source alpha. The
-package is host-side middleware around an already-connected official MCP
-`Client`; it is not a drop-in MCP server, browser launcher, hosted service, or
-published npm package.
+This guide covers the `browserir` `0.1` release line.
+The package is host-side middleware around an already-connected official MCP
+`Client`; it is not a drop-in MCP server, browser launcher, or hosted service.
 
 ## The package does not build or import
 
@@ -15,12 +14,12 @@ npm install --global corepack@0.34.7
 corepack enable
 corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm --filter @browserir/playwright-mcp build
-pnpm --filter @browserir/playwright-mcp test
+pnpm --filter browserir build
+pnpm --filter browserir test
 ```
 
-Import the wrapper from `@browserir/playwright-mcp` and a concrete first-party
-policy from `@browserir/playwright-mcp/reference-policies`. Do not start
+Import the wrapper from `browserir` and a concrete first-party policy from
+`browserir/reference-policies`. Do not start
 `packages/mcp-server/dist/cli.js`; that executable belongs to the separate
 legacy full-graph runtime.
 
@@ -79,7 +78,7 @@ incomplete bijection must produce the original visible result rather than
 partial facts. Reduce a suspected miss to a fixture and run:
 
 ```sh
-pnpm --filter @browserir/playwright-mcp test
+pnpm --filter browserir test
 ```
 
 The current real-agent evidence covers strict schedule-coordinate and
@@ -102,5 +101,5 @@ failures there. BrowserIR propagates a visible upstream throw and never retries
 it internally.
 
 For lifecycle and option-forwarding details, see the
-[closed-alpha integration guide](PLAYWRIGHT_MCP_ADAPTIVE_ALPHA.md) and
+[Playwright MCP integration guide](PLAYWRIGHT_MCP_INTEGRATION.md) and
 [package guide](../packages/playwright-mcp/README.md).

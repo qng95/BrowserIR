@@ -1,8 +1,9 @@
 # Legacy full-graph BrowserIR 0.1 release checklist
 
 Status: archived and blocked. The three-package full-graph runtime has not been
-published, and this is not the release path for the private
-`@browserir/playwright-mcp` thin layer.
+published, and this is not the release path for the
+`browserir` thin layer. Its current path is the separate
+[BrowserIR npm release guide](BROWSERIR_NPM_RELEASE.md).
 
 This checklist remains because release-verification code and tests consume its
 three-package artifact contract. It must not be read as current product
@@ -32,8 +33,8 @@ publication decisions require maintainer authority:
 - [ ] **Perform the actual npm publication.** This is intentionally unresolved and requires an explicit maintainer decision after every prior gate passes.
 
 The fixture and benchmark packages remain private development packages.
-`@browserir/playwright-mcp` is also a private source-alpha integration package;
-the current development benchmark does not authorize publishing it to npm.
+`browserir` is excluded from this legacy checklist; the current
+development benchmark does not replace its separate npm release gates.
 
 ## Public scope confirmation
 
@@ -107,11 +108,11 @@ pnpm verify:packed-consumer
 Run the public-release verifier:
 
 ```sh
-pnpm verify:release
+pnpm verify:legacy-release
 ```
 
-- [ ] `pnpm verify:release` succeeds. It is expected to fail while the intentional package privacy blockers remain.
-- [ ] Keep `pnpm verify:release` out of automatic CI until those intentional legal and ownership blockers are resolved; run it explicitly for a release candidate.
+- [ ] `pnpm verify:legacy-release` succeeds. It is expected to fail while the intentional package privacy blockers remain.
+- [ ] Keep `pnpm verify:legacy-release` out of automatic CI until those intentional legal and ownership blockers are resolved; run it explicitly for a legacy release candidate.
 
 ## MCP contract gates
 
@@ -295,7 +296,7 @@ Do not run these steps until npm ownership and publication authority are confirm
 Create one persistent candidate artifact set at a new, non-existing directory.
 This command requires a qualified release-evidence dossier, verifies that the
 dossier matches the current clean `HEAD`, tree, and lockfile, and refuses to
-retain artifacts until `pnpm verify:release` is green. It then installs and
+retain artifacts until `pnpm verify:legacy-release` is green. It then installs and
 drives those exact tarballs before retaining them with the dossier:
 
 ```sh

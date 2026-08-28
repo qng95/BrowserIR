@@ -4,13 +4,14 @@ All notable changes to BrowserIR's current thin-layer product path are recorded
 here. The project intends to follow Semantic Versioning after its public
 contracts stabilize.
 
-Last updated: 2026-08-26
+Last updated: 2026-08-28
 
 ## Unreleased
 
 ### Added
 
-- Private source-alpha `@browserir/playwright-mcp` middleware around a
+- The initial `browserir` `0.1` release, providing
+  middleware around a
   caller-owned official MCP `Client`. It preserves the official tool catalog,
   refs, actions, and lifecycle while adding only complete, evidence-backed
   relationships to eligible snapshots.
@@ -28,6 +29,9 @@ Last updated: 2026-08-26
   boundary](docs/BROWSERIR_REAL_AGENT_RESULTS.md).
 - Current architecture, integration, troubleshooting, measurement, reproduction,
   and result documentation indexed in [docs/README.md](docs/README.md).
+- A thin-package-only npm verifier, exact-tarball consumer audit, and protected
+  two-job publish workflow that keeps dependency installation outside the OIDC
+  publish trust boundary.
 
 ### Changed
 
@@ -53,11 +57,14 @@ Last updated: 2026-08-26
 - Snapshot parsing is bounded and opt-in telemetry contains only five
   content-free fields. The caller continues to own the MCP server, browser,
   transport, authorization, network policy, data handling, and shutdown.
+- MCP results now have aggregate content-block and text-byte limits in addition
+  to per-snapshot parser bounds, closing a many-small-block availability edge.
 
 ### Known limitations
 
-- `@browserir/playwright-mcp` remains private and unpublished; the source API
-  may change before a public alpha.
+- `browserir@0.1.0` is prepared as the default npm release but is not published
+  until package ownership and the protected release environment are confirmed.
+  The `0.x` API may change between minor versions.
 - Only exact default snapshots are eligible. The host must select one policy
   family, and the current layer is not a prompt-driven general visual reasoner.
 - The real-agent run covers schedule-coordinate and cross-tree-label challenge

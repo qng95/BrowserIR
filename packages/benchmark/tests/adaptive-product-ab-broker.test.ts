@@ -5,7 +5,7 @@ import type {
 import {
   type AdaptivePlaywrightRawClient,
   type AdaptivePlaywrightTelemetryEvent,
-} from '@browserir/playwright-mcp';
+} from 'browserir';
 import { describe, expect, it, vi } from 'vitest';
 
 import {

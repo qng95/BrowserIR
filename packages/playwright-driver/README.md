@@ -3,7 +3,7 @@
 > **Status:** source-only legacy/experimental package. It backs the retained
 > full-graph runtime and is not used by the current BrowserIR thin layer. For
 > current integration, use
-> [`@browserir/playwright-mcp`](../playwright-mcp/README.md).
+> [`browserir`](../playwright-mcp/README.md).
 
 The retained Playwright and Chromium driver for the full-graph runtime. It translates
 browser state into normalized entities, relationships, capabilities, evidence,

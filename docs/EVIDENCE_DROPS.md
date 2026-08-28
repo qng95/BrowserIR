@@ -1,7 +1,7 @@
 # Legacy full-graph BrowserIR evidence archive
 
 This file indexes the sealed complete-interface experiments for the separately
-retained full-graph runtime. The current thin `@browserir/playwright-mcp`
+retained full-graph runtime. The current thin `browserir`
 development comparison is not an Evidence Drop; use its
 [canonical result](BROWSERIR_REAL_AGENT_RESULTS.md) and
 [runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md). The checksummed files under

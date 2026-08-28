@@ -29,7 +29,7 @@
 
 <p align="center">
   <a href="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml"><img alt="BrowserIR CI" src="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <img alt="Status: 0.1 private source alpha" src="https://img.shields.io/badge/status-0.1_private_source_alpha-7957FF?style=for-the-badge">
+  <img alt="Status: 0.1 npm release" src="https://img.shields.io/badge/status-0.1_npm_release-7957FF?style=for-the-badge">
   <img alt="Playwright and MCP" src="https://img.shields.io/badge/backend-Playwright_%2B_MCP-38BDF8?style=for-the-badge&logo=playwright&logoColor=white">
   <a href="LICENSE"><img alt="Apache-2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-22C55E?style=for-the-badge"></a>
 </p>
@@ -152,29 +152,32 @@ evaluator-controlled fresh attempts.
 Task-level route audit: **16 sufficient passthroughs · 15 complete projections
 · 1 safe fallback · 0 demonstrated projection misses**.
 
-## Try the source alpha
+## Install
 
-`@browserir/playwright-mcp` is a private source-alpha library, not a published
-npm package or drop-in MCP server. It wraps a caller-owned official MCP
-`Client`.
+`browserir` wraps a caller-owned official MCP `Client`; it is not a replacement
+MCP server. Version `0.1.0` is the first public release:
+
+```sh
+npm install browserir
+```
 
 <details>
-<summary><strong>Build from a checkout</strong></summary>
+<summary><strong>Build from source</strong></summary>
 
 ```sh
 npm install --global corepack@0.34.7
 corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm --filter @browserir/playwright-mcp build
-pnpm --filter @browserir/playwright-mcp test
+pnpm --filter browserir build
+pnpm --filter browserir test
 ```
 
 </details>
 
 ```ts
-import { createAdaptivePlaywrightTools } from '@browserir/playwright-mcp';
+import { createAdaptivePlaywrightTools } from 'browserir';
 import { createScheduleCoordinateReferencePolicy } from
-  '@browserir/playwright-mcp/reference-policies';
+  'browserir/reference-policies';
 
 const tools = createAdaptivePlaywrightTools(client, {
   mode: 'auto',

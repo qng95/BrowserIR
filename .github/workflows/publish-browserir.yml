@@ -1,0 +1,213 @@
+name: Publish browserir
+
+on:
+  push:
+    tags:
+      - 'browserir-v*'
+
+concurrency:
+  group: publish-browserir-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    name: Build and qualify the npm candidate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require a release commit from the default branch
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$GITHUB_SHA" "refs/remotes/origin/$DEFAULT_BRANCH"
+
+      - name: Match the tag to the package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const tag = process.env.RELEASE_TAG ?? "";
+            const manifest = JSON.parse(readFileSync("packages/playwright-mcp/package.json", "utf8"));
+            if (tag !== `browserir-v${manifest.version}`) {
+              throw new Error(`Tag ${tag} must equal browserir-v${manifest.version}`);
+            }
+          '
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Install Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+
+      - name: Install the locked workspace
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck the npm package
+        run: pnpm --filter browserir typecheck
+
+      - name: Test the npm package
+        run: pnpm --filter browserir test
+
+      - name: Test the release verifier
+        run: pnpm test:release-verifier
+
+      - name: Test the exact-archive auditor
+        run: pnpm test:archive-auditor
+
+      - name: Build and verify the exact release archive
+        env:
+          EXPECTED_VERSION: ${{ github.ref_name }}
+        run: >-
+          node scripts/verify-browserir-release.mjs
+          --artifact-directory output/npm-candidate
+          --expected-version "${EXPECTED_VERSION#browserir-v}"
+
+      - name: Install, import, and audit the exact archive
+        env:
+          EXPECTED_VERSION: ${{ github.ref_name }}
+        run: >-
+          node scripts/audit-browserir-archive.mjs
+          --archive "output/npm-candidate/browserir-${EXPECTED_VERSION#browserir-v}.tgz"
+          --report "output/npm-audit/browserir-${EXPECTED_VERSION#browserir-v}-audit.json"
+
+      - name: Retain the candidate and verification report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browserir-npm-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/npm-candidate/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Retain the clean consumer audit
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browserir-npm-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/npm-audit/
+          if-no-files-found: error
+          retention-days: 90
+
+  publish:
+    name: Publish the already-qualified archive
+    needs: qualify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: npm
+      url: https://www.npmjs.com/package/browserir
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Install Node.js without a package cache
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24.19.0
+          registry-url: https://registry.npmjs.org/
+          package-manager-cache: false
+
+      - name: Require an OIDC-capable npm CLI
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { execFileSync } from "node:child_process";
+            const raw = execFileSync("npm", ["--version"], { encoding: "utf8" }).trim();
+            const match = /^(\d+)\.(\d+)\.(\d+)(?:-|$)/.exec(raw);
+            if (match === null) throw new Error(`Unexpected npm version: ${raw}`);
+            const major = Number(match[1]);
+            const minor = Number(match[2]);
+            const patch = Number(match[3]);
+            if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) {
+              throw new Error(`npm >=11.5.1 is required; found ${raw}`);
+            }
+            process.stdout.write(`Using npm ${raw}\n`);
+          '
+
+      - name: Download the qualified candidate
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: browserir-npm-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/npm-candidate
+
+      - name: Revalidate the retained hash and resolve the one archive
+        id: archive
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { createHash } from "node:crypto";
+            import { appendFileSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
+            import { basename, dirname, resolve, sep } from "node:path";
+            const prefix = "browserir-v";
+            const tag = process.env.RELEASE_TAG ?? "";
+            if (!tag.startsWith(prefix)) throw new Error(`Unexpected release tag: ${tag}`);
+            const version = tag.slice(prefix.length);
+            if (!/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
+              throw new Error(`Unsafe release version: ${version}`);
+            }
+            const directory = resolve("output/npm-candidate");
+            const archiveName = `browserir-${version}.tgz`;
+            const reportName = `browserir-${version}-release-report.json`;
+            const entries = readdirSync(directory).sort();
+            if (JSON.stringify(entries) !== JSON.stringify([archiveName, reportName].sort())) {
+              throw new Error(`Unexpected candidate files: ${entries.join(", ") || "none"}`);
+            }
+            const archive = resolve(directory, archiveName);
+            const reportPath = resolve(directory, reportName);
+            for (const path of [archive, reportPath]) {
+              const metadata = lstatSync(path);
+              if (!metadata.isFile() || metadata.isSymbolicLink()) {
+                throw new Error(`Candidate entry must be a regular file: ${basename(path)}`);
+              }
+              const realDirectory = `${realpathSync(directory)}${sep}`;
+              const realPath = realpathSync(path);
+              if (!realPath.startsWith(realDirectory) || dirname(realPath) !== realpathSync(directory)) {
+                throw new Error(`Candidate entry escaped its directory: ${basename(path)}`);
+              }
+            }
+            const report = JSON.parse(readFileSync(reportPath, "utf8"));
+            const bytes = readFileSync(archive);
+            const digest = createHash("sha256").update(bytes).digest("hex");
+            if (
+              report.schemaVersion !== "browserir-release-verification/1" ||
+              report.package?.name !== "browserir" ||
+              report.package?.version !== version ||
+              report.archive?.filename !== archiveName ||
+              report.archive?.bytes !== statSync(archive).size ||
+              report.archive?.sha256 !== digest
+            ) throw new Error("Retained release report does not bind the downloaded archive.");
+            appendFileSync(process.env.GITHUB_OUTPUT, `path=${realpathSync(archive)}\n`);
+          '
+
+      - name: Publish the exact archive
+        env:
+          ARCHIVE_PATH: ${{ steps.archive.outputs.path }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+        run: |
+          set -euo pipefail
+          if [[ -n "${NODE_AUTH_TOKEN:-}" ]]; then
+            if npm view browserir name --json >/dev/null 2>&1; then
+              echo '::error::NPM_TOKEN is allowed only for the one-time first publish. Delete it and use OIDC.'
+              exit 1
+            fi
+            echo 'Using the protected one-time bootstrap token for the first package version.'
+          fi
+          npm publish "$ARCHIVE_PATH" --ignore-scripts --access public --tag latest --provenance

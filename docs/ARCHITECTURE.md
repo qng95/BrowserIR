@@ -67,7 +67,7 @@ The core must not require an LLM. The host agent remains the primary reasoner. O
 
 There is no single "DOM-to-text" representation. BrowserIR maintains a rich
 canonical interaction graph on the server and compiles task-appropriate views
-for the model. The diagram below is the target pipeline; the alpha path
+for the model. The diagram below is the target pipeline; the current path
 currently relies on Playwright lifecycle APIs and bounded page probes rather
 than a complete CDP/probe sensor-fusion stack.
 
@@ -102,7 +102,7 @@ Every action revalidates its target against the current revision before dispatch
 The current workspace packages are:
 
 ```text
-packages/playwright-mcp/      @browserir/playwright-mcp; default thin adaptive Playwright layer
+packages/playwright-mcp/      browserir; default thin adaptive Playwright layer
 packages/browser-ir/          @browserir/core; intended public core contracts and runtime
 packages/playwright-driver/   @browserir/playwright; intended public Playwright driver
 packages/mcp-server/          @browserir/mcp; intended public MCP adapter and stdio CLI
@@ -111,7 +111,7 @@ packages/benchmark/           @browserir/benchmark; private benchmark and report
 ```
 
 None of the public-candidate packages are published yet. The thin
-`@browserir/playwright-mcp` package is the default product direction; the core,
+`browserir` package is the default product direction; the core,
 driver, and full MCP server form the separately selected full graph runtime.
 The fixture and benchmark packages remain private development infrastructure.
 
@@ -149,7 +149,7 @@ Implemented Playwright sensor coverage currently includes:
 The target sensor architecture additionally includes CDP-backed DOM snapshots,
 versioned mutation and intersection probes, richer loading/request/activity
 signals, slot and boundary modeling, and explicit opaque-region observations.
-Those items are roadmap work, not claims about the alpha implementation.
+Those items are roadmap work, not claims about the current implementation.
 
 Closed shadow roots, inaccessible cross-origin documents, canvas content, and
 other opaque regions are not yet comprehensively represented. The target
@@ -216,9 +216,9 @@ deterministic equality-based reconciliation, not a general fuzzy matcher.
 The target BIR-020–BIR-024 identity engine can add progressively weaker,
 confidence-scored evidence—strong application keys, role/name/value and
 relationships, then structure and geometry—but that broader fallback is not
-implemented in the alpha runtime.
+implemented in the current runtime.
 
-The alpha runtime requires an exact current revision and rejects stale action
+The current runtime requires an exact current revision and rejects stale action
 references as `stale_target`; it does not attempt stale-target recovery.
 Confidence- and ambiguity-bounded recovery is target behavior for BIR-024. If
 added, it may proceed only when one candidate exceeds both thresholds;
@@ -743,7 +743,7 @@ unknown business secrets can still be returned.
 
 ## Security and lifecycle
 
-Implemented alpha safeguards include opaque browser/page handles, private
+Implemented safeguards include opaque browser/page handles, private
 driver targets, revision checks, deterministic session cleanup, sensitive-input
 value redaction, sensitive URL-component redaction, capture and session bounds,
 automatic-download rejection, HTTP/HTTPS-only navigation schemas, model-safe
@@ -862,7 +862,7 @@ thin-layer release status and not as a claim that every item is implemented.
 
 - Viewport and entity captures carry complete revision metadata.
 - A post-capture observation rejects pixels when represented state changed;
-  purely visual races outside the graph remain an explicit alpha limitation.
+  purely visual races outside the graph remain an explicit 0.1 limitation.
 - The stable viewport profile is covered by regression tests.
 
 ### M8: Future remote transport and production hardening
@@ -873,7 +873,7 @@ thin-layer release status and not as a claim that every item is implemented.
 - Run an applicable official conformance suite when one is selected and pinned.
 
 These are roadmap gates for a future remotely deployable product, not claims or
-release requirements for the local-stdio-only 0.1 alpha.
+release requirements for the local-stdio-only legacy 0.1 runtime.
 
 ### M9: Unsafe evaluation
 

@@ -1,7 +1,7 @@
 # Adaptive Playwright architecture
 
-Status: implemented private source alpha with development evidence
-Last updated: 2026-08-26
+Status: implemented 0.1 release with development evidence
+Last updated: 2026-08-28
 
 ## Decision
 
@@ -29,7 +29,7 @@ standard Playwright observation needs help.
 
 ## Why this direction
 
-The private `@browserir/playwright-mcp` implementation has two complementary
+The `browserir` implementation has two complementary
 development signals. A 64-arm real-browser, zero-model preflight projected all
 15 independently demonstrated recoverable relations, retained one safe
 fallback, and recorded zero projection misses. A later 32-task A/B with
@@ -46,8 +46,8 @@ result](BROWSERIR_REAL_AGENT_RESULTS.md).
 
 The adaptive mode forwards the catalog of the caller-connected official
 Playwright MCP client; the package neither adds tools nor certifies the
-caller's catalog as safe. The current private integration boundary is
-`@browserir/playwright-mcp`; the existing `@browserir/mcp` graph surface remains
+caller's catalog as safe. The current integration boundary is
+`browserir`; the existing `@browserir/mcp` graph surface remains
 unchanged. BrowserIR adds no parallel `browser_observe`,
 `browser_inspect`, `browser_act`, or incompatible entity-reference namespace to
 adaptive mode.
@@ -234,9 +234,10 @@ Before making adaptive Playwright the default public BrowserIR mode:
 6. Run a prospectively sealed, untouched, multi-family comparison before a
    confirmatory correctness, prevalence, or economic claim.
 
-The present implementation has real mechanism and agent evidence, but it is
-still a private source alpha. The 31/32 versus 24/32 development result does not
-by itself authorize a public default, general performance claim, or npm release.
+The present implementation has real mechanism and agent evidence and is staged
+for its first public release. The 31/32 versus 24/32 development result does not
+by itself authorize a general performance claim; npm publication remains bound
+to the separate ownership, artifact, audit, and protected-workflow gates.
 
 The score-bearing product decision and KPI contract are defined separately in
 [Adaptive Playwright improvement measurement](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md).

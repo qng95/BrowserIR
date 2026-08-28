@@ -103,13 +103,20 @@ afterAll(() => {
 });
 
 describe('packed reference-policy boundary', () => {
-  it('keeps the package private and exposes policies only through the explicit subpath', async () => {
+  it('keeps the public package bounded and exposes policies only through the explicit subpath', async () => {
     const manifest = JSON.parse(readFileSync(join(extractedRoot, 'package/package.json'), 'utf8')) as {
       private?: boolean;
       exports?: Record<string, unknown>;
       dependencies?: Record<string, string>;
+      publishConfig?: Record<string, unknown>;
     };
-    expect(manifest.private).toBe(true);
+    expect(manifest.private).toBeUndefined();
+    expect(manifest.publishConfig).toEqual({
+      access: 'public',
+      provenance: true,
+      registry: 'https://registry.npmjs.org/',
+      tag: 'latest',
+    });
     expect(manifest.exports).toEqual({
       '.': {
         types: './dist/index.d.ts',
@@ -138,6 +145,7 @@ describe('packed reference-policy boundary', () => {
   });
 
   it('contains deterministic build outputs but no source, tests, or benchmark code', () => {
+    expect(packedPaths).toContain('package/LICENSE');
     expect(packedPaths).toContain('package/dist/reference-policies.js');
     expect(packedPaths).toContain('package/dist/reference-policies.d.ts');
     expect(packedPaths.some((entry) => entry.includes('/src/'))).toBe(false);

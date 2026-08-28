@@ -1,7 +1,7 @@
 # BrowserIR press kit
 
-> **Draft for the private source alpha.** Verify package visibility and the
-> canonical result before publishing this copy.
+> **Draft for the `browserir` `0.1.0` launch.** Verify registry visibility and
+> the canonical result before publishing this copy.
 
 ## Headline
 
@@ -37,7 +37,8 @@ reused local corpus, not a sealed unseen-site study.
 
 ## Facts
 
-- Current package: private, unpublished `@browserir/playwright-mcp` source alpha.
+- Current package: `browserir@0.1.0`, prepared as the default npm release;
+  verify registry availability before announcing installation.
 - Integration: in-process wrapper around a caller-owned official MCP `Client`.
 - Eligible observation: exact default `browser_snapshot` only.
 - Hidden work: at most one logical `{ boxes: true }` snapshot call; no internal
@@ -85,7 +86,9 @@ whether that policy can safely enrich an eligible snapshot.
 
 ### Is it production-ready or published to npm?
 
-No. The current package is a private source alpha.
+Version `0.1.0` is the initial public npm release. It is not registry-available
+until the protected release completes; verify npm before announcing it. An
+early `0.1` release is not a production-readiness claim.
 
 ### Does the 31/32 result prove general superiority?
 

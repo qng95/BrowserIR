@@ -2,9 +2,10 @@
 
 Scope: retained three-package release pipeline for `@browserir/core`,
 `@browserir/playwright`, and `@browserir/mcp`. It is not a release dossier or
-promotion path for the private `@browserir/playwright-mcp` thin layer. The
-pipeline remains documented because its scripts, schemas, and tests still
-exist in this repository.
+promotion path for the `browserir` thin layer. Its release path
+is documented separately in the [BrowserIR npm release guide](BROWSERIR_NPM_RELEASE.md).
+This legacy pipeline remains documented because its scripts, schemas, and tests
+still exist in this repository.
 
 BrowserIR records release checks as create-only, machine-readable evidence. The
 purpose is to make a release claim traceable to one exact source tree, not to
@@ -200,7 +201,7 @@ node scripts/smoke-packed-consumer.mjs \
 `--artifact-directory` requires `--release-evidence`, and evidence cannot be
 supplied without persistent retention. Before retaining anything, the command
 validates the dossier, requires it to match the current clean `HEAD`, tree, and
-lockfile, and requires `pnpm verify:release` to pass. The resulting candidate
+lockfile, and requires `pnpm verify:legacy-release` to pass. The resulting candidate
 contains the three tested `.tgz` files and an unchanged copy of the dossier
 under `release-evidence/`; its top-level `SHA256SUMS` covers both the tarballs
 and every copied dossier file. Do not rebuild or repack after this point.
@@ -210,6 +211,6 @@ and every copied dossier file. Do not rebuild or repack after this point.
 A qualified dossier establishes that the automated checks ran against one
 clean source revision. It does not resolve npm namespace ownership,
 public-package settings, alpha
-version/tag, or the final publish authorization. `pnpm verify:release` remains
+version/tag, or the final publish authorization. `pnpm verify:legacy-release` remains
 an explicit maintainer-run gate and is expected to fail until those decisions
 are recorded. No package should be published merely because a dossier exists.

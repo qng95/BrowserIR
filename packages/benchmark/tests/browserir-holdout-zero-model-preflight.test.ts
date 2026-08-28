@@ -2,7 +2,7 @@ import type {
   CallToolResult,
   ListToolsResult,
 } from '@modelcontextprotocol/client';
-import type { AdaptivePlaywrightRawClient } from '@browserir/playwright-mcp';
+import type { AdaptivePlaywrightRawClient } from 'browserir';
 import {
   adaptiveAccuracyHoldoutCases,
   type AdaptiveAccuracyHoldoutCaseId,

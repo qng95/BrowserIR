@@ -38,9 +38,6 @@ importers:
       '@browserir/playwright':
         specifier: workspace:*
         version: link:../playwright-driver
-      '@browserir/playwright-mcp':
-        specifier: workspace:*
-        version: link:../playwright-mcp
       '@langchain/core':
         specifier: 1.2.5
         version: 1.2.5(openai@6.49.0(zod@4.4.3))
@@ -56,6 +53,9 @@ importers:
       '@think-dom/fixture-app':
         specifier: workspace:*
         version: link:../fixture-app
+      browserir:
+        specifier: workspace:*
+        version: link:../playwright-mcp
       langchain:
         specifier: 1.5.5
         version: 1.5.5(@langchain/core@1.2.5(openai@6.49.0(zod@4.4.3)))(openai@6.49.0(zod@4.4.3))

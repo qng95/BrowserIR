@@ -3,7 +3,7 @@
 ## Status
 
 This file is a benchmark-method compendium for two different product eras. The
-current thin-layer intervention is `@browserir/playwright-mcp` mode `auto`
+current thin-layer intervention is `browserir` mode `auto`
 versus the same wrapper in mode `off`; its canonical design, run instructions,
 and result live in [Adaptive Playwright measurement](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md),
 [the real-agent runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md), and

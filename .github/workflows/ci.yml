@@ -402,6 +402,6 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-# verify:release intentionally remains a maintainer-run gate. It must fail until
+# verify:legacy-release intentionally remains a maintainer-run gate. It must fail until
 # the license, repository identity, package privacy, and npm ownership decisions
 # in docs/RELEASE_CHECKLIST.md have been resolved.

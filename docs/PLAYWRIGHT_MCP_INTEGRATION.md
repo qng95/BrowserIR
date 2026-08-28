@@ -1,14 +1,14 @@
-# Playwright MCP adaptive closed alpha
+# Playwright MCP integration guide
 
-Status: private, host-integrator closed alpha
+Status: `browserir` 0.1 integration contract
 
 Evidence boundary: current `/3` zero-model and real-agent development evidence
 
-Last reviewed: 2026-08-26
+Last reviewed: 2026-08-28
 
-## What this alpha is
+## What BrowserIR is
 
-`@browserir/playwright-mcp` is Node.js middleware around the official raw MCP
+`browserir` is Node.js middleware around the official raw MCP
 `Client` methods `listTools` and `callTool`. The host chooses exactly one
 first-party reference policy and owns a boolean that selects:
 
@@ -21,11 +21,11 @@ policy pack, model-selected arm, fallback to the full BrowserIR graph, or
 hidden action cascade. Policy selection is deployment configuration and must
 not come from a model prompt or page content.
 
-This package is private and is not available as a public npm product. It is a
-library integration boundary, not a drop-in Playwright MCP server, MCP client
-configuration extension, browser runtime, or hosted service.
+The public package name is `browserir`. It is a library integration boundary,
+not a drop-in Playwright MCP server, MCP client configuration extension,
+browser runtime, or hosted service.
 
-## Closed-alpha integration
+## Host integration
 
 The caller creates and connects the official MCP `Client` before entering this
 function. The example deliberately fixes the schedule policy in code. For a
@@ -38,12 +38,12 @@ import type { Client } from '@modelcontextprotocol/client';
 import {
   createAdaptivePlaywrightTools,
   type AdaptivePlaywrightTools,
-} from '@browserir/playwright-mcp';
+} from 'browserir';
 import {
   createScheduleCoordinateReferencePolicy,
-} from '@browserir/playwright-mcp/reference-policies';
+} from 'browserir/reference-policies';
 
-interface AlphaHostConfig {
+interface BrowserIRHostConfig {
   /** Host-owned startup flag. Only literal true enables enrichment. */
   readonly adaptivePlaywrightEnabled: boolean;
 }
@@ -52,11 +52,11 @@ interface ToolConsumer<Result> {
   (tools: Pick<AdaptivePlaywrightTools, 'listTools' | 'callTool'>): Promise<Result>;
 }
 
-const alphaCounters = new Map<string, number>();
+const browserIrCounters = new Map<string, number>();
 
 export async function withAdaptivePlaywright<Result>(
   client: Client,
-  config: AlphaHostConfig,
+  config: BrowserIRHostConfig,
   runHost: ToolConsumer<Result>,
 ): Promise<Result> {
   // Choose ONE family for this deployment, even while the flag is off.
@@ -73,7 +73,7 @@ export async function withAdaptivePlaywright<Result>(
           event.outcome,
           String(event.hiddenCalls),
         ].join(':');
-        alphaCounters.set(key, (alphaCounters.get(key) ?? 0) + 1);
+        browserIrCounters.set(key, (browserIrCounters.get(key) ?? 0) + 1);
       },
     },
   });
@@ -97,7 +97,7 @@ export async function withAdaptivePlaywright<Result>(
 }
 ```
 
-The in-memory `alphaCounters` map is illustrative. A host may replace it with
+The in-memory `browserIrCounters` map is illustrative. A host may replace it with
 an already approved metrics sink. Do not attach snapshot text, refs, labels,
 URLs, arguments, prompts, boxes, or MCP payloads. If no telemetry is required,
 omit the `telemetry` property completely.
@@ -107,8 +107,8 @@ A fail-closed environment mapping can be as small as:
 ```ts
 const config = {
   adaptivePlaywrightEnabled:
-    process.env['BROWSERIR_ADAPTIVE_PLAYWRIGHT_ALPHA'] === '1',
-} satisfies AlphaHostConfig;
+    process.env['BROWSERIR_ADAPTIVE_PLAYWRIGHT'] === '1',
+} satisfies BrowserIRHostConfig;
 ```
 
 Any unset or unrecognized value remains off. The package does not read
@@ -171,7 +171,7 @@ Choose one family because the integration already knows which page structure
 it supports. Unsupported, ambiguous, incomplete, changed, or unprovable input
 fails closed by returning the exact visible result.
 
-| Factory | Closed-alpha scope | Current policy | Current evidence |
+| Factory | Supported scope | Current policy | Current evidence |
 | --- | --- | --- | --- |
 | `createScheduleCoordinateReferencePolicy()` | Bounded resource-by-time schedules matching the strict table/grid header and control shape | `schedule-coordinate-policy/3` | Current-source 64-arm zero-model preflight plus 2026-08-26 development A/B |
 | `createCrossTreeLabelReferencePolicy()` | Exactly two unique labels and two controls in the strict region/form subtree shape | `cross-tree-label-policy/1` | Current-source 64-arm zero-model preflight plus 2026-08-26 development A/B |
@@ -212,5 +212,5 @@ active task time. See the [complete result and
 checksums](BROWSERIR_REAL_AGENT_RESULTS.md) instead of copying its tables here.
 
 That result is descriptive evidence from a reused fixture corpus. It does not
-authorize general uplift, compatibility, npm availability, automatic routing,
-or unseen-site claims.
+authorize general uplift, compatibility, automatic routing, or unseen-site
+claims. Confirm npm availability from the registry, not from benchmark results.

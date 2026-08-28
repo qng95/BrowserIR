@@ -445,6 +445,45 @@ describe('bounded parsing, state commitment, and privacy', () => {
     }
   });
 
+  it('fails open when an MCP result exceeds aggregate content bounds', async () => {
+    const tooManyBlocks = {
+      content: [
+        ...Array.from({ length: 256 }, () => ({ type: 'text' as const, text: 'plain' })),
+        { type: 'text' as const, text: baselineSnapshot() },
+      ],
+    } satisfies CallToolResult;
+    const tooManyClient = fakeClient({ call: async () => tooManyBlocks });
+    const tooManyTools = createAdaptivePlaywrightTools(tooManyClient, {
+      mode: 'auto',
+      policySet: projectingPolicy(),
+    });
+
+    await expect(tooManyTools.callTool({
+      name: 'browser_snapshot',
+      arguments: {},
+    })).resolves.toBe(tooManyBlocks);
+    expect(tooManyClient.calls).toHaveLength(1);
+
+    const repeated = 'x'.repeat(250_001);
+    const tooMuchText = {
+      content: [
+        { type: 'text' as const, text: baselineSnapshot() },
+        ...Array.from({ length: 4 }, () => ({ type: 'text' as const, text: repeated })),
+      ],
+    } satisfies CallToolResult;
+    const tooMuchTextClient = fakeClient({ call: async () => tooMuchText });
+    const tooMuchTextTools = createAdaptivePlaywrightTools(tooMuchTextClient, {
+      mode: 'auto',
+      policySet: projectingPolicy(),
+    });
+
+    await expect(tooMuchTextTools.callTool({
+      name: 'browser_snapshot',
+      arguments: {},
+    })).resolves.toBe(tooMuchText);
+    expect(tooMuchTextClient.calls).toHaveLength(1);
+  });
+
   it('rejects a projected supplement that could leak raw geometry', async () => {
     const visible = textResult(baselineSnapshot('never emit me'));
     const hidden = textResult(boxedSnapshot('never emit me'));

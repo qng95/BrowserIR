@@ -2,9 +2,9 @@
 
 ## Supported status
 
-BrowserIR's current product path is the private, unpublished
-`@browserir/playwright-mcp` source alpha. Security fixes are made on the latest
-source only; there is no released support window or response-time SLA.
+BrowserIR's current product path is the `browserir` `0.1` release line. Until
+the first npm release is registry-confirmed, security fixes are made on the
+latest source only; there is no released support window or response-time SLA.
 
 The older `@browserir/core`, `@browserir/playwright`, and `@browserir/mcp`
 full-graph runtime remains in the repository as legacy/experimental code. It is
