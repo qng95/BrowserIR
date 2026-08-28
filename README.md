@@ -14,6 +14,14 @@
 </p>
 
 <p align="center">
+  <img src="assets/brand/browserir-playwright-comparison.gif" width="960" alt="Receipt-backed side-by-side replay of the same enterprise UI tasks with BrowserIR off and on, showing BrowserIR recover missing action-to-label relationships and safely leave Playwright unchanged when evidence is incomplete">
+</p>
+
+<p align="center">
+  <sub>Same checked-in fixtures. Same Qwen3.8-27B agent. Paired outcomes replayed from retained benchmark receipts.</sub>
+</p>
+
+<p align="center">
   <strong>Final/pass@3 · Missing relation: BrowserIR 15/16 vs Playwright 8/16 · Already explicit: both 16/16</strong><br>
   <strong>31/32 pass@1 vs 23/32 · 30.6% fewer model calls</strong><br>
   <sub>BrowserIR auto vs enrichment off · Qwen3.8-27B · 32-task local development benchmark</sub>

@@ -19,8 +19,8 @@ legacy full-graph core and nine-tool MCP server.
 | [`browserir-mark-mono.svg`](browserir-mark-mono.svg) | One-color mark. |
 | [`browserir-wordmark.svg`](browserir-wordmark.svg) | Wordmark for light backgrounds. |
 | [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg) | Wordmark for dark backgrounds. |
+| [`browserir-playwright-comparison.gif`](browserir-playwright-comparison.gif) | Current 36.2-second README motion hero: five full paired fixture replays, a three-fixture proof strip, safe fallback, and the scoped 32-task result. |
 | [`browserir-inventory-erp-workshop.png`](browserir-inventory-erp-workshop.png) | Synthetic browser render of checked-in `workshop-week-table / opaque-p1`; not a paid-run capture or treatment visualization. |
-| [`browserir-hero.png`](browserir-hero.png) | Text-free visual; verify surrounding copy against the current product boundary. |
 | [`PRESS_KIT.md`](PRESS_KIT.md) | Current thin-layer launch facts and scoped copy. |
 
 PNG versions of the marks and wordmarks are available for contexts that do not
@@ -38,6 +38,7 @@ not current launch graphics and should not be used to market the thin layer:
 - `browserir-scoring-method.*`
 - `browserir-benchmark.*`
 - `browserir-social-card.*`
+- `browserir-hero.png`
 - `browserir-evidence-drop-01-v2.*`
 - `browserir-evidence-drop-02.*`
 
