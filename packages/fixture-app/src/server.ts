@@ -28,14 +28,14 @@ import {
   WINDOW,
 } from './vehicles.js';
 import { BULK_ACTIONS, ordersPage } from './orders.js';
-import { clearJobs, exportPage, jobState, startJob } from './jobs.js';
+import { createJobStore, customerExportCsv, exportPage } from './jobs.js';
 import { partsPage, workshopPage } from './workshop.js';
 import {
   INVOICE_STATUSES, TICKET_PRIORITIES, TICKET_STATUSES, ASSIGNEES,
   invoiceDetailPage, invoicePrintPage, invoicesPage, ticketsPage,
 } from './billing.js';
 import { applyFilters, dashboardPage, dashboardTile, filterBuilderPage, parseFilters } from './reports.js';
-import { STEPS, validateStep, wizardPage, type Step } from './wizard.js';
+import { STEPS, parseDepositCents, validateStep, wizardPage, type Step } from './wizard.js';
 import { esc } from './views.js';
 import {
   adaptiveAccuracyHoldoutCases,
@@ -45,6 +45,14 @@ import {
   resolveAdaptiveAccuracyHoldoutBinding,
   type AdaptiveAccuracyHoldoutBinding,
 } from './adaptive-accuracy-holdout.js';
+import {
+  inventoryBrowserIrV3Cases,
+  inventoryBrowserIrV3Page,
+  isInventoryBrowserIrV3Target,
+  recordInventoryBrowserIrV3Selection,
+  resolveInventoryBrowserIrV3Binding,
+  type InventoryBrowserIrV3Binding,
+} from './inventory-browserir-v3.js';
 
 type Row = Record<string, unknown>;
 
@@ -67,17 +75,19 @@ export interface AppServerOptions {
   vehicles?: number;
   /** Bind one v2 accuracy-development site route to a hidden server-side world. */
   adaptiveAccuracyHoldout?: AdaptiveAccuracyHoldoutBinding;
+  /** Bind one Inventory ERP v3 case/world to its stable, opaque route. */
+  inventoryBrowserIrV3?: InventoryBrowserIrV3Binding;
 }
 
 export interface RunningAppServer {
   origin: string;
   address: AddressInfo;
   db: DatabaseSync;
+  /** Stop accepting requests and wait for in-flight requests without closing the database. */
+  stopNetworkAccess(): Promise<void>;
+  /** Idempotently close the listener, database, sessions, and jobs owned by this instance. */
   close(): Promise<void>;
 }
-
-/** Sessions live in process memory; the fixture is disposable by design. */
-const sessions = new Map<string, string>();
 
 function newToken(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -89,13 +99,20 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     ...(options.customers !== undefined ? { customers: options.customers } : {}),
     ...(options.vehicles !== undefined ? { vehicles: options.vehicles } : {}),
   };
-  const db = createDb(seedOpts);
   const apiLatency = options.apiLatencyMs ?? 450;
   const pageLatency = options.pageLatencyMs ?? 120;
   const controlApiEnabled = options.enableControlApi === true;
   const adaptiveAccuracyHoldout = options.adaptiveAccuracyHoldout === undefined
     ? undefined
     : resolveAdaptiveAccuracyHoldoutBinding(options.adaptiveAccuracyHoldout);
+  const inventoryBrowserIrV3 = options.inventoryBrowserIrV3 === undefined
+    ? undefined
+    : resolveInventoryBrowserIrV3Binding(options.inventoryBrowserIrV3);
+  const db = createDb(seedOpts);
+  // Authentication and asynchronous work belong to this disposable server,
+  // just like its in-memory database. Parallel fixtures must never share them.
+  const sessions = new Map<string, string>();
+  const jobs = createJobStore();
 
   const handler = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const url = new URL(req.url ?? '/', 'http://localhost');
@@ -219,7 +236,7 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
 
       let jm = /^\/api\/jobs\/(\w+)$/.exec(path);
       if (jm) {
-        const st = jobState(jm[1]!);
+        const st = jobs.state(jm[1]!);
         if (st.status === 'unknown') return json(res, { status: 'unknown' });
         return json(res, { status: st.status, percent: st.percent, rows: st.job.rows });
       }
@@ -240,7 +257,7 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
         if (path === '/api/reset' && method === 'POST') {
           reset(db, seedOpts);
           sessions.clear();
-          clearJobs();
+          jobs.clear();
           return json(res, { ok: true, message: 'Database restored to seed state.' });
         }
       }
@@ -275,6 +292,29 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     // step gets bounced here, which is a realistic first hurdle.
     if (path.startsWith('/app/') && !user) {
       return redirect(res, `/app/login?next=${encodeURIComponent(path + url.search)}`);
+    }
+
+    // A disposable server binds the Inventory ERP case/world. The browser-visible
+    // URL, form action, and submitted target never expose that hidden assignment.
+    if (inventoryBrowserIrV3 !== undefined) {
+      const study = inventoryBrowserIrV3Cases[inventoryBrowserIrV3.caseId];
+      if (path === study.path || path === study.selectionPath) {
+        if (path === study.path && method === 'GET') {
+          return html(res, inventoryBrowserIrV3Page(ctx, inventoryBrowserIrV3));
+        }
+        if (path === study.selectionPath && method === 'POST') {
+          const form = await readForm(req);
+          const target = form['target'] ?? '';
+          if (!isInventoryBrowserIrV3Target(study.caseId, target)) {
+            setFlash('error', 'That inventory action is no longer available.');
+            return redirect(res, study.path);
+          }
+          recordInventoryBrowserIrV3Selection(db, actor, inventoryBrowserIrV3, target);
+          setFlash('ok', 'Inventory action recorded.');
+          return redirect(res, study.path);
+        }
+        return html(res, notFoundPage(ctx), 404);
+      }
     }
 
     // The accuracy study uses a separate v2 catalog and audit
@@ -507,15 +547,25 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
         return html(res, wizardPage(ctx, { step: STEPS[idx + 1]!, values, errors: {} }));
       }
 
+      // Recheck every prior step on the final POST. Hidden fields are still
+      // user input and may have gone stale or been altered between documents.
+      for (const finalStep of STEPS.slice(0, -1)) {
+        const finalErrors = validateStep(finalStep, values, db);
+        if (Object.keys(finalErrors).length) {
+          return html(res, wizardPage(ctx, { step: finalStep, values, errors: finalErrors }), 422);
+        }
+      }
+
       // Final step: create the order, reserve the vehicle, audit both.
       const veh = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(Number(values['vehicle_id'])) as Row;
+      const depositCents = parseDepositCents(values['deposit'])!;
       const seq = Number((db.prepare('SELECT COUNT(*) AS n FROM orders').get() as Row).n) + 1;
       const number = `A-2026-${String(seq).padStart(4, '0')}`;
       const info = db
         .prepare(
           `INSERT INTO orders
-           (customer_id,number,placed_on,delivery_on,vehicle,status,total_cents)
-           VALUES (?,?,?,?,?,?,?)`,
+           (customer_id,number,placed_on,delivery_on,vehicle,status,total_cents,deposit_cents,notes)
+           VALUES (?,?,?,?,?,?,?,?,?)`,
         )
         .run(
           Number(values['customer_id']),
@@ -525,6 +575,8 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
           `${String(veh['make'])} ${String(veh['model'])} ${String(veh['variant'])}`,
           'Confirmed',
           Number(veh['price_cents']),
+          depositCents,
+          values['notes'] ?? '',
         );
       const orderId = Number(info.lastInsertRowid);
       db.prepare('INSERT INTO order_lines (order_id,vehicle_id,description,qty,unit_cents) VALUES (?,?,?,?,?)').run(
@@ -594,22 +646,19 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     if (path === '/app/reports/export') {
       if (method === 'GET') return html(res, exportPage(ctx, url.searchParams.get('job') ?? undefined));
       const rows = Number((db.prepare('SELECT COUNT(*) AS n FROM customers').get() as Row).n);
-      const job = startJob('customers', rows, Number(url.searchParams.get('jobMs') ?? '6000'));
+      const job = jobs.start('customers', rows, Number(url.searchParams.get('jobMs') ?? '6000'));
       audit(db, { actor, action: 'report.export', entity: 'job', entityId: job.id, detail: `${rows} rows` });
       return redirect(res, `/app/reports/export?job=${job.id}`);
     }
 
     let em = /^\/app\/reports\/export\/(\w+)\/download$/.exec(path);
     if (em) {
-      const st = jobState(em[1]!);
+      const st = jobs.state(em[1]!);
       if (st.status !== 'done') {
         setFlash('error', 'That export is not finished yet.');
         return redirect(res, '/app/reports/export');
       }
-      const rows = db.prepare('SELECT number,name,status,city,country FROM customers LIMIT 500').all() as Row[];
-      const csv = ['number,name,status,city,country']
-        .concat(rows.map((r) => [r['number'], r['name'], r['status'], r['city'], r['country']].join(',')))
-        .join('\n');
+      const csv = customerExportCsv(db);
       res.writeHead(200, {
         'content-type': 'text/csv; charset=utf-8',
         'content-disposition': `attachment; filename="customers-${em[1]}.csv"`,
@@ -785,30 +834,89 @@ export async function startAppServer(options: AppServerOptions = {}): Promise<Ru
     });
   });
 
-  await new Promise<void>((resolve, reject) => {
-    const onError = (error: Error): void => reject(error);
-    server.once('error', onError);
+  let ownedStateReleased = false;
+  const releaseOwnedState = (): unknown[] => {
+    if (ownedStateReleased) return [];
+    ownedStateReleased = true;
+    sessions.clear();
+    jobs.clear();
     try {
-      server.listen(options.port ?? 0, '127.0.0.1', () => {
-        server.off('error', onError);
-        resolve();
-      });
+      db.close();
+      return [];
     } catch (error) {
-      server.off('error', onError);
-      reject(error);
+      return [error];
     }
-  });
+  };
+  let networkStopPromise: Promise<void> | undefined;
+  const stopNetworkAccess = (): Promise<void> => {
+    networkStopPromise ??= server.listening
+      ? new Promise<void>((resolve, reject) => {
+          try {
+            server.close((error) => {
+              if (error) reject(error);
+              else resolve();
+            });
+          } catch (error) {
+            reject(error);
+          }
+        })
+      : Promise.resolve();
+    return networkStopPromise;
+  };
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const onError = (error: Error): void => reject(error);
+      server.once('error', onError);
+      try {
+        server.listen(options.port ?? 0, '127.0.0.1', () => {
+          server.off('error', onError);
+          resolve();
+        });
+      } catch (error) {
+        server.off('error', onError);
+        reject(error);
+      }
+    });
+  } catch (error) {
+    const cleanupErrors: unknown[] = [];
+    await stopNetworkAccess().catch((cleanupError) => cleanupErrors.push(cleanupError));
+    cleanupErrors.push(...releaseOwnedState());
+    if (cleanupErrors.length > 0) {
+      throw new AggregateError([error, ...cleanupErrors], 'Fixture server startup and cleanup failed.');
+    }
+    throw error;
+  }
   const address = server.address();
   if (address === null || typeof address === 'string') {
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    const cleanupErrors: unknown[] = [];
+    await stopNetworkAccess().catch((error) => cleanupErrors.push(error));
+    cleanupErrors.push(...releaseOwnedState());
+    if (cleanupErrors.length > 0) {
+      throw new AggregateError(cleanupErrors, 'Fixture server cleanup failed after an invalid bind.');
+    }
     throw new Error('Fixture server did not bind to an IPv4 TCP address.');
   }
   const origin = `http://127.0.0.1:${address.port}`;
+
+  let closePromise: Promise<void> | undefined;
+  const close = (): Promise<void> => {
+    closePromise ??= (async () => {
+      const cleanupErrors: unknown[] = [];
+      await stopNetworkAccess().catch((error) => cleanupErrors.push(error));
+      cleanupErrors.push(...releaseOwnedState());
+      if (cleanupErrors.length > 0) {
+        throw new AggregateError(cleanupErrors, 'Fixture server cleanup failed.');
+      }
+    })();
+    return closePromise;
+  };
 
   return {
     origin,
     address,
     db,
-    close: () => new Promise<void>((r) => server.close(() => r())),
+    stopNetworkAccess,
+    close,
   };
 }

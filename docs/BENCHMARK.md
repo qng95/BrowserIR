@@ -58,7 +58,11 @@ do not measure model or site generalization.
 
 ## Fixture and task oracles
 
-The fixture is a server-rendered dealership management system backed by SQLite. By default it creates an in-memory database with seed `20260728`, 5,000 customers, and 12,000 vehicles. The default application credentials are the disposable fixture account `test` / `test`.
+The fixture is a server-rendered Inventory ERP application backed by SQLite. By
+default it creates an in-memory database with seed `20260728`, 5,000 customer
+records, and 12,000 vehicle inventory records in its legacy `vehicles` table.
+The default application credentials are the disposable fixture account
+`test` / `test`.
 
 The 14 task IDs are:
 
@@ -232,7 +236,7 @@ Add the following metadata to every published run:
 - git commit and whether the worktree was dirty;
 - BrowserIR package versions and benchmark schema version;
 - CPU model, logical core count, memory, and container or VM limits;
-- fixture seed, customer and vehicle counts, and configured artificial latency;
+- fixture seed, customer and vehicle-inventory counts, and configured artificial latency;
 - browser locale, timezone, color scheme, reduced-motion setting, and cache state;
 - task ID or representation scenario ID;
 - warmup and measured-sample counts;
@@ -288,10 +292,10 @@ target once, and waits for it to settle once. It then runs the declared warmups
 and records raw, untrimmed durations for repeated `observe` calls without
 reloading. Scenario IDs begin with `observe-warm/` so these steady-state results
 cannot be confused with navigation, cold-load, or lifecycle measurements. The
-default targets are customers, virtualized vehicles, draft orders, the workshop
-schedule, parts, the query builder, and the staged dashboard. The fixed browser
-profile is 1440 x 900 CSS pixels, scale 1, light color scheme, reduced motion,
-`en-US`, and UTC.
+default targets are customers, `vehicles-12000-virtualized` (the 12,000-row
+vehicle inventory view), draft orders, the workshop schedule, parts, the query
+builder, and the staged dashboard. The fixed browser profile is 1440 x 900 CSS
+pixels, scale 1, light color scheme, reduced motion, `en-US`, and UTC.
 
 Run the release-characterization profile from the workspace root:
 
@@ -420,8 +424,8 @@ limitations.
 
 ## Official MCP task qualification
 
-Run all 14 dealership tasks from the workspace root through the stock MCP tool
-surface and the official MCP client:
+Run all 14 Inventory ERP tasks from the workspace root through the stock MCP
+tool surface and the official MCP client:
 
 ```sh
 pnpm test:qualification -- --run-id rc-1

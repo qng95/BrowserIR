@@ -8,12 +8,14 @@ flattens a provable relationship—such as button → row × column or action �
 queue—BrowserIR can append that complete mapping. When it cannot prove the
 mapping, it returns Playwright's original result unchanged.
 
+Once the package is present on npm:
+
 ```sh
 npm install browserir
 ```
 
-Version `0.1.0` is the initial public release. It requires ESM, Node.js
-`>=22.13.0`, and
+Version `0.1.0` is the prepared release candidate; npm publication and ownership
+confirmation are still pending. It requires ESM, Node.js `>=22.13.0`, and
 `@modelcontextprotocol/client@2.0.0`.
 
 ## Quick start
@@ -90,6 +92,12 @@ In the checked-in 32-task development A/B, the same Qwen3.8-27B agent reached
 the 16 tasks where Playwright already exposed the relationship through ARIA,
 both modes passed `16/16`. This is favorable development evidence on synthetic
 enterprise-style fixtures—not a general-web superiority claim.
+
+A separate current-source, zero-model Inventory preflight exercises the grid,
+schedule, and cross-tree mechanisms through official Playwright MCP. It is not
+a retained exact-release-byte qualification, and it does not measure grid
+accuracy with an LLM. The scored 32-task result covers only schedule and
+cross-tree policies.
 
 - [Method, metrics, receipts, and limitations](https://github.com/qng95/BrowserIR/blob/main/docs/BROWSERIR_REAL_AGENT_RESULTS.md)
 - [Exact reproduction runbook](https://github.com/qng95/BrowserIR/blob/main/docs/BROWSERIR_REAL_AGENT_AB_RUNBOOK.md)

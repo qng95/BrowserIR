@@ -106,6 +106,42 @@ pnpm --filter @browserir/benchmark exec vitest run \
   tests/browserir-holdout-zero-model-preflight.test.ts
 ```
 
+### Inventory v3 live product preflight (zero model)
+
+Run the checked-in Inventory corpus through the real fixture server, a fresh
+database, official Playwright MCP, Chromium, BrowserIR, one current-ref click,
+and the exact database oracle:
+
+```sh
+pnpm benchmark:inventory-v3-preflight
+```
+
+The corpus covers four UI shapes—a warehouse stock matrix, exception cards with
+a detached action rail, receiving slots inside an open dialog, and a purchase
+form with a sticky approval rail. Four shared world definitions produce 16
+case-world cells. The current expected summary is:
+
+| Live mechanism check | Result |
+| --- | ---: |
+| Cases | 4 |
+| World definitions | 4 |
+| Case-world cells | 16 |
+| Opaque cells projected | 8/8 |
+| Semantic cells passed through | 8/8 |
+| Exact-oracle clicks | 16/16 |
+| Wrong or collateral mutations | 0 |
+| Model calls / provider calls | 0 / 0 |
+
+Catalog-contract SHA-256 (serialized case/world metadata, not HTML, CSS, or
+source bytes):
+`0db0b25a6075c92f72a06578be23e6135ca37fb3613dd7862bc65567e0021495`.
+
+The emitted result intentionally sets `score: null` and
+`claimAuthority: false`. This preflight verifies the live product mechanism; it
+does not measure agent accuracy, produce `pass@k`, or add observations to the
+32-task Qwen result. It exercises the grid mechanism from the current source
+tree; it is not retained exact-release-byte or LLM accuracy qualification.
+
 Then run the real-browser, zero-model qualification. It launches Playwright but
 makes no provider calls and performs no holdout action:
 
@@ -117,6 +153,10 @@ pnpm --filter @browserir/benchmark exec vitest run \
 
 Do not start a paid run if the preflight reports a mutation, an external page
 request, raw geometry exposure, reused runtime identity, or an unexpected route.
+The Inventory and holdout preflights answer different questions: the Inventory
+run exercises varied current product surfaces through exact clicks, while the
+holdout qualification audits the v2 projection/fallback schedule used by the
+retained paid round.
 
 An MCP click error is a scored failed physical attempt. Under the evaluation
 retry policy, its next retry (if available) starts from wholly fresh state. A

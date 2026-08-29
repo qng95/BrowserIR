@@ -4,7 +4,7 @@ Status: retained development evidence; not sealed or confirmatory
 
 Run date: 2026-08-26
 
-Last reviewed: 2026-08-26
+Last reviewed: 2026-08-28
 
 ## Result in one sentence
 
@@ -142,6 +142,33 @@ no model calls, and no task mutation. The schedule policy in the executed
 workspace was `schedule-coordinate-policy/3`: it admits only a one-pixel
 serialized resource-box overhang at the schedule root edge while retaining the
 overlap, center, completeness, unique-ref, and unique-coordinate guards.
+
+## Subsequent Inventory ERP preflight (not part of the 32-task score)
+
+A later live product preflight exercised four additional checked-in Inventory
+UI shapes: a warehouse stock matrix, detached exception actions, receiving slots
+inside an open dialog, and a sticky purchase-approval rail. Four shared world
+definitions produce 16 case-world cells; each case has two opaque and two
+semantic variants.
+
+| Live mechanism result | Count |
+| --- | ---: |
+| Opaque case-world cells projected | 8/8 |
+| Semantic case-world cells passed through | 8/8 |
+| Exact database-oracle clicks | 16/16 |
+| Wrong or collateral mutations | 0 |
+| Model calls / provider calls | 0 / 0 |
+
+Run it with `pnpm benchmark:inventory-v3-preflight`. The catalog-contract
+SHA-256 is
+`0db0b25a6075c92f72a06578be23e6135ca37fb3613dd7862bc65567e0021495`.
+It hashes the serialized case/world metadata contract, not the rendered HTML,
+CSS, or source tree.
+
+This is mechanism coverage only. It asks no model to choose an action, has no
+accuracy denominator or `pass@k`, and is not pooled with the retained Qwen
+receipt. Its result contract makes that boundary machine-readable with
+`score: null` and `claimAuthority: false`.
 
 ## Retries and failure accounting
 

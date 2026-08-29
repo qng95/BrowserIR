@@ -30,9 +30,10 @@ maintainer pushes an approved `browserir-v*` tag and approves the protected
 
 ## Before the first public version
 
-Namespace availability is not publishing authority. The manifest is now
-public-release-ready, but do not create a release tag until the maintainer
-account is confirmed to have publish rights for the unscoped `browserir` name.
+Namespace availability is not publishing authority. The `0.1.0` manifest is a
+prepared release candidate. A local candidate tag may exist for review, but do
+not push or announce it as a release until the maintainer account is confirmed
+to have publish rights for the unscoped `browserir` name.
 
 The package must exist on npm before npm can attach a GitHub trusted publisher
 to it. Bootstrap the first version once:

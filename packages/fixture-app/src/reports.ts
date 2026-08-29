@@ -40,25 +40,47 @@ export function dashboardPage(ctx: PageCtx): string {
 
   const script = `
 (function () {
+  var remaining = 5;
+  function settled() {
+    remaining -= 1;
+    if (remaining === 0) document.documentElement.setAttribute('data-ready', '1');
+  }
+  function json(response) {
+    if (!response.ok) throw new Error('Request failed');
+    return response.json();
+  }
   // Each tile is its own request, so they land at different times.
   document.querySelectorAll('[data-tile]').forEach(function (el) {
     fetch('/api/dashboard/' + el.getAttribute('data-tile'))
-      .then(function (r) { return r.json(); })
+      .then(json)
       .then(function (d) {
         el.querySelector('.tvalue').textContent = d.value;
         el.setAttribute('data-state', 'ready');
         el.removeAttribute('aria-busy');
-      });
+      })
+      .catch(function () {
+        el.querySelector('.tvalue').textContent = 'Unavailable';
+        el.setAttribute('data-state', 'error');
+        el.removeAttribute('aria-busy');
+        el.setAttribute('aria-label', el.querySelector('.tlabel').textContent + ': unavailable');
+      })
+      .then(settled);
   });
   fetch('/api/dashboard/activity')
-    .then(function (r) { return r.json(); })
+    .then(json)
     .then(function (d) {
       var box = document.getElementById('activity');
       box.innerHTML = d.html;
       box.setAttribute('data-state', 'ready');
       box.removeAttribute('aria-busy');
-      document.documentElement.setAttribute('data-ready', '1');
-    });
+    })
+    .catch(function () {
+      var box = document.getElementById('activity');
+      box.innerHTML = '<p class="empty error" role="alert">Recent activity could not be loaded.</p>';
+      box.setAttribute('data-state', 'error');
+      box.removeAttribute('aria-busy');
+    })
+    .then(settled);
 })();`;
 
   return layout(body, {
@@ -191,6 +213,12 @@ export function filterBuilderPage(ctx: PageCtx, submitted?: URLSearchParams): st
   const rowMarkup = (f: FilterRow | null, i: number) => {
     const field = f?.field ?? 'name';
     const type = FIELDS.find(([k]) => k === field)?.[2] ?? 'text';
+    const valueLabel = `Value ${i + 1}`;
+    const valueMarkup = type === 'enum'
+      ? `<select name="f_value" aria-label="${valueLabel}">
+    ${(ENUMS[field] ?? []).map((value) => `<option value="${esc(value)}"${value === f?.value ? ' selected' : ''}>${esc(value)}</option>`).join('')}
+  </select>`
+      : `<input name="f_value" type="${type === 'number' ? 'number' : 'text'}" value="${esc(f?.value ?? '')}" aria-label="${valueLabel}" placeholder="Value">`;
     return `<div class="frow" data-frow>
   <select name="f_field" aria-label="Field ${i + 1}">
     ${FIELDS.map(([k, l]) => `<option value="${k}"${k === field ? ' selected' : ''}>${l}</option>`).join('')}
@@ -198,7 +226,7 @@ export function filterBuilderPage(ctx: PageCtx, submitted?: URLSearchParams): st
   <select name="f_op" aria-label="Operator ${i + 1}">
     ${(OPS[type] ?? OPS['text']!).map((o) => `<option value="${o}"${o === f?.op ? ' selected' : ''}>${o}</option>`).join('')}
   </select>
-  <input name="f_value" type="text" value="${esc(f?.value ?? '')}" aria-label="Value ${i + 1}" placeholder="Value">
+  ${valueMarkup}
   <button type="button" class="btn" data-removerow aria-label="Remove condition ${i + 1}">Remove</button>
 </div>`;
   };
@@ -251,10 +279,44 @@ ${
   var TYPES = ${JSON.stringify(Object.fromEntries(FIELDS.map(([k, , t]) => [k, t])))};
   var rows = document.getElementById('frows');
 
+  function syncRow(row, preserveValue) {
+    var field = row.querySelector('[name=f_field]').value;
+    var type = TYPES[field] || 'text';
+    var op = row.querySelector('[name=f_op]');
+    var priorOp = op.value;
+    op.innerHTML = OPS[type].map(function (choice) {
+      return '<option value="' + choice + '">' + choice + '</option>';
+    }).join('');
+    if (OPS[type].indexOf(priorOp) >= 0) op.value = priorOp;
+
+    var oldValue = row.querySelector('[name=f_value]');
+    var priorValue = preserveValue ? oldValue.value : '';
+    var label = oldValue.getAttribute('aria-label');
+    var nextValue;
+    if (ENUMS[field]) {
+      nextValue = document.createElement('select');
+      nextValue.innerHTML = ENUMS[field].map(function (choice) {
+        return '<option value="' + choice + '">' + choice + '</option>';
+      }).join('');
+      if (ENUMS[field].indexOf(priorValue) >= 0) nextValue.value = priorValue;
+    } else {
+      nextValue = document.createElement('input');
+      nextValue.type = type === 'number' ? 'number' : 'text';
+      nextValue.placeholder = 'Value';
+      nextValue.value = type === 'number' && priorValue && !Number.isFinite(Number(priorValue))
+        ? ''
+        : priorValue;
+    }
+    nextValue.name = 'f_value';
+    nextValue.setAttribute('aria-label', label);
+    oldValue.replaceWith(nextValue);
+  }
+
   function template() {
     var first = rows.querySelector('[data-frow]');
     var clone = first.cloneNode(true);
-    clone.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+    clone.querySelector('[name=f_field]').value = 'name';
+    syncRow(clone, false);
     return clone;
   }
 
@@ -275,20 +337,7 @@ ${
   // adjacent control.
   rows.addEventListener('change', function (ev) {
     if (ev.target.name !== 'f_field') return;
-    var row = ev.target.closest('[data-frow]');
-    var type = TYPES[ev.target.value] || 'text';
-    var op = row.querySelector('[name=f_op]');
-    op.innerHTML = OPS[type].map(function (o) { return '<option value="' + o + '">' + o + '</option>'; }).join('');
-    var val = row.querySelector('[name=f_value]');
-    if (ENUMS[ev.target.value]) {
-      var sel = document.createElement('select');
-      sel.name = 'f_value';
-      sel.setAttribute('aria-label', val.getAttribute('aria-label'));
-      sel.innerHTML = ENUMS[ev.target.value].map(function (o) {
-        return '<option value="' + o + '">' + o + '</option>';
-      }).join('');
-      val.replaceWith(sel);
-    }
+    syncRow(ev.target.closest('[data-frow]'), true);
   });
 
   function relabel() {

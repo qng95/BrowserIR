@@ -36,7 +36,7 @@
   <text x="216" y="181" fill="#76839F" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">app.example.com/customers/new</text>
 
   <text x="94" y="254" fill="#0B1025" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="740">Create customer</text>
-  <text x="94" y="282" fill="#73809B" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15">Add a customer to the dealership.</text>
+  <text x="94" y="282" fill="#73809B" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15">Add a supplier to Inventory ERP.</text>
 
   <text x="94" y="329" fill="#27314B" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="650">Full name</text>
   <rect x="94" y="343" width="370" height="55" rx="12" fill="#FBFCFF" stroke="#CBD5EA" stroke-width="2"/>
@@ -77,7 +77,7 @@
 
   <text x="760" y="245" fill="#8191B7" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="720" letter-spacing="2.4">VISIBLE CONTEXT</text>
   <text x="760" y="279" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">Page: Create customer</text>
-  <text x="760" y="307" fill="#B8C6E4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">Text: “Add a customer to the dealership.”</text>
+  <text x="760" y="307" fill="#B8C6E4" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">Text: “Add a supplier to Inventory ERP.”</text>
 
   <rect x="756" y="334" width="549" height="111" rx="16" fill="#111B3B" stroke="#2B4074"/>
   <circle cx="781" cy="360" r="10" fill="#0F355A" stroke="#38BDF8" stroke-width="2"/><text x="807" y="366" fill="#77D3FF" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16" font-weight="700">e17@r12</text>

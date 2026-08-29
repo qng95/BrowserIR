@@ -387,7 +387,8 @@ TASK_DEFINITIONS.push(
     id: 'order-through-wizard',
     prompt:
       'Create a new order for the customer with number K-100032. Choose any vehicle that is ' +
-      'currently "In stock", set the delivery date to 2026-09-30, and complete the order.',
+      'currently "In stock", set the delivery date to 2026-09-30, enter a deposit of 5000 EUR ' +
+      'and the notes "Fleet livery", then complete the order.',
     skills: ['wizard', 'debounced-autocomplete', 'modal-picker', 'multi-step-state', 'server-validation'],
     verify(db) {
       const cust = db.prepare('SELECT * FROM customers WHERE number = ?').get('K-100032') as Row | undefined;
@@ -419,6 +420,13 @@ TASK_DEFINITIONS.push(
           passed: false,
           reason: `Delivery date is "${String(order['delivery_on'])}", expected "2026-09-30".`,
           evidence: order,
+        };
+      }
+      if (Number(order['deposit_cents']) !== 500_000 || String(order['notes']) !== 'Fleet livery') {
+        return {
+          passed: false,
+          reason: 'The order did not persist the requested 5000 EUR deposit and Fleet livery notes.',
+          evidence: { depositCents: order['deposit_cents'], notes: order['notes'] },
         };
       }
       // The wizard writes an order line linking the order to a vehicle, and

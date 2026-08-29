@@ -5,16 +5,28 @@ Last updated: 2026-08-28
 
 ## Current implementation status
 
-The product layer lives in the `browserir` `0.1` release line.
-The repository also contains a live official-Playwright-MCP adapter, an
-eight-case fixture corpus, fresh-state retry executor, exact database oracle,
-append-only physical-call journal, projection audit, `pass@k`, and complete
-token/cost accounting.
+The product layer lives in the `browserir` `0.1` release-candidate line.
+The repository also contains a live official-Playwright-MCP adapter, the
+eight-case scored development corpus, a four-case Inventory mechanism corpus,
+fresh-state retry execution, exact database oracles, an append-only
+physical-call journal, projection audits, `pass@k`, and complete token/cost
+accounting for the scored run.
 
 The real-browser, zero-model gate covers 64 arms across schedule-coordinate and
 cross-tree-label families. It projected 15/15 independently demonstrated
 recoverable relations, retained one safe fallback, recorded zero projection
 misses, made no model calls, and performed no task mutation.
+
+The additional Inventory v3 live preflight covers four UI shapes and four world
+definitions, producing 16 case-world cells. It projected 8/8 opaque cells,
+passed 8/8 semantic cells through, and completed 16/16 exact-oracle clicks with
+zero wrong or collateral mutations. It made zero model and provider calls. Its
+catalog-contract SHA-256 is
+`0db0b25a6075c92f72a06578be23e6135ca37fb3613dd7862bc65567e0021495`;
+that digest covers serialized case/world metadata, not HTML, CSS, or source.
+This expands live mechanism coverage across grid-coordinate,
+schedule-coordinate, and cross-tree-label policies; it is not an agent accuracy
+score, retained exact-release-byte qualification, or part of the 32-task result.
 
 One real-model two-mode development study then ran with `qwen/qwen3.8-27b`,
 OpenRouter `alibaba`, provider fallback disabled, and `max_retry=2`. On 32 paired tasks,
@@ -50,8 +62,8 @@ Promote adaptive Playwright only when the adaptive layer improves exact end-to-e
 task success over plain Playwright, retains the useful ceiling of deterministic
 enrichment, and passes safety and efficiency guardrails.
 
-The original matrix smoke is mechanism evidence only. The newer 32-task result
-is scored development evidence, but it also must not be pooled into the future
+The zero-model preflights are mechanism evidence only. The 32-task result is
+scored development evidence, but it also must not be pooled into the future
 prospectively sealed result.
 
 ## Advertising substantiation gate

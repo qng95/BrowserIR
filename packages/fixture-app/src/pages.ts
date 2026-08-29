@@ -209,17 +209,33 @@ export function customerDetailPage(ctx: PageCtx, id: number, tab: string): strin
   </div>
 </div>`;
     script = `
-fetch('/api/customers/${id}/${tab}' + location.search)
-  .then(function (r) { return r.json(); })
-  .then(function (data) {
-    var el = document.getElementById('panel');
-    el.innerHTML = data.html;
-    el.setAttribute('data-state', 'ready');
+(function () {
+  var controller = new AbortController();
+  var el = document.getElementById('panel');
+  function finish(state) {
+    el.setAttribute('data-state', state);
     el.removeAttribute('aria-busy');
-    var s = document.querySelector('[data-loading]');
-    if (s) s.remove();
+    var spinner = document.querySelector('[data-loading]');
+    if (spinner) spinner.remove();
     document.documentElement.setAttribute('data-ready', '1');
-  });`;
+  }
+  addEventListener('pagehide', function () { controller.abort(); }, { once: true });
+  fetch('/api/customers/${id}/${tab}' + location.search, { signal: controller.signal })
+    .then(function (response) {
+      if (!response.ok) throw new Error('Request failed');
+      return response.json();
+    })
+    .then(function (data) {
+      if (controller.signal.aborted) return;
+      el.innerHTML = data.html;
+      finish('ready');
+    })
+    .catch(function (error) {
+      if (error.name === 'AbortError') return;
+      el.innerHTML = '<p class="empty error" role="alert">This panel could not be loaded. Try again.</p>';
+      finish('error');
+    });
+})();`;
   }
 
   return chrome(ctx, String(c['name']), tabBar + panel, {

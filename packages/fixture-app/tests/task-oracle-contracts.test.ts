@@ -36,6 +36,14 @@ describe('explicit task oracle contracts', () => {
     );
   });
 
+  it('binds every user-entered wizard detail to the order oracle', () => {
+    expect(TASK_ORACLE_CONTRACTS['order-through-wizard'].order).toMatchObject({
+      delivery_on: '2026-09-30',
+      deposit_cents: 500_000,
+      notes: 'Fleet livery',
+    });
+  });
+
   it('binds the otherwise-unused required before object in customer-update evidence', () => {
     expect(TASK_ORACLE_CONTRACTS['raise-credit-limit'].audit.detailSchema).toEqual({
       changed: 'required-string-array',

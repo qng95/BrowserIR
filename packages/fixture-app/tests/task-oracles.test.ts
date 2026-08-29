@@ -112,15 +112,20 @@ function deliver(
   return order;
 }
 
-function createWizardOrder(db: ReturnType<typeof createDb>, deliveryOn: string): void {
+function createWizardOrder(
+  db: ReturnType<typeof createDb>,
+  deliveryOn: string,
+  depositCents = 500_000,
+  notes = 'Fleet livery',
+): void {
   const customer = db.prepare("SELECT id FROM customers WHERE number = 'K-100032'").get() as Row;
   const vehicle = db.prepare("SELECT * FROM vehicles WHERE status = 'In stock' ORDER BY id LIMIT 1").get() as Row;
   const number = `A-TASK-${deliveryOn.replaceAll('-', '')}`;
   const created = db
     .prepare(
       `INSERT INTO orders
-       (customer_id,number,placed_on,delivery_on,vehicle,status,total_cents)
-       VALUES (?,?,?,?,?,?,?)`,
+       (customer_id,number,placed_on,delivery_on,vehicle,status,total_cents,deposit_cents,notes)
+       VALUES (?,?,?,?,?,?,?,?,?)`,
     )
     .run(
       Number(customer['id']),
@@ -130,6 +135,8 @@ function createWizardOrder(db: ReturnType<typeof createDb>, deliveryOn: string):
       `${String(vehicle['make'])} ${String(vehicle['model'])}`,
       'Confirmed',
       Number(vehicle['price_cents']),
+      depositCents,
+      notes,
     );
   const orderId = Number(created.lastInsertRowid);
   db.prepare(
@@ -272,11 +279,21 @@ describe('task oracle contracts', () => {
     db.close();
   });
 
-  it('requires the wizard order to persist the requested delivery date and linked audits', () => {
+  it('requires the wizard order to persist all requested details and linked audits', () => {
     const wrong = createDb({ customers: 100, vehicles: 100 });
     createWizardOrder(wrong, '2026-09-29');
     expect(task('order-through-wizard').verify(wrong).passed).toBe(false);
     wrong.close();
+
+    const wrongDeposit = createDb({ customers: 100, vehicles: 100 });
+    createWizardOrder(wrongDeposit, '2026-09-30', 0);
+    expect(task('order-through-wizard').verify(wrongDeposit).passed).toBe(false);
+    wrongDeposit.close();
+
+    const wrongNotes = createDb({ customers: 100, vehicles: 100 });
+    createWizardOrder(wrongNotes, '2026-09-30', 500_000, '');
+    expect(task('order-through-wizard').verify(wrongNotes).passed).toBe(false);
+    wrongNotes.close();
 
     const correct = createDb({ customers: 100, vehicles: 100 });
     createWizardOrder(correct, '2026-09-30');

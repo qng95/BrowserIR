@@ -1,6 +1,6 @@
 # Adaptive Playwright architecture
 
-Status: implemented 0.1 release with development evidence
+Status: implemented 0.1 release candidate with development evidence
 Last updated: 2026-08-28
 
 ## Decision
@@ -100,9 +100,10 @@ The product implementation now lives in
 The benchmark adapter, fresh-state retry executor, fixture corpus, independent
 recoverability witness, and real-model runner remain under
 [`packages/benchmark`](../packages/benchmark/). They measure the product bytes;
-they are not the product implementation. Adaptive mode is still private and is
-not the public npm or default MCP path. Promotion requires the remaining gates
-below.
+they are not the product implementation. The adaptive wrapper is the current
+`browserir` npm release-candidate path, but it remains unpublished until the
+registry ownership and protected-release gates complete. It is not a new MCP
+server or the legacy graph interface.
 
 ## V1 feature policy
 
@@ -234,10 +235,11 @@ Before making adaptive Playwright the default public BrowserIR mode:
 6. Run a prospectively sealed, untouched, multi-family comparison before a
    confirmatory correctness, prevalence, or economic claim.
 
-The present implementation has real mechanism and agent evidence and is staged
-for its first public release. The 31/32 versus 24/32 development result does not
-by itself authorize a general performance claim; npm publication remains bound
-to the separate ownership, artifact, audit, and protected-workflow gates.
+The present implementation has real mechanism and agent evidence and is
+prepared as a `0.1.0` release candidate. The 31/32 versus 24/32 development
+result does not by itself authorize a general performance claim; npm
+publication remains bound to the separate ownership, artifact, audit, and
+protected-workflow gates.
 
 The score-bearing product decision and KPI contract are defined separately in
 [Adaptive Playwright improvement measurement](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md).

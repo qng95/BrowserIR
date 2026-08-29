@@ -250,8 +250,10 @@ export function ticketsPage(ctx: PageCtx): string {
     <td>${esc(t['number'])}</td>
     <td>${esc(t['customer'])}</td>
     <td>${esc(t['subject'])}</td>
-    <td class="editable" data-field="priority" data-value="${esc(t['priority'])}" tabindex="0">${esc(t['priority'])}</td>
-    <td class="editable" data-field="assignee" data-value="${esc(t['assignee'])}" tabindex="0">${esc(t['assignee'])}</td>
+    <td class="editable" data-field="priority" data-value="${esc(t['priority'])}" tabindex="0" role="button"
+        aria-haspopup="listbox" aria-label="Priority: ${esc(t['priority'])}. Press Enter to edit.">${esc(t['priority'])}</td>
+    <td class="editable" data-field="assignee" data-value="${esc(t['assignee'])}" tabindex="0" role="button"
+        aria-haspopup="listbox" aria-label="Assignee: ${esc(t['assignee'])}. Press Enter to edit.">${esc(t['assignee'])}</td>
     <td>${statusPill(String(t['status']))}</td>
     <td>${esc(t['opened_on'])}</td>
   </tr>`,
@@ -275,15 +277,19 @@ export function ticketsPage(ctx: PageCtx): string {
     tr.setAttribute('aria-selected', 'true');
   });
 
-  table.addEventListener('dblclick', function (ev) {
-    var cell = ev.target.closest('td.editable');
+  function editLabel(field, value) {
+    return field.charAt(0).toUpperCase() + field.slice(1) + ': ' + value + '. Press Enter to edit.';
+  }
+
+  function openEditor(cell) {
     if (!cell || cell.querySelector('select')) return;
     var field = cell.getAttribute('data-field');
     var current = cell.getAttribute('data-value');
     var id = cell.closest('tr').getAttribute('data-ticket');
+    var finished = false;
 
     var sel = document.createElement('select');
-    sel.setAttribute('aria-label', field);
+    sel.setAttribute('aria-label', 'Edit ' + field);
     sel.innerHTML = OPTIONS[field].map(function (o) {
       return '<option value="' + o + '"' + (o === current ? ' selected' : '') + '>' + o + '</option>';
     }).join('');
@@ -291,8 +297,18 @@ export function ticketsPage(ctx: PageCtx): string {
     cell.appendChild(sel);
     sel.focus();
 
+    function restore(returnFocus) {
+      if (finished && !sel.isConnected) return;
+      finished = true;
+      cell.textContent = current;
+      cell.setAttribute('aria-label', editLabel(field, current));
+      if (returnFocus) cell.focus();
+    }
+
     function commit() {
-      if (sel.value === current) { cell.textContent = current; return; }
+      if (finished) return;
+      if (sel.value === current) { restore(true); return; }
+      finished = true;
       var f = document.createElement('form');
       f.method = 'post';
       f.action = '/app/tickets/' + id + '/field';
@@ -302,7 +318,22 @@ export function ticketsPage(ctx: PageCtx): string {
       f.submit();
     }
     sel.addEventListener('change', commit);
-    sel.addEventListener('blur', function () { if (sel.isConnected) cell.textContent = sel.value; });
+    sel.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { event.preventDefault(); restore(true); }
+      else if (event.key === 'Enter') { event.preventDefault(); commit(); }
+    });
+    sel.addEventListener('blur', function () { if (!finished && sel.isConnected) restore(false); });
+  }
+
+  table.addEventListener('dblclick', function (ev) {
+    openEditor(ev.target.closest('td.editable'));
+  });
+
+  table.addEventListener('keydown', function (ev) {
+    var cell = ev.target.closest('td.editable');
+    if (!cell || ev.target !== cell || (ev.key !== 'Enter' && ev.key !== 'F2' && ev.key !== ' ')) return;
+    ev.preventDefault();
+    openEditor(cell);
   });
 })();`;
 

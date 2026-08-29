@@ -72,6 +72,22 @@ describe('lazy panels', () => {
     expect(await page.locator('#panel tbody tr').count()).toBeGreaterThan(0);
     expect(await page.locator('[data-loading]').count()).toBe(0);
   }, 30_000);
+
+  it('replaces a failed lazy panel with a settled error state', async () => {
+    await signIn();
+    await page.route('**/api/customers/1/contacts*', async (route) => {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"offline"}' });
+    });
+    try {
+      await page.goto(`${app.origin}/app/customers/1/contacts`);
+      await page.waitForSelector('#panel[data-state=error]');
+      expect(await page.textContent('#panel')).toContain('could not be loaded');
+      expect(await page.getAttribute('#panel', 'aria-busy')).toBeNull();
+      expect(await page.locator('[data-loading]').count()).toBe(0);
+    } finally {
+      await page.unroute('**/api/customers/1/contacts*');
+    }
+  }, 30_000);
 });
 
 describe('virtualised inventory', () => {
@@ -132,9 +148,110 @@ describe('order wizard', () => {
     await page.waitForSelector('#cust-list [role=option]', { timeout: 10_000 });
     expect(await page.locator('#cust-list [role=option]').count()).toBeGreaterThan(0);
 
-    await page.locator('#cust-list [role=option]').first().click();
+    await page.locator('#cust-input').press('ArrowDown');
+    expect(await page.getAttribute('#cust-input', 'aria-activedescendant')).toBeTruthy();
+    await page.locator('#cust-input').press('Enter');
     expect(await page.inputValue('#cust-id')).not.toBe('');
     expect(await page.locator('#cust-list').isHidden()).toBe(true);
+  }, 45_000);
+
+  it('cancels a queued autocomplete search when the combobox closes', async () => {
+    await signIn();
+    let searchRequests = 0;
+    await page.route('**/api/customers/search?*', async (route) => {
+      searchRequests += 1;
+      await route.continue();
+    });
+    try {
+      await page.goto(`${app.origin}/app/orders/new`);
+      await page.fill('#cust-input', 'Adler');
+      await page.click('h2');
+      await page.waitForTimeout(600);
+      expect(searchRequests).toBe(0);
+      expect(await page.locator('#cust-list').isHidden()).toBe(true);
+      expect(await page.getAttribute('#cust-input', 'aria-expanded')).toBe('false');
+
+      await page.fill('#cust-input', 'Adler');
+      await page.locator('#cust-input').press('Escape');
+      await page.waitForTimeout(600);
+      expect(searchRequests).toBe(0);
+      expect(await page.locator('#cust-list').isHidden()).toBe(true);
+    } finally {
+      await page.unroute('**/api/customers/search?*');
+    }
+  }, 45_000);
+
+  it('shows a recoverable error when autocomplete search fails', async () => {
+    await signIn();
+    await page.route('**/api/customers/search?*', async (route) => {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"offline"}' });
+    });
+    try {
+      await page.goto(`${app.origin}/app/orders/new`);
+      await page.fill('#cust-input', 'Adler');
+      await page.waitForSelector('#cust-list [role=alert]', { timeout: 10_000 });
+      expect(await page.textContent('#cust-list')).toContain('Could not load customers');
+      expect(await page.getAttribute('#cust-input', 'aria-expanded')).toBe('true');
+    } finally {
+      await page.unroute('**/api/customers/search?*');
+    }
+  }, 45_000);
+
+  it('does not let an older autocomplete response overwrite a newer query', async () => {
+    await signIn();
+    let releaseOld!: () => void;
+    const oldBlocked = new Promise<void>((resolve) => { releaseOld = resolve; });
+    await page.route('**/api/customers/search?*', async (route) => {
+      const term = new URL(route.request().url()).searchParams.get('q');
+      if (term === 'Old') await oldBlocked;
+      try {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            items: [{ id: term === 'Old' ? 1 : 2, number: term === 'Old' ? 'K-OLD' : 'K-NEW', name: `${term} Customer`, city: 'Berlin' }],
+          }),
+        });
+      } catch {
+        // The old request is expected to be aborted by the second query.
+      }
+    });
+    try {
+      await page.goto(`${app.origin}/app/orders/new`);
+      const oldRequest = page.waitForRequest((request) => request.url().includes('q=Old'));
+      await page.fill('#cust-input', 'Old');
+      await oldRequest;
+      await page.fill('#cust-input', 'New');
+      await page.waitForSelector('#cust-list [role=option]:has-text("New Customer")');
+      releaseOld();
+      await page.waitForTimeout(150);
+      expect(await page.textContent('#cust-list')).toContain('New Customer');
+      expect(await page.textContent('#cust-list')).not.toContain('Old Customer');
+    } finally {
+      releaseOld();
+      await page.unroute('**/api/customers/search?*');
+    }
+  }, 45_000);
+
+  it('shows an error in the vehicle modal and still closes it safely', async () => {
+    await signIn();
+    await page.goto(`${app.origin}/app/orders/new`);
+    await page.evaluate(() => { (document.getElementById('cust-id') as HTMLInputElement).value = '1'; });
+    await page.click('button.primary');
+    await page.waitForSelector('#veh-open');
+    await page.route('**/api/vehicles/pick?*', async (route) => {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"offline"}' });
+    });
+    try {
+      await page.click('#veh-open');
+      await page.waitForSelector('#veh-results[data-state="error"]', { timeout: 10_000 });
+      expect(await page.textContent('#veh-results')).toContain('Could not load vehicles');
+      await page.keyboard.press('Escape');
+      expect(await page.locator('#veh-modal').isHidden()).toBe(true);
+      expect(await page.locator('#veh-open').evaluate((button) => button === document.activeElement)).toBe(true);
+    } finally {
+      await page.unroute('**/api/vehicles/pick?*');
+    }
   }, 45_000);
 
   it('drives the modal picker and completes the order end to end', async () => {
@@ -153,6 +270,17 @@ describe('order wizard', () => {
     await page.click('#veh-open');
     expect(await page.locator('#veh-results .skeleton').count()).toBe(1);
 
+    await page.keyboard.press('Escape');
+    expect(await page.locator('#veh-modal').isHidden()).toBe(true);
+    expect(await page.locator('#veh-open').evaluate((button) => button === document.activeElement)).toBe(true);
+
+    await page.click('#veh-open');
+    expect(await page.locator('#veh-q').evaluate((input) => input === document.activeElement)).toBe(true);
+    await page.keyboard.press('Tab');
+    expect(await page.locator('button[data-close-modal]').evaluate((button) => button === document.activeElement)).toBe(true);
+    await page.keyboard.press('Shift+Tab');
+    expect(await page.locator('#veh-q').evaluate((input) => input === document.activeElement)).toBe(true);
+
     await page.waitForSelector('#veh-results [role=option]', { timeout: 10_000 });
     const inStock = page.locator('#veh-results [role=option]:not([data-sold])').first();
     await inStock.click();
@@ -168,6 +296,8 @@ describe('order wizard', () => {
     expect(await page.textContent('#err-delivery_on')).toContain('2026-08-01');
 
     await page.fill('#delivery_on', '2026-09-30');
+    await page.fill('#deposit', '5000');
+    await page.fill('#notes', 'Fleet livery');
     await page.click('button.primary');
 
     // Step 4 — review, then submit.

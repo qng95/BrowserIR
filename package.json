@@ -21,6 +21,7 @@
     "benchmark": "pnpm --filter @browserir/benchmark benchmark",
     "benchmark:agent": "pnpm --filter @browserir/benchmark benchmark:agent",
     "benchmark:control-capability": "pnpm --filter @browserir/benchmark benchmark:control-capability",
+    "benchmark:inventory-v3-preflight": "pnpm --filter @browserir/benchmark benchmark:inventory-v3-preflight",
     "benchmark:browserir-real-ab": "zsh scripts/run-browserir-openrouter-real-ab.zsh",
     "benchmark:uplift": "pnpm --filter @browserir/benchmark benchmark:uplift",
     "benchmark:uplift:sealed": "node scripts/run-sealed-uplift.mjs",

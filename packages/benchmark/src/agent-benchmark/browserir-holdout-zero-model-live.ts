@@ -1,23 +1,17 @@
 import { fork, type ChildProcess } from 'node:child_process';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:net';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { Client } from '@modelcontextprotocol/client';
-import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-
-import {
-  playwrightMcpChromiumExecutablePath,
-  resolvePlaywrightMcpRuntimePackageInputs,
-} from './playwright-mcp-runtime-boundary.js';
 import type {
   BrowserIrHoldoutZeroModelArmSession,
   BrowserIrHoldoutZeroModelPreflightDependencies,
   BrowserIrHoldoutZeroOracleSnapshot,
 } from './browserir-holdout-zero-model-preflight.js';
+import {
+  startOfficialBrowserIrMcp,
+  type OfficialBrowserIrMcpHandle,
+} from './official-playwright-mcp-live.js';
 
 const CHILD_PROTOCOL = 'browserir-holdout-zero-model-fixture-child/1' as const;
 const workspaceRoot = fileURLToPath(new URL('../../../../', import.meta.url));
@@ -27,9 +21,6 @@ const fixtureChildSource = fileURLToPath(new URL(
 ));
 const localRequire = createRequire(import.meta.url);
 const viteNodeCli = localRequire.resolve('vite-node/cli');
-const playwrightMcpDirectory = resolvePlaywrightMcpRuntimePackageInputs().find(
-  ({ name }) => name === '@playwright/mcp',
-)!.packageDirectory;
 
 interface ChildMessage {
   readonly protocol: typeof CHILD_PROTOCOL;
@@ -135,32 +126,6 @@ const terminateAndReapChild = async (child: ChildProcess): Promise<void> => {
   try { child.kill('SIGKILL'); } catch { /* The final observed check decides. */ }
   if (!await waitForChildExit(child, 2_000)) {
     throw new Error(`Child process ${String(child.pid)} did not exit after SIGKILL.`);
-  }
-};
-
-const pidIsAlive = (pid: number): boolean => {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error) {
-    return (error as NodeJS.ErrnoException).code !== 'ESRCH';
-  }
-};
-
-const waitForPidExit = async (pid: number, timeoutMs: number): Promise<boolean> => {
-  const deadline = Date.now() + timeoutMs;
-  while (pidIsAlive(pid) && Date.now() < deadline) {
-    await new Promise<void>((resolve) => setTimeout(resolve, 25));
-  }
-  return !pidIsAlive(pid);
-};
-
-const observePidExit = async (pid: number): Promise<void> => {
-  // StdioClientTransport owns the ChildProcess handle and performs its bounded
-  // stdin -> TERM -> KILL sequence. Do not signal a bare PID after that handle
-  // has reaped because the operating system may already have reused the PID.
-  if (!await waitForPidExit(pid, 2_000)) {
-    throw new Error(`Official MCP process ${pid} has no observed exit after transport close.`);
   }
 };
 
@@ -298,102 +263,6 @@ const startFixtureChild = async (
   }
 };
 
-interface OfficialMcpHandle {
-  readonly client: Client;
-  readonly pid: number;
-  close(): Promise<void>;
-}
-
-const startOfficialMcp = async (input: {
-  origin: string;
-  headless: boolean;
-}): Promise<OfficialMcpHandle> => {
-  const outputDirectory = await mkdtemp(join(tmpdir(), 'browserir-holdout-preflight-mcp-'));
-  let transport: StdioClientTransport | undefined;
-  let client: Client | undefined;
-  let observedPid: number | undefined;
-  try {
-    const configPath = join(outputDirectory, 'playwright-mcp.config.json');
-    await writeFile(configPath, `${JSON.stringify({
-      browser: {
-        contextOptions: {
-          viewport: { width: 1_440, height: 900 },
-          deviceScaleFactor: 1,
-          locale: 'en-US',
-          timezoneId: 'UTC',
-          colorScheme: 'light',
-          reducedMotion: 'reduce',
-          acceptDownloads: false,
-          serviceWorkers: 'block',
-        },
-      },
-    }, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
-    transport = new StdioClientTransport({
-      command: process.execPath,
-      args: [
-        join(playwrightMcpDirectory, 'cli.js'),
-        '--config', configPath,
-        '--browser', 'chromium',
-        '--executable-path', playwrightMcpChromiumExecutablePath(),
-        '--isolated',
-        '--codegen', 'none',
-        '--image-responses', 'omit',
-        '--snapshot-mode', 'full',
-        '--viewport-size', '1440x900',
-        '--allowed-origins', input.origin,
-        '--console-level', 'error',
-        '--output-dir', outputDirectory,
-        '--output-mode', 'stdout',
-        ...(input.headless ? ['--headless'] : []),
-      ],
-      cwd: outputDirectory,
-      stderr: 'pipe',
-    });
-    transport.stderr?.on('data', () => {});
-    client = new Client({
-      name: 'browserir-holdout-zero-model-preflight',
-      version: '1.0.0',
-    });
-    await client.connect(transport);
-    observedPid = transport.pid ?? undefined;
-    if (
-      observedPid === undefined || !Number.isSafeInteger(observedPid) || observedPid <= 0
-    ) throw new Error('Official MCP transport exposed no positive child PID.');
-    let closePromise: Promise<void> | undefined;
-    return {
-      client,
-      pid: observedPid,
-      close() {
-        closePromise ??= (async () => {
-          const cleanupErrors: unknown[] = [];
-          await client!.close().catch((error) => cleanupErrors.push(error));
-          await transport!.close().catch((error) => cleanupErrors.push(error));
-          await observePidExit(observedPid!)
-            .catch((error) => cleanupErrors.push(error));
-          await rm(outputDirectory, { recursive: true, force: true })
-            .catch((error) => cleanupErrors.push(error));
-          if (cleanupErrors.length > 0) {
-            throw new AggregateError(cleanupErrors, 'Official MCP cleanup failed.');
-          }
-        })();
-        return closePromise;
-      },
-    };
-  } catch (error) {
-    const cleanupErrors: unknown[] = [];
-    await client?.close().catch((cleanupError) => cleanupErrors.push(cleanupError));
-    observedPid ??= transport?.pid ?? undefined;
-    await transport?.close().catch((cleanupError) => cleanupErrors.push(cleanupError));
-    if (observedPid !== undefined) {
-      await observePidExit(observedPid)
-        .catch((cleanupError) => cleanupErrors.push(cleanupError));
-    }
-    await rm(outputDirectory, { recursive: true, force: true })
-      .catch((cleanupError) => cleanupErrors.push(cleanupError));
-    throw combinedFailure('Official MCP startup and teardown failed.', error, cleanupErrors);
-  }
-};
-
 export interface OfficialBrowserIrHoldoutZeroModelDependenciesOptions {
   readonly headless?: boolean | undefined;
 }
@@ -416,9 +285,9 @@ export function createOfficialBrowserIrHoldoutZeroModelDependencies(
         input.worldId,
         await prospectivePort,
       );
-      let mcp: OfficialMcpHandle | undefined;
+      let mcp: OfficialBrowserIrMcpHandle | undefined;
       try {
-        mcp = await startOfficialMcp({
+        mcp = await startOfficialBrowserIrMcp({
           origin: fixture.origin,
           headless: options.headless ?? true,
         });

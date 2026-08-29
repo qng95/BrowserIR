@@ -19,7 +19,7 @@ The repository currently provides:
 
 - a reusable agent-benchmark runner and report schema;
 - a LangChain `createAgent` adapter over BrowserIR MCP tools;
-- an isolated, seeded dealership fixture target with 14 database-backed
+- an isolated, seeded Inventory ERP fixture target with 14 database-backed
   oracles;
 - a trusted structured-result tool, browser-navigation policy, and hard time,
   tool-call, and model-turn budgets;
@@ -57,8 +57,9 @@ A canonical score must run against an application BrowserIR controls: an owned,
 versioned, resettable fixture deployment or a pinned local/container build of
 that fixture. Its application build, seed, task contract, oracle version,
 browser profile, and dependencies must be immutable for the run. The default
-fixture seed is `20260728`, with 5,000 customers and 12,000 vehicles. The
-published fixture account is `test` / `test`.
+fixture seed is `20260728`, with 5,000 customer records and 12,000 vehicle
+inventory records in its legacy `vehicles` table. The published fixture account
+is `test` / `test`.
 
 An "open-access website" is useful only when open access means every evaluated
 agent receives the same public application plane without privileged state or
@@ -146,7 +147,7 @@ following:
 
 `benchmark_submit_result` is injected by the trusted harness rather than the
 BrowserIR MCP server. Mutation-only tasks submit `{}` to confirm completion.
-Tasks that request a customer number or VIN submit `{"answer":"..."}`. Schema
+Tasks that request one record identifier submit `{"answer":"..."}`. Schema
 validation is public; the expected value and validator implementation remain
 private. Missing, duplicate, malformed, or incorrect submissions fail even if
 the model says it succeeded.

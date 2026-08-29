@@ -113,6 +113,23 @@ describe('context menu', () => {
     const row = app.db.prepare('SELECT status FROM orders WHERE id = ?').get(id) as { status: string };
     expect(row.status).toBe('Cancelled');
   }, 45_000);
+
+  it('opens, navigates, and dismisses the row menu from the keyboard', async () => {
+    await page.goto(`${app.origin}/app/orders`);
+    const target = page.locator('tr[data-order]').first();
+    await target.focus();
+    await page.keyboard.press('Shift+F10');
+
+    await page.waitForSelector('.ctxmenu');
+    expect(await page.locator(':focus').getAttribute('data-ctx')).toBe('deliver');
+    await page.keyboard.press('ArrowDown');
+    expect(await page.locator(':focus').getAttribute('data-ctx')).toBe('confirm');
+
+    await page.keyboard.press('Escape');
+    expect(await page.locator('.ctxmenu').count()).toBe(0);
+    expect(await target.evaluate((row) => row === document.activeElement)).toBe(true);
+    expect(await target.getAttribute('aria-expanded')).toBe('false');
+  }, 30_000);
 });
 
 describe('toasts are transient', () => {
@@ -134,6 +151,10 @@ describe('toasts are transient', () => {
 
 describe('long-running export', () => {
   it('polls to completion and only then offers the download', async () => {
+    app.db.prepare("UPDATE customers SET name = ? WHERE id = 1").run('ACME, "North"\nDepot');
+    const expectedRows = Number(
+      (app.db.prepare('SELECT COUNT(*) AS n FROM customers').get() as { n: number }).n,
+    );
     await page.goto(`${app.origin}/app/reports/export?jobMs=2500`);
     await page.click('#startexport');
     await page.waitForURL('**/app/reports/export?job=**');
@@ -151,7 +172,9 @@ describe('long-running export', () => {
     const csv = await (await fetch(app.origin + href!, {
       headers: { cookie: (await page.context().cookies()).map((c) => `${c.name}=${c.value}`).join('; ') },
     })).text();
-    expect(csv.split('\n')[0]).toBe('number,name,status,city,country');
+    expect(csv.split(/\r?\n/)[0]).toBe('number,name,status,city,country');
+    expect(csv.match(/^K-/gm)?.length).toBe(expectedRows);
+    expect(csv).toContain('"ACME, ""North""\nDepot"');
   }, 60_000);
 
   it('refuses to download a job that has not finished', async () => {

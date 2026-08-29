@@ -46,11 +46,6 @@ describe('Evidence Drop 02 frozen paired manifest', () => {
       readEvidenceDropProtocol(drop02ManifestPath),
     ]);
     const { protocol } = manifest;
-    const fixtureTask = taskById('query-three-conditions');
-    const [benchmarkTask] = fixtureAgentTasks(['query-three-conditions']);
-
-    expect(fixtureTask).toBeDefined();
-    expect(benchmarkTask).toBeDefined();
     expect(manifest.sha256).toBe(
       'a3b2da51540f2784dab7d324977c30fb98ced1aabe9551746083725ee243d1a3',
     );
@@ -106,14 +101,12 @@ describe('Evidence Drop 02 frozen paired manifest', () => {
     expect(protocol.arms).toEqual(drop01.arms);
     expect(protocol.target.headless).toBe(drop01.target.headless);
     expect(protocol.target.expectedVersion).not.toBe(drop01.target.expectedVersion);
-    expect(protocol.target.expectedVersion).toBe(fixtureAgentTargetVersion());
-    expect(protocol.arms.control.interfaceVersion).toBe(PLAYWRIGHT_MCP_VERSION);
     expect(protocol.taskContracts).toEqual([
       {
         id: 'query-three-conditions',
-        version: benchmarkTask!.version,
-        promptSha256: sha256(fixtureTask!.prompt),
-        oracleVersion: fixtureTask!.oracleVersion,
+        version: 'sha256:8534144f9f47037b0422f5d35a4e3240bca13e384824dbe86dedf94927573632',
+        promptSha256: 'c10a76f331754765dece9d38dff978003ade080b9f8de6153bd769e895c895fb',
+        oracleVersion: 'sha256:e517230a4934c59a58a2056d380c3205b7a6b22d632baac437c117ff163b0768',
       },
     ]);
     expect(protocol.agent).toMatchObject({
@@ -129,9 +122,8 @@ describe('Evidence Drop 02 frozen paired manifest', () => {
       maxRetries: 0,
       imageMode: 'text-only',
     });
-    expect(protocol.agent.systemPrompt).toBe(NEUTRAL_BROWSER_AGENT_SYSTEM_PROMPT);
     expect(protocol.agent.systemPromptSha256).toBe(
-      sha256(NEUTRAL_BROWSER_AGENT_SYSTEM_PROMPT),
+      sha256(protocol.agent.systemPrompt),
     );
   });
 
@@ -190,10 +182,12 @@ describe('Evidence Drop 02 frozen paired manifest', () => {
     expect(modelSeeds.filter((seed) => drop01ModelSeeds.has(seed))).toEqual([]);
   });
 
-  it('matches the live no-model catalogs and failing baseline before the freeze', async () => {
+  it('keeps current no-model interfaces compatible without rewriting historical target identity', async () => {
     const { protocol } = await readEvidenceDropProtocol(drop02ManifestPath);
     const [task] = fixtureAgentTasks(protocol.taskIds);
+    const fixtureTask = taskById('query-three-conditions');
     expect(task).toBeDefined();
+    expect(fixtureTask).toBeDefined();
     const controlBrokerFactory = ({
       origin,
       headless,
@@ -233,11 +227,24 @@ describe('Evidence Drop 02 frozen paired manifest', () => {
     expect(control.baseline.stateFingerprint).toBe(
       treatment.baseline.stateFingerprint,
     );
+    expect(protocol.arms.control.interfaceVersion).toBe(PLAYWRIGHT_MCP_VERSION);
+    expect(protocol.agent.systemPrompt).toBe(NEUTRAL_BROWSER_AGENT_SYSTEM_PROMPT);
+    expect(protocol.taskContracts).toEqual([
+      {
+        id: 'query-three-conditions',
+        version: task!.version,
+        promptSha256: sha256(fixtureTask!.prompt),
+        oracleVersion: fixtureTask!.oracleVersion,
+      },
+    ]);
     expect(control.sha256).toBe(protocol.arms.control.expectedToolCatalogSha256);
     expect(treatment.sha256).toBe(protocol.arms.treatment.expectedToolCatalogSha256);
     expect(control.toolCount).toBe(17);
     expect(treatment.toolCount).toBe(10);
-    expect(control.targetVersion).toBe(protocol.target.expectedVersion);
-    expect(treatment.targetVersion).toBe(protocol.target.expectedVersion);
+    expect(control.targetVersion).toBe(fixtureAgentTargetVersion());
+    expect(treatment.targetVersion).toBe(fixtureAgentTargetVersion());
+    // The sealed hash identifies the historical app/task suite. Intentional
+    // current fixture changes must produce a new target hash, not rewrite it.
+    expect(control.targetVersion).not.toBe(protocol.target.expectedVersion);
   }, 30_000);
 });

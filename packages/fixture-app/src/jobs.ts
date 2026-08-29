@@ -1,6 +1,32 @@
 import { esc, layout } from './views.js';
 import type { PageCtx } from './pages.js';
 
+type Row = Record<string, unknown>;
+
+const CUSTOMER_EXPORT_COLUMNS = ['number', 'name', 'status', 'city', 'country'] as const;
+
+/** Encode one RFC 4180-compatible CSV field. */
+export function csvCell(value: unknown): string {
+  const source = String(value ?? '');
+  // Spreadsheet applications can interpret leading formula sigils even when
+  // the CSV field is quoted. Prefix user-authored formula-like values with an
+  // apostrophe so opening an export cannot execute them as spreadsheet code.
+  const text = /^[=+\-@\t\r\n]/u.test(source) ? `'${source}` : source;
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+/** Build the complete customer export; no UI pagination limit is applied. */
+export function customerExportCsv(db: PageCtx['db']): string {
+  const rows = db
+    .prepare('SELECT number,name,status,city,country FROM customers ORDER BY id')
+    .all() as Row[];
+  const records = [
+    CUSTOMER_EXPORT_COLUMNS.join(','),
+    ...rows.map((row) => CUSTOMER_EXPORT_COLUMNS.map((column) => csvCell(row[column])).join(',')),
+  ];
+  return `${records.join('\r\n')}\r\n`;
+}
+
 /**
  * A long-running export, run asynchronously and polled for progress.
  *
@@ -16,35 +42,46 @@ export interface Job {
   startedAt: number;
   durationMs: number;
   rows: number;
-  /** Set once complete. */
-  csv?: string;
 }
 
-const jobs = new Map<string, Job>();
+export type JobState =
+  | { status: 'unknown' }
+  | { status: 'running' | 'done'; percent: number; job: Job };
 
-export function startJob(kind: string, rows: number, durationMs = 6000): Job {
-  const job: Job = {
-    id: Math.random().toString(36).slice(2, 10),
-    kind,
-    startedAt: Date.now(),
-    durationMs,
-    rows,
+export interface JobStore {
+  start(kind: string, rows: number, durationMs?: number): Job;
+  state(id: string): JobState;
+  clear(): void;
+}
+
+/** Create job state owned by one fixture-server instance. */
+export function createJobStore(): JobStore {
+  const jobs = new Map<string, Job>();
+
+  return {
+    start(kind, rows, durationMs = 6000) {
+      const job: Job = {
+        id: Math.random().toString(36).slice(2, 10),
+        kind,
+        startedAt: Date.now(),
+        durationMs,
+        rows,
+      };
+      jobs.set(job.id, job);
+      return job;
+    },
+    state(id) {
+      const job = jobs.get(id);
+      if (!job) return { status: 'unknown' };
+      const elapsed = Date.now() - job.startedAt;
+      const percent = Math.min(100, Math.floor((elapsed / job.durationMs) * 100));
+      if (percent >= 100) return { status: 'done', percent: 100, job };
+      return { status: 'running', percent, job };
+    },
+    clear() {
+      jobs.clear();
+    },
   };
-  jobs.set(job.id, job);
-  return job;
-}
-
-export function jobState(id: string): { status: 'unknown' } | { status: 'running' | 'done'; percent: number; job: Job } {
-  const job = jobs.get(id);
-  if (!job) return { status: 'unknown' };
-  const elapsed = Date.now() - job.startedAt;
-  const percent = Math.min(100, Math.floor((elapsed / job.durationMs) * 100));
-  if (percent >= 100) return { status: 'done', percent: 100, job };
-  return { status: 'running', percent, job };
-}
-
-export function clearJobs(): void {
-  jobs.clear();
 }
 
 export function exportPage(ctx: PageCtx, jobId?: string): string {

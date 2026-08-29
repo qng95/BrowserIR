@@ -19,7 +19,7 @@ legacy full-graph core and nine-tool MCP server.
 | [`browserir-mark-mono.svg`](browserir-mark-mono.svg) | One-color mark. |
 | [`browserir-wordmark.svg`](browserir-wordmark.svg) | Wordmark for light backgrounds. |
 | [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg) | Wordmark for dark backgrounds. |
-| [`browserir-playwright-comparison.gif`](browserir-playwright-comparison.gif) | Current 36.2-second README motion hero: five full paired fixture replays, a three-fixture proof strip, safe fallback, and the scoped 32-task result. |
+| [`browserir-playwright-comparison.gif`](browserir-playwright-comparison.gif) | Current 56.7-second README motion hero: four full missing-relation replays, five native-Playwright passthrough product demos that are not scored in the 32-task benchmark, eight individual receipt-backed proof beats, safe fallback, and the scoped result. |
 | [`browserir-inventory-erp-workshop.png`](browserir-inventory-erp-workshop.png) | Synthetic browser render of checked-in `workshop-week-table / opaque-p1`; not a paid-run capture or treatment visualization. |
 | [`PRESS_KIT.md`](PRESS_KIT.md) | Current thin-layer launch facts and scoped copy. |
 
@@ -71,8 +71,9 @@ task count, retry cap, development status, or reuse caveat.
 
 ## Copy rules
 
-- Describe `0.1.0` as the initial public release. Verify registry availability
-  before saying it can be installed, and do not call it production-ready.
+- Describe `0.1.0` as the prepared release candidate while npm ownership and
+  publication remain pending. Verify registry availability before saying it can
+  be installed, and do not call it production-ready.
 - Say the host selects one fixed policy family; `auto` is not a prompt-driven
   policy router.
 - Do not call the current result an Evidence Drop, independent confirmation,

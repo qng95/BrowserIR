@@ -1,7 +1,7 @@
 # BrowserIR documentation
 
-The current product is the `browserir` `0.1` release line: a thin layer around
-an official Playwright MCP client. Start with these documents:
+The current product is the `browserir` `0.1` release-candidate line: a thin
+layer around an official Playwright MCP client. Start with these documents:
 
 | Need | Canonical document |
 | --- | --- |
@@ -10,6 +10,7 @@ an official Playwright MCP client. Start with these documents:
 | Common integration failures | [Thin-layer troubleshooting](TROUBLESHOOTING.md) |
 | npm release and security gates | [BrowserIR npm release](BROWSERIR_NPM_RELEASE.md) |
 | Measurement design and future claim gate | [Adaptive Playwright measurement](ADAPTIVE_PLAYWRIGHT_MEASUREMENT.md) |
+| Run the live, zero-model Inventory ERP preflight | [Real-agent A/B runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md#inventory-v3-live-product-preflight-zero-model) |
 | Reproduce the real-model development run | [Real-agent A/B runbook](BROWSERIR_REAL_AGENT_AB_RUNBOOK.md) |
 | Canonical metrics, checksums, and claim boundary | [Real-agent result](BROWSERIR_REAL_AGENT_RESULTS.md) |
 

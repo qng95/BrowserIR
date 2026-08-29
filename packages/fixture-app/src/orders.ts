@@ -82,7 +82,9 @@ export function ordersPage(ctx: PageCtx): string {
         ? `<tr><td colspan="7" class="empty">No orders match that filter.</td></tr>`
         : rows
             .map(
-              (r) => `<tr data-order="${esc(r['id'])}" data-number="${esc(r['number'])}" data-status="${esc(r['status'])}">
+              (r) => `<tr data-order="${esc(r['id'])}" data-number="${esc(r['number'])}" data-status="${esc(r['status'])}"
+          tabindex="0" aria-haspopup="menu" aria-expanded="false"
+          aria-label="Order ${esc(r['number'])}. Press Shift+F10 for actions.">
       <td><input type="checkbox" name="ids" value="${esc(r['id'])}" class="rowsel"
             aria-label="Select ${esc(r['number'])}"></td>
       <td>${esc(r['number'])}</td>
@@ -150,27 +152,68 @@ export function ordersPage(ctx: PageCtx): string {
 
   // ---- context menu ------------------------------------------------------
   var menu = null;
-  function closeMenu() { if (menu) { menu.remove(); menu = null; } }
+  var menuTarget = null;
+  function closeMenu(restoreFocus) {
+    if (!menu) return;
+    menu.remove();
+    menu = null;
+    if (menuTarget) menuTarget.setAttribute('aria-expanded', 'false');
+    if (restoreFocus && menuTarget) menuTarget.focus();
+    menuTarget = null;
+  }
 
-  document.getElementById('ordertable').addEventListener('contextmenu', function (ev) {
-    var tr = ev.target.closest('tr[data-order]');
-    if (!tr) return;
-    ev.preventDefault();
-    closeMenu();
+  function openMenu(tr, x, y) {
+    closeMenu(false);
     var id = tr.getAttribute('data-order');
     var number = tr.getAttribute('data-number');
+    var rect = tr.getBoundingClientRect();
+    menuTarget = tr;
+    tr.setAttribute('aria-expanded', 'true');
     menu = document.createElement('div');
     menu.className = 'ctxmenu';
     menu.setAttribute('role', 'menu');
     menu.setAttribute('aria-label', 'Actions for ' + number);
-    menu.style.left = ev.clientX + 'px';
-    menu.style.top = ev.clientY + 'px';
+    menu.style.left = (x == null ? rect.left + 24 : x) + 'px';
+    menu.style.top = (y == null ? rect.top + 24 : y) + 'px';
     menu.innerHTML =
       '<div class="ctxhead">' + number + '</div>' +
       '<button type="button" role="menuitem" data-ctx="deliver" data-id="' + id + '">Mark delivered</button>' +
       '<button type="button" role="menuitem" data-ctx="confirm" data-id="' + id + '">Confirm</button>' +
       '<button type="button" role="menuitem" data-ctx="cancel" data-id="' + id + '">Cancel order</button>';
     document.body.appendChild(menu);
+    var box = menu.getBoundingClientRect();
+    menu.style.left = Math.max(4, Math.min(parseFloat(menu.style.left), innerWidth - box.width - 4)) + 'px';
+    menu.style.top = Math.max(4, Math.min(parseFloat(menu.style.top), innerHeight - box.height - 4)) + 'px';
+    menu.querySelector('[role=menuitem]').focus();
+
+    menu.addEventListener('keydown', function (event) {
+      var items = Array.prototype.slice.call(menu.querySelectorAll('[role=menuitem]'));
+      var index = items.indexOf(document.activeElement);
+      if (event.key === 'Escape') { event.preventDefault(); closeMenu(true); return; }
+      if (event.key === 'Tab') { closeMenu(false); return; }
+      if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault();
+        items[event.key === 'Home' ? 0 : items.length - 1].focus();
+        return;
+      }
+      if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+      event.preventDefault();
+      items[(index + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
+    });
+  }
+
+  document.getElementById('ordertable').addEventListener('contextmenu', function (ev) {
+    var tr = ev.target.closest('tr[data-order]');
+    if (!tr) return;
+    ev.preventDefault();
+    openMenu(tr, ev.clientX, ev.clientY);
+  });
+
+  document.getElementById('ordertable').addEventListener('keydown', function (ev) {
+    var tr = ev.target.closest('tr[data-order]');
+    if (!tr || (ev.key !== 'ContextMenu' && !(ev.shiftKey && ev.key === 'F10'))) return;
+    ev.preventDefault();
+    openMenu(tr);
   });
 
   document.addEventListener('click', function (ev) {
@@ -179,15 +222,21 @@ export function ordersPage(ctx: PageCtx): string {
       var f = document.createElement('form');
       f.method = 'post';
       f.action = '/app/orders/bulk';
-      f.innerHTML = '<input name="bulk_action" value="' + item.getAttribute('data-ctx') + '">' +
-                    '<input name="ids" value="' + item.getAttribute('data-id') + '">';
+      var action = document.createElement('input');
+      action.name = 'bulk_action';
+      action.value = item.getAttribute('data-ctx');
+      var selectedId = document.createElement('input');
+      selectedId.name = 'ids';
+      selectedId.value = item.getAttribute('data-id');
+      f.appendChild(action);
+      f.appendChild(selectedId);
       document.body.appendChild(f);
       f.submit();
       return;
     }
-    closeMenu();
+    closeMenu(false);
   });
-  window.addEventListener('scroll', closeMenu, true);
+  window.addEventListener('scroll', function () { closeMenu(false); }, true);
 })();`;
 
   return layout(body, {

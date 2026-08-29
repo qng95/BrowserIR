@@ -11,7 +11,8 @@ Last updated: 2026-08-26
 
 ## Product goal
 
-BrowserIR is a browser interaction representation and runtime for AI agents operating complex ERP, CRM, and dealership management systems.
+BrowserIR is a browser interaction representation and runtime for AI agents
+operating complex inventory ERP, CRM, and document-management systems.
 
 Its primary job is not to expose the DOM. Its primary job is to preserve every distinction that can change an agent's decision or action, while removing every distinction that cannot.
 

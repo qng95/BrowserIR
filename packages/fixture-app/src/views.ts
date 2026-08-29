@@ -268,7 +268,8 @@ tbody tr:hover{background:#f7f9fb}
 .combo [role=listbox]{position:absolute;top:100%;left:0;right:0;z-index:60;max-height:230px;overflow:auto;
   border:1px solid #ccd2d8;border-top:0;background:#fff;box-shadow:0 8px 22px rgba(0,0,0,.14);border-radius:0 0 4px 4px}
 .opt{padding:7px 10px;cursor:pointer}
-.opt:hover{background:#eef2f7}
+.opt:hover,.opt[aria-selected=true],.opt:focus{background:#eef2f7;outline:none}
+.opt.error,.empty.error{color:#a50e0e}
 
 /* ---- modal ---- */
 .modal .backdrop{position:fixed;inset:0;background:rgba(15,23,32,.45);z-index:1000}
@@ -304,7 +305,8 @@ tbody tr:hover{background:#f7f9fb}
 .ctxhead{padding:5px 10px;font-size:11.5px;color:#7a848d;border-bottom:1px solid #f1f3f5;margin-bottom:4px}
 .ctxmenu button{display:block;width:100%;text-align:left;padding:7px 10px;border:0;background:none;
   cursor:pointer;font:inherit;border-radius:4px}
-.ctxmenu button:hover{background:#eef2f7}
+.ctxmenu button:hover,.ctxmenu button:focus{background:#eef2f7;outline:2px solid #1a73e8;outline-offset:-2px}
+tr[data-order]:focus{outline:2px solid #1a73e8;outline-offset:-2px}
 
 /* ---- long-running job ---- */
 .progress{height:9px;background:#eceff2;border-radius:5px;overflow:hidden;margin:10px 0}
@@ -350,6 +352,7 @@ td.low{color:#a50e0e;font-weight:600}
 /* ---- inline edit ---- */
 td.editable{cursor:cell}
 td.editable:hover{background:#f1f4f7;outline:1px dashed #b9d0f7;outline-offset:-2px}
+td.editable:focus{background:#f1f4f7;outline:2px solid #1a73e8;outline-offset:-2px}
 tr[aria-selected=true]{background:#e8f0fe}
 @media (max-width:1100px){.masterdetail{grid-template-columns:1fr}}
 `;

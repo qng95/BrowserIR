@@ -160,6 +160,11 @@ describe('the order wizard is a real multi-step flow', () => {
       .get(v.id) as Record<string, unknown> | undefined;
     expect(line, 'an order line should link the order to the vehicle').toBeDefined();
 
+    const order = app.db
+      .prepare('SELECT deposit_cents, notes FROM orders WHERE id = ?')
+      .get(Number(line!['order_id'])) as { deposit_cents: number; notes: string };
+    expect(order).toEqual({ deposit_cents: 500_000, notes: 'Fleet livery' });
+
     const acts = app.db
       .prepare("SELECT action FROM audit WHERE action IN ('order.create','vehicle.reserve')")
       .all() as Array<{ action: string }>;

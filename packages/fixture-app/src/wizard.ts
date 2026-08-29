@@ -13,6 +13,16 @@ export interface WizardState {
   errors: Record<string, string>;
 }
 
+/** Parse the wizard's euro amount without introducing floating-point cents. */
+export function parseDepositCents(value: string | undefined): number | undefined {
+  const text = (value ?? '').trim();
+  if (text === '') return 0;
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return undefined;
+  const [whole = '0', fraction = ''] = text.split('.');
+  const cents = Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
+  return Number.isSafeInteger(cents) ? cents : undefined;
+}
+
 /**
  * A classic multi-step order wizard.
  *
@@ -50,10 +60,10 @@ export function validateStep(step: Step, v: Record<string, string>, db: PageCtx[
     else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) e['delivery_on'] = 'Use the format YYYY-MM-DD.';
     else if (date < '2026-08-01') e['delivery_on'] = 'Earliest available delivery date is 2026-08-01.';
 
-    const deposit = Number(v['deposit']);
-    if (v['deposit'] && (!Number.isFinite(deposit) || deposit < 0)) {
-      e['deposit'] = 'Deposit must be a positive number.';
+    if (parseDepositCents(v['deposit']) === undefined) {
+      e['deposit'] = 'Deposit must be a non-negative amount with at most two decimal places.';
     }
+    if ((v['notes'] ?? '').length > 500) e['notes'] = 'Notes must be 500 characters or fewer.';
   }
 
   return e;
@@ -109,38 +119,96 @@ export function wizardPage(ctx: PageCtx, state: WizardState): string {
   var list = document.getElementById('cust-list');
   var hiddenId = document.getElementById('cust-id');
   var timer = null;
+  var request = null;
+  var sequence = 0;
+  var active = -1;
 
-  function close() { list.hidden = true; list.innerHTML = ''; input.setAttribute('aria-expanded', 'false'); }
+  function options() { return Array.prototype.slice.call(list.querySelectorAll('[role=option]')); }
+  function setActive(index) {
+    var items = options();
+    if (!items.length) return;
+    active = (index + items.length) % items.length;
+    items.forEach(function (item, i) { item.setAttribute('aria-selected', i === active ? 'true' : 'false'); });
+    input.setAttribute('aria-activedescendant', items[active].id);
+    items[active].scrollIntoView({ block: 'nearest' });
+  }
+  function close() {
+    clearTimeout(timer);
+    timer = null;
+    sequence += 1;
+    if (request) request.abort();
+    request = null;
+    active = -1;
+    list.hidden = true;
+    list.innerHTML = '';
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+  }
+  function choose(opt) {
+    hiddenId.value = opt.getAttribute('data-id');
+    input.value = opt.getAttribute('data-name');
+    close();
+  }
 
   input.addEventListener('input', function () {
     hiddenId.value = '';
     clearTimeout(timer);
+    sequence += 1;
+    if (request) request.abort();
     var term = input.value.trim();
     if (term.length < 2) return close();
     // Debounced, exactly like a real typeahead — an agent that types and reads
     // immediately sees nothing.
     timer = setTimeout(function () {
+      var requestSequence = sequence;
+      request = new AbortController();
       list.hidden = false;
       list.innerHTML = '<div class="opt muted" role="status">Searching…</div>';
       input.setAttribute('aria-expanded', 'true');
-      fetch('/api/customers/search?q=' + encodeURIComponent(term))
-        .then(function (r) { return r.json(); })
+      fetch('/api/customers/search?q=' + encodeURIComponent(term), { signal: request.signal })
+        .then(function (r) { if (!r.ok) throw new Error('Request failed'); return r.json(); })
         .then(function (d) {
+          if (requestSequence !== sequence || input.value.trim() !== term) return;
+          active = -1;
           if (!d.items.length) { list.innerHTML = '<div class="opt muted">No matches</div>'; return; }
-          list.innerHTML = d.items.map(function (c) {
-            return '<div class="opt" role="option" tabindex="-1" data-id="' + c.id + '">' +
-              c.number + ' — ' + c.name + ' <span class="muted">' + c.city + '</span></div>';
-          }).join('');
+          list.innerHTML = '';
+          d.items.forEach(function (c, index) {
+            var opt = document.createElement('div');
+            opt.className = 'opt';
+            opt.id = 'cust-option-' + requestSequence + '-' + index;
+            opt.setAttribute('role', 'option');
+            opt.setAttribute('aria-selected', 'false');
+            opt.setAttribute('data-id', c.id);
+            opt.setAttribute('data-name', c.name);
+            opt.appendChild(document.createTextNode(c.number + ' — ' + c.name + ' '));
+            var city = document.createElement('span');
+            city.className = 'muted';
+            city.textContent = c.city;
+            opt.appendChild(city);
+            list.appendChild(opt);
+          });
+        })
+        .catch(function (error) {
+          if (error.name === 'AbortError' || requestSequence !== sequence) return;
+          list.innerHTML = '<div class="opt error" role="alert">Could not load customers. Try again.</div>';
         });
     }, 350);
+  });
+
+  input.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') { ev.preventDefault(); close(); return; }
+    if (ev.key !== 'ArrowDown' && ev.key !== 'ArrowUp' && ev.key !== 'Enter') return;
+    var items = options();
+    if (!items.length) return;
+    ev.preventDefault();
+    if (ev.key === 'Enter') { choose(items[Math.max(0, active)]); return; }
+    setActive(active + (ev.key === 'ArrowDown' ? 1 : -1));
   });
 
   list.addEventListener('click', function (ev) {
     var opt = ev.target.closest('[data-id]');
     if (!opt) return;
-    hiddenId.value = opt.getAttribute('data-id');
-    input.value = opt.textContent.split(' — ')[1].replace(/\\s+[A-ZÄÖÜ][a-zäöüß]+$/, '').trim();
-    close();
+    choose(opt);
   });
 
   document.addEventListener('click', function (ev) { if (!ev.target.closest('[data-combo]')) close(); });
@@ -174,7 +242,8 @@ export function wizardPage(ctx: PageCtx, state: WizardState): string {
   <div class="dialog" role="dialog" aria-modal="true" aria-label="Choose vehicle">
     <header><h3>Choose vehicle</h3><button type="button" class="x" data-close-modal aria-label="Close">✕</button></header>
     <div class="dbody">
-      <input id="veh-q" type="text" placeholder="Filter by VIN, make or model…" autocomplete="off">
+      <input id="veh-q" type="text" role="combobox" aria-autocomplete="list" aria-controls="veh-results"
+             aria-expanded="true" placeholder="Filter by VIN, make or model…" autocomplete="off">
       <div id="veh-results" class="results" role="listbox" aria-busy="true">
         <div class="skeleton"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
       </div>
@@ -186,42 +255,128 @@ export function wizardPage(ctx: PageCtx, state: WizardState): string {
   var modal = document.getElementById('veh-modal');
   var results = document.getElementById('veh-results');
   var q = document.getElementById('veh-q');
+  var opener = document.getElementById('veh-open');
   var timer = null;
+  var request = null;
+  var sequence = 0;
+  var active = -1;
+
+  function options() { return Array.prototype.slice.call(results.querySelectorAll('[role=option]')); }
+  function setActive(index) {
+    var items = options();
+    if (!items.length) return;
+    active = (index + items.length) % items.length;
+    items.forEach(function (item, i) { item.setAttribute('aria-selected', i === active ? 'true' : 'false'); });
+    q.setAttribute('aria-activedescendant', items[active].id);
+    items[active].scrollIntoView({ block: 'nearest' });
+  }
+
+  function closeModal(restoreFocus) {
+    clearTimeout(timer);
+    sequence += 1;
+    if (request) request.abort();
+    request = null;
+    active = -1;
+    q.removeAttribute('aria-activedescendant');
+    q.setAttribute('aria-expanded', 'false');
+    modal.hidden = true;
+    if (restoreFocus) opener.focus();
+  }
+
+  function choose(opt) {
+    document.getElementById('veh-id').value = opt.getAttribute('data-id');
+    document.getElementById('veh-summary').innerHTML = opt.innerHTML;
+    closeModal(true);
+  }
 
   function load() {
+    sequence += 1;
+    var requestSequence = sequence;
+    var term = q.value.trim();
+    if (request) request.abort();
+    request = new AbortController();
+    active = -1;
+    q.removeAttribute('aria-activedescendant');
     results.setAttribute('aria-busy', 'true');
+    results.setAttribute('data-state', 'loading');
     results.innerHTML = '<div class="skeleton"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>';
-    fetch('/api/vehicles/pick?q=' + encodeURIComponent(q.value.trim()))
-      .then(function (r) { return r.json(); })
+    fetch('/api/vehicles/pick?q=' + encodeURIComponent(term), { signal: request.signal })
+      .then(function (r) { if (!r.ok) throw new Error('Request failed'); return r.json(); })
       .then(function (d) {
+        if (requestSequence !== sequence || q.value.trim() !== term || modal.hidden) return;
         results.removeAttribute('aria-busy');
-        results.innerHTML = d.items.length
-          ? d.items.map(function (v) {
-              return '<div class="opt" role="option" tabindex="-1" data-id="' + v.id + '"' +
-                (v.status === 'Sold' ? ' data-sold="1"' : '') + '>' +
-                '<strong>' + v.make + ' ' + v.model + '</strong> ' + v.variant +
-                '<br><span class="muted">' + v.vin + ' · ' + v.status + ' · ' + v.price + '</span></div>';
-            }).join('')
-          : '<p class="empty">No vehicles match.</p>';
+        results.setAttribute('data-state', 'ready');
+        results.innerHTML = '';
+        if (!d.items.length) { results.innerHTML = '<p class="empty">No vehicles match.</p>'; return; }
+        d.items.forEach(function (v, index) {
+          var opt = document.createElement('div');
+          opt.className = 'opt';
+          opt.id = 'veh-option-' + requestSequence + '-' + index;
+          opt.setAttribute('role', 'option');
+          opt.setAttribute('aria-selected', 'false');
+          opt.setAttribute('data-id', v.id);
+          if (v.status === 'Sold') opt.setAttribute('data-sold', '1');
+          var strong = document.createElement('strong');
+          strong.textContent = v.make + ' ' + v.model;
+          opt.appendChild(strong);
+          opt.appendChild(document.createTextNode(' ' + v.variant));
+          opt.appendChild(document.createElement('br'));
+          var details = document.createElement('span');
+          details.className = 'muted';
+          details.textContent = v.vin + ' · ' + v.status + ' · ' + v.price;
+          opt.appendChild(details);
+          results.appendChild(opt);
+        });
+      })
+      .catch(function (error) {
+        if (error.name === 'AbortError' || requestSequence !== sequence || modal.hidden) return;
+        results.removeAttribute('aria-busy');
+        results.setAttribute('data-state', 'error');
+        results.innerHTML = '<p class="empty error" role="alert">Could not load vehicles. Try again.</p>';
       });
   }
 
-  document.getElementById('veh-open').addEventListener('click', function () {
+  opener.addEventListener('click', function () {
     modal.hidden = false;
+    q.setAttribute('aria-expanded', 'true');
     load();
     q.focus();
   });
   modal.addEventListener('click', function (ev) {
-    if (ev.target.closest('[data-close-modal]')) modal.hidden = true;
+    if (ev.target.closest('[data-close-modal]')) closeModal(true);
   });
-  q.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(load, 300); });
+  q.addEventListener('input', function () {
+    clearTimeout(timer);
+    sequence += 1;
+    if (request) request.abort();
+    timer = setTimeout(load, 300);
+  });
+  q.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'ArrowDown' && ev.key !== 'ArrowUp' && ev.key !== 'Enter') return;
+    var items = options();
+    if (!items.length) return;
+    ev.preventDefault();
+    if (ev.key === 'Enter') { choose(items[Math.max(0, active)]); return; }
+    setActive(active + (ev.key === 'ArrowDown' ? 1 : -1));
+  });
+
+  modal.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') { ev.preventDefault(); closeModal(true); return; }
+    if (ev.key !== 'Tab') return;
+    var focusable = Array.prototype.slice.call(
+      modal.querySelectorAll('button:not([disabled]),input:not([disabled])')
+    );
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+  });
 
   results.addEventListener('click', function (ev) {
     var opt = ev.target.closest('[data-id]');
     if (!opt) return;
-    document.getElementById('veh-id').value = opt.getAttribute('data-id');
-    document.getElementById('veh-summary').innerHTML = opt.innerHTML;
-    modal.hidden = true;
+    choose(opt);
   });
 })();`;
   }
@@ -236,12 +391,13 @@ export function wizardPage(ctx: PageCtx, state: WizardState): string {
 </div>
 <div class="field">
   <label for="deposit">Deposit (€)</label>
-  <div><input id="deposit" name="deposit" type="number" value="${esc(values['deposit'] ?? '')}"
+  <div><input id="deposit" name="deposit" type="number" min="0" step="0.01" value="${esc(values['deposit'] ?? '')}"
         ${errors['deposit'] ? ' aria-invalid="true"' : ''}>${err('deposit')}</div>
 </div>
 <div class="field">
   <label for="notes">Notes</label>
-  <div><input id="notes" name="notes" type="text" value="${esc(values['notes'] ?? '')}"></div>
+  <div><input id="notes" name="notes" type="text" maxlength="500" value="${esc(values['notes'] ?? '')}"
+        ${errors['notes'] ? ' aria-invalid="true"' : ''}>${err('notes')}</div>
 </div>`;
   }
 

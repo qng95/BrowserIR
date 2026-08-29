@@ -1,6 +1,7 @@
 # BrowserIR thin-layer troubleshooting
 
-This guide covers the `browserir` `0.1` release line.
+This guide covers the `browserir@0.1.0` release candidate pending npm
+naming/ownership and protected publication.
 The package is host-side middleware around an already-connected official MCP
 `Client`; it is not a drop-in MCP server, browser launcher, or hosted service.
 
@@ -82,9 +83,10 @@ pnpm --filter browserir test
 ```
 
 The current real-agent evidence covers strict schedule-coordinate and
-cross-tree-label families. The grid-coordinate handle exists but has no current
-retained live qualification. None of these policies is a general visual
-reasoner.
+cross-tree-label families. A current-source, zero-model Inventory preflight
+exercises the grid-coordinate mechanism through official Playwright MCP, but it
+is not retained exact-release-byte or LLM accuracy qualification. None of these
+policies is a general visual reasoner.
 
 ## The real-agent benchmark cannot read the OpenRouter key
 

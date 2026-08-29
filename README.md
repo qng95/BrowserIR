@@ -14,11 +14,11 @@
 </p>
 
 <p align="center">
-  <img src="assets/brand/browserir-playwright-comparison.gif" width="960" alt="Receipt-backed side-by-side replay of the same enterprise UI tasks with BrowserIR off and on, showing BrowserIR recover missing action-to-label relationships and safely leave Playwright unchanged when evidence is incomplete">
+  <img src="assets/brand/browserir-playwright-comparison.gif" width="960" alt="Side-by-side replay on real Inventory ERP pages: BrowserIR restores missing enterprise relationships while native Playwright autocomplete, modal, drag-and-drop, query-builder, and async-export workflows remain unchanged">
 </p>
 
 <p align="center">
-  <sub>Same checked-in fixtures. Same Qwen3.8-27B agent. Paired outcomes replayed from retained benchmark receipts.</sub>
+  <sub>Real checked-in Inventory ERP UI. BrowserIR adds only proven relationships and leaves native Playwright interactions unchanged. Benchmark outcomes are replayed from retained Qwen3.8-27B receipts; the five passthrough workflows are deterministic product demos and are not counted in the 32-task benchmark.</sub>
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 
 <p align="center">
   <a href="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml"><img alt="BrowserIR CI" src="https://github.com/qng95/BrowserIR/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <img alt="Status: 0.1 npm release" src="https://img.shields.io/badge/status-0.1_npm_release-7957FF?style=for-the-badge">
+  <img alt="Status: 0.1 release candidate" src="https://img.shields.io/badge/status-0.1_release_candidate-7957FF?style=for-the-badge">
   <img alt="Playwright and MCP" src="https://img.shields.io/badge/backend-Playwright_%2B_MCP-38BDF8?style=for-the-badge&logo=playwright&logoColor=white">
   <a href="LICENSE"><img alt="Apache-2.0 license" src="https://img.shields.io/badge/license-Apache--2.0-22C55E?style=for-the-badge"></a>
 </p>
@@ -70,7 +70,36 @@ In the matching Qwen task, the agent with BrowserIR chose the exact target on
 attempt 1. With enrichment off, it chose the wrong target on all three fresh
 attempts. [Inspect the four raw receipts](packages/benchmark/output/benchmarks/browserir-openrouter-real-ab-20260826T142617Z.ndjson#L45-L48).
 
-## In this run: better where structure was missing, parity where Playwright was enough
+## Four ERP shapes, one thin-layer contract
+
+The live Inventory corpus goes beyond a single table:
+
+| Checked-in Inventory screen | Relationship BrowserIR must recover |
+| --- | --- |
+| Warehouse stock matrix | warehouse × SKU |
+| Exception cards with a detached action rail | exception → action |
+| Receiving slots inside an open dialog | dock × time |
+| Purchase form with a sticky approval rail | approval → action |
+
+Across **4 cases and 4 world definitions = 16 case-world cells**, BrowserIR
+projected all **8 opaque cells** and passed all **8 semantic cells** through. Every
+current-ref click passed the exact database oracle: **16/16**, with **0 wrong or
+collateral mutations**. The run made **0 model calls and 0 provider calls**.
+
+This is live product-path proof, not an LLM accuracy score. It shows the
+projection, passthrough, dispatch, and oracle path working through a fresh
+Inventory fixture, database, official Playwright MCP process, and browser. The
+Qwen result below remains the separate real-agent evidence.
+
+```sh
+pnpm benchmark:inventory-v3-preflight
+```
+
+Catalog-contract SHA-256 (serialized case/world metadata, not HTML, CSS, or
+source bytes):
+`0db0b25a6075c92f72a06578be23e6135ca37fb3613dd7862bc65567e0021495`
+
+## Separate 32-task Qwen A/B: better where structure was missing, parity where Playwright was enough
 
 | Observed result | Playwright enrichment off | BrowserIR auto |
 | --- | ---: | ---: |
@@ -152,10 +181,11 @@ evaluator-controlled fresh attempts.
 Task-level route audit: **16 sufficient passthroughs · 15 complete projections
 · 1 safe fallback · 0 demonstrated projection misses**.
 
-## Install
+## Install after publication
 
 `browserir` wraps a caller-owned official MCP `Client`; it is not a replacement
-MCP server. Version `0.1.0` is the first public release:
+MCP server. Version `0.1.0` is the prepared release candidate; npm publication
+and ownership confirmation are still pending:
 
 ```sh
 npm install browserir
@@ -192,11 +222,14 @@ for the complete lifecycle contract.
 ## Scope
 
 Current first-party policies cover bounded grid, schedule-coordinate, and
-cross-tree-label relationships. The real-agent evidence above covers the latter
-two on reused local development fixtures. The benchmark models enterprise UI
-patterns; it is not validation on commercial ERP, CRM, CMS, inventory, or
-document-management products—or the general web. A sealed, untouched
-multi-site corpus remains the next step.
+cross-tree-label relationships. The current-source, zero-model Inventory
+preflight exercises all three through official Playwright MCP; it does not
+retain exact release bytes or qualify grid accuracy with an LLM. The real-agent
+evidence above covers the latter two on reused local development fixtures.
+These synthetic benchmarks model enterprise UI patterns; they are not
+validation on commercial ERP, CRM, CMS, inventory, or document-management
+products—or the general web. A sealed, untouched multi-site corpus remains the
+next step.
 
 [Documentation](docs/README.md) ·
 [Canonical result](docs/BROWSERIR_REAL_AGENT_RESULTS.md) ·

@@ -175,15 +175,16 @@ fails closed by returning the exact visible result.
 | --- | --- | --- | --- |
 | `createScheduleCoordinateReferencePolicy()` | Bounded resource-by-time schedules matching the strict table/grid header and control shape | `schedule-coordinate-policy/3` | Current-source 64-arm zero-model preflight plus 2026-08-26 development A/B |
 | `createCrossTreeLabelReferencePolicy()` | Exactly two unique labels and two controls in the strict region/form subtree shape | `cross-tree-label-policy/1` | Current-source 64-arm zero-model preflight plus 2026-08-26 development A/B |
-| `createGridCoordinateReferencePolicy()` | Bounded row-by-column grids | `grid-coordinate-policy/1` | Experimental; no current retained live result qualifies it |
+| `createGridCoordinateReferencePolicy()` | Bounded row-by-column grids | `grid-coordinate-policy/1` | Current-source zero-model Inventory preflight through official MCP; no retained exact-release-byte or LLM qualification |
 
 Schedule policy `/3` admits only a one-pixel serialized final-resource overhang
 at the schedule root edge. A two-pixel overhang remains unresolved; overlap,
 center, completeness, unique-ref, and unique-coordinate guards stay strict.
 
-Do not enable or advertise the grid policy as live-qualified until a separate
-retained live gate covers its exact release bytes. The schedule and cross-tree
-results do not establish support for other schedule libraries, arbitrary grids,
+Treat grid as current-source mechanism coverage, not release-byte or accuracy
+qualification. A retained gate over the exact release artifact and a separate
+LLM study are still missing. The schedule and cross-tree results do not
+establish support for other schedule libraries, arbitrary grids,
 virtualized/recycled rows, every website, or every ambiguous interface.
 
 ## Telemetry boundary

@@ -86,6 +86,7 @@ const SCHEDULE_VISIBLE = SCHEDULE_BOXED.replace(/ \[box=[^\]]+\]/gu, '');
 
 describe('adaptive product A/B broker seam', () => {
   it.each([
+    ['grid-coordinate', 'grid-coordinate-policy/1'],
     ['schedule-coordinate', 'schedule-coordinate-policy/3'],
     ['cross-tree-label', 'cross-tree-label-policy/1'],
   ] as const)('binds the explicit first-party %s handle at %s', async (family, version) => {

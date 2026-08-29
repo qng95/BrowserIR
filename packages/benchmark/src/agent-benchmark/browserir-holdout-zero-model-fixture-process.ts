@@ -39,7 +39,6 @@ const close = (): Promise<void> => {
     closed = true;
     const cleanupErrors: unknown[] = [];
     await app.close().catch((error) => cleanupErrors.push(error));
-    try { app.db.close(); } catch (error) { cleanupErrors.push(error); }
     if (cleanupErrors.length > 0) {
       throw new AggregateError(cleanupErrors, 'Fixture app cleanup failed.');
     }

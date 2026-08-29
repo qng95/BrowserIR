@@ -70,9 +70,10 @@ statistics, and analysis rules cannot change. A protocol change creates a new
 version. A negative sealed result remains published even when it motivates a
 later fix.
 
-The dealership fixture has already been used throughout BrowserIR development.
-Sealing an agent comparison prevents post-protocol score tuning; it does not
-turn the fixture into evidence of unseen-site generalization.
+The underlying fixture predates its current Inventory ERP presentation and has
+already been used throughout BrowserIR development. Sealing an agent comparison
+prevents post-protocol score tuning; it does not turn that familiar fixture into
+evidence of unseen-site generalization.
 
 ## Matched comparison contract
 

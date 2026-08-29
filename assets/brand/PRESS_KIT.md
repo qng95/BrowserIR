@@ -37,8 +37,9 @@ reused local corpus, not a sealed unseen-site study.
 
 ## Facts
 
-- Current package: `browserir@0.1.0`, prepared as the default npm release;
-  verify registry availability before announcing installation.
+- Current package: `browserir@0.1.0`, a release candidate pending npm
+  naming/ownership and protected publication; verify registry availability
+  before announcing installation.
 - Integration: in-process wrapper around a caller-owned official MCP `Client`.
 - Eligible observation: exact default `browser_snapshot` only.
 - Hidden work: at most one logical `{ boxes: true }` snapshot call; no internal
@@ -86,9 +87,9 @@ whether that policy can safely enrich an eligible snapshot.
 
 ### Is it production-ready or published to npm?
 
-Version `0.1.0` is the initial public npm release. It is not registry-available
-until the protected release completes; verify npm before announcing it. An
-early `0.1` release is not a production-readiness claim.
+Version `0.1.0` is the prepared initial public npm release candidate. It is not
+registry-available until the protected release completes; verify npm before
+announcing it. An early `0.1` release is not a production-readiness claim.
 
 ### Does the 31/32 result prove general superiority?
 
@@ -109,10 +110,13 @@ and are not evidence for the current thin layer.
 - [`browserir-mark-mono.svg`](browserir-mark-mono.svg)
 - [`browserir-wordmark.svg`](browserir-wordmark.svg)
 - [`browserir-wordmark-dark.svg`](browserir-wordmark-dark.svg)
+- [`browserir-playwright-comparison.gif`](browserir-playwright-comparison.gif) — current
+  56.7-second motion hero. Its five native-Playwright passthrough workflows are
+  deterministic product demos and are not counted in the 32-task benchmark.
 - [`browserir-inventory-erp-workshop.png`](browserir-inventory-erp-workshop.png) — synthetic render
   of the checked-in `workshop-week-table / opaque-p1` fixture; not a paid-run
   capture or treatment visualization.
-- [`browserir-hero.png`](browserir-hero.png)
 
 The remaining benchmark, architecture, representation, scoring, social-card,
-and Evidence Drop visuals are archived full-graph campaign assets.
+Evidence Drop, and `browserir-hero.png` visuals are archived full-graph campaign
+assets.

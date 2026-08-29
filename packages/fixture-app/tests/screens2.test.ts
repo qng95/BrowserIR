@@ -50,6 +50,21 @@ describe('dashboard', () => {
 
     await page.waitForSelector('#activity[data-state=ready]');
   }, 45_000);
+
+  it('settles a failed tile into an announced error state', async () => {
+    await page.route('**/api/dashboard/tickets', async (route) => {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"offline"}' });
+    });
+    try {
+      await page.goto(`${app.origin}/app/dashboard`);
+      const tile = page.locator('[data-tile=tickets]');
+      await page.waitForSelector('[data-tile=tickets][data-state=error]');
+      expect(await tile.textContent()).toContain('Unavailable');
+      expect(await tile.getAttribute('aria-busy')).toBeNull();
+    } finally {
+      await page.unroute('**/api/dashboard/tickets');
+    }
+  }, 45_000);
 });
 
 describe('invoices', () => {
@@ -151,6 +166,22 @@ describe('tickets inline editing', () => {
       .get(String(id)) as { detail: string };
     expect(entry.detail).toContain(`priority: ${before.priority} -> ${want}`);
   }, 45_000);
+
+  it('opens and cancels the inline editor with the keyboard', async () => {
+    await page.goto(`${app.origin}/app/tickets`);
+    const cell = page.locator('td.editable[data-field=assignee]').first();
+    const original = await cell.getAttribute('data-value');
+
+    await cell.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForSelector('td.editable select');
+    expect(await page.locator('td.editable select').inputValue()).toBe(original);
+
+    await page.keyboard.press('Escape');
+    expect(await page.locator('td.editable select').count()).toBe(0);
+    expect(await cell.textContent()).toBe(original);
+    expect(await cell.evaluate((node) => node === document.activeElement)).toBe(true);
+  }, 45_000);
 });
 
 describe('query builder', () => {
@@ -167,6 +198,22 @@ describe('query builder', () => {
 
     await page.locator('[data-removerow]').first().click();
     expect(await page.locator('[data-frow]').count()).toBe(2);
+  }, 45_000);
+
+  it('uses the correct value control after every field-type switch', async () => {
+    await page.goto(`${app.origin}/app/reports/query`);
+    await page.selectOption('[aria-label="Field 1"]', 'status');
+    await page.waitForSelector('select[aria-label="Value 1"]');
+    await page.selectOption('[aria-label="Value 1"]', 'Active');
+
+    await page.selectOption('[aria-label="Field 1"]', 'city');
+    expect(await page.locator('input[type=text][aria-label="Value 1"]').count()).toBe(1);
+    expect(await page.inputValue('[aria-label="Value 1"]')).toBe('Active');
+
+    await page.selectOption('[aria-label="Field 1"]', 'credit_limit');
+    expect(await page.locator('input[type=number][aria-label="Value 1"]').count()).toBe(1);
+    // The prior enum label is not a valid number and must not leak into the control.
+    expect(await page.inputValue('[aria-label="Value 1"]')).toBe('');
   }, 45_000);
 
   it('does not execute a query encoded in a direct navigation URL', async () => {
@@ -223,6 +270,8 @@ describe('query builder', () => {
     const response = await responsePromise;
     expect(response.request().method()).toBe('POST');
     await page.waitForSelector('#resultcount');
+    expect(await page.locator('select[aria-label="Value 2"]').count()).toBe(1);
+    expect(await page.inputValue('[aria-label="Value 2"]')).toBe('Active');
 
     const verdict = taskById('query-three-conditions')!.verify(app.db);
     expect(verdict.passed, verdict.reason).toBe(true);

@@ -89,7 +89,7 @@ const COLUMNS: Array<[string, string, string]> = [
  * window from the server and REUSES the same row nodes, so a reference anchored
  * to a DOM node silently comes to point at a different vehicle. That is the
  * hardest problem for any agent ref scheme, and here it is a property of a
- * screen a dealership would actually ship rather than of a contrived fixture.
+ * screen an inventory ERP product could ship rather than of a contrived fixture.
  */
 export function vehiclesPage(ctx: PageCtx): string {
   const q = parseVehicleQuery(ctx.url);

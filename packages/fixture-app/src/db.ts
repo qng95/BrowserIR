@@ -81,7 +81,9 @@ CREATE TABLE orders (
   delivery_on   TEXT,
   vehicle       TEXT NOT NULL,
   status        TEXT NOT NULL,
-  total_cents   INTEGER NOT NULL
+  total_cents   INTEGER NOT NULL,
+  deposit_cents INTEGER NOT NULL DEFAULT 0,
+  notes         TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX idx_orders_customer ON orders(customer_id);
 

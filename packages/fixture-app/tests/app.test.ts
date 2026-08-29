@@ -33,6 +33,33 @@ const post = (p: string, form: Record<string, string>) =>
     redirect: 'manual',
   });
 
+async function loginTo(target: RunningAppServer): Promise<string> {
+  const response = await fetch(`${target.origin}/app/login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ username: 'test', password: 'test' }),
+    redirect: 'manual',
+  });
+  expect(response.status).toBe(303);
+  const token = /sid=([^;]+)/.exec(response.headers.get('set-cookie') ?? '')?.[1];
+  expect(token).toBeDefined();
+  return token!;
+}
+
+async function startExport(target: RunningAppServer, token: string): Promise<string> {
+  const response = await fetch(`${target.origin}/app/reports/export?jobMs=60000`, {
+    method: 'POST',
+    headers: { cookie: `sid=${token}` },
+    redirect: 'manual',
+  });
+  expect(response.status).toBe(303);
+  const location = response.headers.get('location');
+  expect(location).toBeTruthy();
+  const jobId = new URL(location!, target.origin).searchParams.get('job');
+  expect(jobId).toBeTruthy();
+  return jobId!;
+}
+
 describe('fixture network boundary', () => {
   it('binds the deliberately insecure fixture to IPv4 loopback', () => {
     expect(app.address).toMatchObject({
@@ -157,6 +184,99 @@ describe('fixture network boundary', () => {
     } finally {
       await queryApp.close();
     }
+  });
+});
+
+describe('fixture server lifecycle isolation', () => {
+  it('does not share sessions or jobs between running server instances', async () => {
+    const first = await startAppServer({ apiLatencyMs: 0, pageLatencyMs: 0, customers: 5, vehicles: 5 });
+    const second = await startAppServer({ apiLatencyMs: 0, pageLatencyMs: 0, customers: 5, vehicles: 5 });
+
+    try {
+      const firstSid = await loginTo(first);
+      const crossServerSession = await fetch(`${second.origin}/app/customers`, {
+        headers: { cookie: `sid=${firstSid}` },
+        redirect: 'manual',
+      });
+      expect(crossServerSession.status).toBe(303);
+      expect(crossServerSession.headers.get('location')).toContain('/app/login');
+
+      const firstJob = await startExport(first, firstSid);
+      await expect(fetch(`${first.origin}/api/jobs/${firstJob}`).then((response) => response.json())).resolves.toMatchObject({
+        status: 'running',
+      });
+      await expect(fetch(`${second.origin}/api/jobs/${firstJob}`).then((response) => response.json())).resolves.toEqual({
+        status: 'unknown',
+      });
+    } finally {
+      await Promise.all([first.close(), second.close()]);
+    }
+  });
+
+  it('reset clears only the receiving server instance', async () => {
+    const first = await startAppServer({
+      apiLatencyMs: 0,
+      pageLatencyMs: 0,
+      customers: 5,
+      vehicles: 5,
+      enableControlApi: true,
+    });
+    const second = await startAppServer({
+      apiLatencyMs: 0,
+      pageLatencyMs: 0,
+      customers: 5,
+      vehicles: 5,
+      enableControlApi: true,
+    });
+
+    try {
+      const [firstSid, secondSid] = await Promise.all([loginTo(first), loginTo(second)]);
+      const [firstJob, secondJob] = await Promise.all([
+        startExport(first, firstSid),
+        startExport(second, secondSid),
+      ]);
+
+      const resetResponse = await fetch(`${first.origin}/api/reset`, { method: 'POST' });
+      expect(resetResponse.status).toBe(200);
+
+      const firstSession = await fetch(`${first.origin}/app/customers`, {
+        headers: { cookie: `sid=${firstSid}` },
+        redirect: 'manual',
+      });
+      const secondSession = await fetch(`${second.origin}/app/customers`, {
+        headers: { cookie: `sid=${secondSid}` },
+        redirect: 'manual',
+      });
+      expect(firstSession.status).toBe(303);
+      expect(secondSession.status).toBe(200);
+      await expect(fetch(`${first.origin}/api/jobs/${firstJob}`).then((response) => response.json())).resolves.toEqual({
+        status: 'unknown',
+      });
+      await expect(fetch(`${second.origin}/api/jobs/${secondJob}`).then((response) => response.json())).resolves.toMatchObject({
+        status: 'running',
+      });
+    } finally {
+      await Promise.all([first.close(), second.close()]);
+    }
+  });
+
+  it('keeps the database judgeable after the network barrier, then closes it exactly once', async () => {
+    const disposable = await startAppServer({ apiLatencyMs: 0, pageLatencyMs: 0, customers: 1, vehicles: 1 });
+    const firstStop = disposable.stopNetworkAccess();
+    const concurrentStop = disposable.stopNetworkAccess();
+
+    expect(concurrentStop).toBe(firstStop);
+    await expect(firstStop).resolves.toBeUndefined();
+    await expect(fetch(`${disposable.origin}/app/login`)).rejects.toThrow();
+    expect(disposable.db.prepare('SELECT 1 AS ok').get()).toEqual({ ok: 1 });
+
+    const firstClose = disposable.close();
+    const concurrentClose = disposable.close();
+
+    expect(concurrentClose).toBe(firstClose);
+    await expect(firstClose).resolves.toBeUndefined();
+    await expect(disposable.close()).resolves.toBeUndefined();
+    expect(() => disposable.db.prepare('SELECT 1')).toThrow();
   });
 });
 

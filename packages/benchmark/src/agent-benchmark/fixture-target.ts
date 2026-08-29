@@ -382,12 +382,26 @@ export function createFixtureAgentTargetFactory(
         await tools.close().catch((error) => {
           firstError = error;
         });
-        await app.close().catch((error) => {
+        // Cross the HTTP server's in-flight request barrier while retaining the
+        // owned database for the deterministic post-agent judge.
+        await app.stopNetworkAccess().catch((error) => {
           firstError ??= error;
         });
         if (firstError !== undefined) throw firstError;
       })();
       return stopPromise;
+    };
+    let disposePromise: Promise<void> | undefined;
+    const dispose = (): Promise<void> => {
+      disposePromise ??= (async () => {
+        const cleanupErrors: unknown[] = [];
+        await stopAgentAccess().catch((error) => cleanupErrors.push(error));
+        await app.close().catch((error) => cleanupErrors.push(error));
+        if (cleanupErrors.length > 0) {
+          throw new AggregateError(cleanupErrors, 'Fixture agent target cleanup failed.');
+        }
+      })();
+      return disposePromise;
     };
     const judge = (input?: DeterministicJudgeInput): DeterministicJudgeResult => {
       const oracle = task.verify(app.db);
@@ -464,9 +478,7 @@ export function createFixtureAgentTargetFactory(
         return judge(input);
       },
       stopAgentAccess,
-      async dispose() {
-        await stopAgentAccess();
-      },
+      dispose,
     } satisfies AgentTrialTarget;
   };
 }

@@ -8,6 +8,7 @@
     "benchmark": "vite-node src/cli.ts",
     "benchmark:agent": "vite-node src/agent-cli.ts",
     "benchmark:control-capability": "vite-node src/control-capability-cli.ts",
+    "benchmark:inventory-v3-preflight": "vite-node src/inventory-browserir-v3-preflight-cli.ts",
     "benchmark:uplift": "vite-node src/uplift-cli.ts",
     "benchmark:representation": "vite-node src/representation-cli.ts",
     "test": "vitest run",

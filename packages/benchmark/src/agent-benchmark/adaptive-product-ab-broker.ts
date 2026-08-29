@@ -11,6 +11,7 @@ import {
 import {
   ADAPTIVE_REFERENCE_POLICIES_VERSION,
   createCrossTreeLabelReferencePolicy,
+  createGridCoordinateReferencePolicy,
   createScheduleCoordinateReferencePolicy,
   type AdaptivePlaywrightReferencePolicySet,
 } from 'browserir/reference-policies';
@@ -19,10 +20,12 @@ export const ADAPTIVE_PRODUCT_AB_BROKER_VERSION =
   'adaptive-product-ab-broker/1' as const;
 
 export type AdaptiveProductAbFamily =
+  | 'grid-coordinate'
   | 'schedule-coordinate'
   | 'cross-tree-label';
 
 export type AdaptiveProductAbPolicyVersion =
+  | 'grid-coordinate-policy/1'
   | 'schedule-coordinate-policy/3'
   | 'cross-tree-label-policy/1';
 
@@ -112,7 +115,11 @@ const captureOptions = (value: unknown): CapturedAdaptiveProductAbBrokerOptions 
   if (mode !== 'off' && mode !== 'auto') {
     throw new TypeError('Adaptive product A/B broker mode must be off or auto.');
   }
-  if (family !== 'schedule-coordinate' && family !== 'cross-tree-label') {
+  if (
+    family !== 'grid-coordinate' &&
+    family !== 'schedule-coordinate' &&
+    family !== 'cross-tree-label'
+  ) {
     throw new TypeError('Adaptive product A/B broker family is unsupported.');
   }
   return Object.freeze({
@@ -126,6 +133,8 @@ const createProductPolicy = (
   family: AdaptiveProductAbFamily,
 ): AdaptivePlaywrightReferencePolicySet => {
   switch (family) {
+    case 'grid-coordinate':
+      return createGridCoordinateReferencePolicy();
     case 'schedule-coordinate':
       return createScheduleCoordinateReferencePolicy();
     case 'cross-tree-label':
@@ -139,9 +148,20 @@ const createProductPolicy = (
 
 const expectedPolicyVersion = (
   family: AdaptiveProductAbFamily,
-): AdaptiveProductAbPolicyVersion => family === 'schedule-coordinate'
-  ? 'schedule-coordinate-policy/3'
-  : 'cross-tree-label-policy/1';
+): AdaptiveProductAbPolicyVersion => {
+  switch (family) {
+    case 'grid-coordinate':
+      return 'grid-coordinate-policy/1';
+    case 'schedule-coordinate':
+      return 'schedule-coordinate-policy/3';
+    case 'cross-tree-label':
+      return 'cross-tree-label-policy/1';
+    default: {
+      const exhaustive: never = family;
+      throw new TypeError(`Unsupported adaptive product policy family: ${String(exhaustive)}.`);
+    }
+  }
+};
 
 /**
  * Acquires the product middleware's exclusive lease on the exact raw MCP client.

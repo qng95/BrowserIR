@@ -138,6 +138,8 @@ export const TASK_ORACLE_CONTRACTS = deepFreeze({
       },
       customerId: 'target-customer-id',
       delivery_on: '2026-09-30',
+      deposit_cents: 500_000,
+      notes: 'Fleet livery',
     },
     orderLines: { count: 1, vehicleId: 'selected-vehicle-id' },
     vehicle: { requiredStatus: 'Reserved' },
