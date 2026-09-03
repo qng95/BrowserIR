@@ -32,17 +32,22 @@ jobs:
           git merge-base --is-ancestor "$GITHUB_SHA" "refs/remotes/origin/$DEFAULT_BRANCH"
 
       - name: Match the tag to the package version
+        id: release
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           node --input-type=module -e '
-            import { readFileSync } from "node:fs";
+            import { appendFileSync, readFileSync } from "node:fs";
             const tag = process.env.RELEASE_TAG ?? "";
             const manifest = JSON.parse(readFileSync("packages/playwright-mcp/package.json", "utf8"));
-            if (tag !== `browserir-mcp-v${manifest.version}`) {
-              throw new Error(`Tag ${tag} must equal browserir-mcp-v${manifest.version}`);
+            const releaseTag = `browserir-mcp-v${manifest.version}`;
+            const retryPrefix = `${releaseTag}-retry.`;
+            const retryNumber = tag.startsWith(retryPrefix) ? tag.slice(retryPrefix.length) : "";
+            if (tag !== releaseTag && !/^[1-9]\d*$/.test(retryNumber)) {
+              throw new Error(`Tag ${tag} must equal ${releaseTag} or ${releaseTag}-retry.<positive integer>`);
             }
+            appendFileSync(process.env.GITHUB_OUTPUT, `version=${manifest.version}\n`);
           '
 
       - name: Install pnpm
@@ -71,19 +76,19 @@ jobs:
 
       - name: Build and verify the exact release archive
         env:
-          EXPECTED_VERSION: ${{ github.ref_name }}
+          PACKAGE_VERSION: ${{ steps.release.outputs.version }}
         run: >-
           node scripts/verify-browserir-release.mjs
           --artifact-directory output/npm-candidate
-          --expected-version "${EXPECTED_VERSION#browserir-mcp-v}"
+          --expected-version "$PACKAGE_VERSION"
 
       - name: Install, import, and audit the exact archive
         env:
-          EXPECTED_VERSION: ${{ github.ref_name }}
+          PACKAGE_VERSION: ${{ steps.release.outputs.version }}
         run: >-
           node scripts/audit-browserir-archive.mjs
-          --archive "output/npm-candidate/browserir-mcp-${EXPECTED_VERSION#browserir-mcp-v}.tgz"
-          --report "output/npm-audit/browserir-mcp-${EXPECTED_VERSION#browserir-mcp-v}-audit.json"
+          --archive "output/npm-candidate/browserir-mcp-${PACKAGE_VERSION}.tgz"
+          --report "output/npm-audit/browserir-mcp-${PACKAGE_VERSION}-audit.json"
 
       - name: Retain the candidate and verification report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -160,7 +165,9 @@ jobs:
             const prefix = "browserir-mcp-v";
             const tag = process.env.RELEASE_TAG ?? "";
             if (!tag.startsWith(prefix)) throw new Error(`Unexpected release tag: ${tag}`);
-            const version = tag.slice(prefix.length);
+            const tagVersion = tag.slice(prefix.length);
+            const retryMatch = /^(.*)-retry\.([1-9]\d*)$/.exec(tagVersion);
+            const version = retryMatch?.[1] ?? tagVersion;
             if (!/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
               throw new Error(`Unsafe release version: ${version}`);
             }
@@ -207,24 +214,19 @@ jobs:
           set -euo pipefail
           if [[ -n "${NODE_AUTH_TOKEN:-}" ]]; then
             node --input-type=module -e '
-              import { spawnSync } from "node:child_process";
               const packageName = "browserir-mcp";
-              const result = spawnSync(
-                "npm",
-                ["view", packageName, "name", "--json", "--registry=https://registry.npmjs.org/"],
-                { encoding: "utf8" },
-              );
-              if (result.status === 0) {
+              const registryUrl = `https://registry.npmjs.org/${packageName}`;
+              const response = await fetch(registryUrl, {
+                headers: { accept: "application/json" },
+                redirect: "error",
+                signal: AbortSignal.timeout(15_000),
+              });
+              if (response.status === 200) {
                 console.error("::error::NPM_TOKEN is allowed only for the one-time first publish. Delete it and use OIDC.");
                 process.exit(1);
               }
-              const response = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
-              if (
-                !/\bE404\b/.test(response) ||
-                !response.includes(`${packageName}@*`) ||
-                !response.includes("is not in this registry")
-              ) {
-                console.error("::error::Could not prove that browserir-mcp is absent from npm; refusing bootstrap-token publication.");
+              if (response.status !== 404) {
+                console.error(`::error::Unexpected npm registry status ${response.status}; refusing bootstrap-token publication.`);
                 process.exit(1);
               }
             '

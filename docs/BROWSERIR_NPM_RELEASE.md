@@ -12,7 +12,11 @@ maintainer pushes an approved `browserir-mcp-v*` tag and approves the protected
 - The package name is exactly `browserir-mcp`.
 - Public releases use npm's default `latest` dist-tag and install as
   `npm install browserir-mcp`.
-- A release tag is exactly `browserir-mcp-v<package.json version>`.
+- A normal release tag is exactly `browserir-mcp-v<package.json version>`.
+- If a protected workflow fails before npm accepts any bytes, a fixed workflow
+  may use `browserir-mcp-v<package.json version>-retry.<positive integer>`.
+  Retry tags never change the npm package version and must not be used after a
+  registry version exists.
 - The tag's commit must be contained in the repository's default branch.
 - GitHub environment `npm` must protect the publish job with required reviewers
   and allow only release tags.
@@ -124,7 +128,8 @@ demonstrated; do not change this boundary during a release.
 1. Choose a new version and update the changelog and package documentation.
 2. Complete the candidate checks from a clean checkout.
 3. Merge the exact release commit to the protected default branch.
-4. Create and push `browserir-mcp-v<version>` at that commit.
+4. Create and push `browserir-mcp-v<version>` at that commit. Use the documented
+   retry suffix only to recover from a pre-publication workflow failure.
 5. Review the pending `npm` environment deployment. Confirm the commit, version,
    dependency diff, test result, retained candidate, and release-verifier report
    before approving it.
