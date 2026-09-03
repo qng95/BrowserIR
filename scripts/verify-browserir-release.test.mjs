@@ -12,7 +12,7 @@ import {
 
 const rootManifest = { version: '0.1.0', license: 'Apache-2.0' };
 const validManifest = () => ({
-  name: 'browserir',
+  name: 'browserir-mcp',
   version: '0.1.0',
   description: 'The semantic browser layer for AI agents.',
   license: 'Apache-2.0',

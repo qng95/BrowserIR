@@ -2,7 +2,7 @@
 
 Status: archived and blocked. The three-package full-graph runtime has not been
 published, and this is not the release path for the
-`browserir` thin layer. Its current path is the separate
+`browserir-mcp` thin layer. Its current path is the separate
 [BrowserIR npm release guide](BROWSERIR_NPM_RELEASE.md).
 
 This checklist remains because release-verification code and tests consume its
@@ -33,7 +33,7 @@ publication decisions require maintainer authority:
 - [ ] **Perform the actual npm publication.** This is intentionally unresolved and requires an explicit maintainer decision after every prior gate passes.
 
 The fixture and benchmark packages remain private development packages.
-`browserir` is excluded from this legacy checklist; the current
+`browserir-mcp` is excluded from this legacy checklist; the current
 development benchmark does not replace its separate npm release gates.
 
 ## Public scope confirmation

@@ -1,12 +1,12 @@
-name: Publish browserir
+name: Publish browserir-mcp
 
 on:
   push:
     tags:
-      - 'browserir-v*'
+      - 'browserir-mcp-v*'
 
 concurrency:
-  group: publish-browserir-${{ github.ref }}
+  group: publish-browserir-mcp
   cancel-in-progress: false
 
 jobs:
@@ -40,8 +40,8 @@ jobs:
             import { readFileSync } from "node:fs";
             const tag = process.env.RELEASE_TAG ?? "";
             const manifest = JSON.parse(readFileSync("packages/playwright-mcp/package.json", "utf8"));
-            if (tag !== `browserir-v${manifest.version}`) {
-              throw new Error(`Tag ${tag} must equal browserir-v${manifest.version}`);
+            if (tag !== `browserir-mcp-v${manifest.version}`) {
+              throw new Error(`Tag ${tag} must equal browserir-mcp-v${manifest.version}`);
             }
           '
 
@@ -58,10 +58,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Typecheck the npm package
-        run: pnpm --filter browserir typecheck
+        run: pnpm --filter browserir-mcp typecheck
 
       - name: Test the npm package
-        run: pnpm --filter browserir test
+        run: pnpm --filter browserir-mcp test
 
       - name: Test the release verifier
         run: pnpm test:release-verifier
@@ -75,30 +75,32 @@ jobs:
         run: >-
           node scripts/verify-browserir-release.mjs
           --artifact-directory output/npm-candidate
-          --expected-version "${EXPECTED_VERSION#browserir-v}"
+          --expected-version "${EXPECTED_VERSION#browserir-mcp-v}"
 
       - name: Install, import, and audit the exact archive
         env:
           EXPECTED_VERSION: ${{ github.ref_name }}
         run: >-
           node scripts/audit-browserir-archive.mjs
-          --archive "output/npm-candidate/browserir-${EXPECTED_VERSION#browserir-v}.tgz"
-          --report "output/npm-audit/browserir-${EXPECTED_VERSION#browserir-v}-audit.json"
+          --archive "output/npm-candidate/browserir-mcp-${EXPECTED_VERSION#browserir-mcp-v}.tgz"
+          --report "output/npm-audit/browserir-mcp-${EXPECTED_VERSION#browserir-mcp-v}-audit.json"
 
       - name: Retain the candidate and verification report
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: browserir-npm-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          name: browserir-npm-candidate-${{ github.run_id }}
           path: output/npm-candidate/
           if-no-files-found: error
+          overwrite: true
           retention-days: 90
 
       - name: Retain the clean consumer audit
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: browserir-npm-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          name: browserir-npm-audit-${{ github.run_id }}
           path: output/npm-audit/
           if-no-files-found: error
+          overwrite: true
           retention-days: 90
 
   publish:
@@ -108,7 +110,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: npm
-      url: https://www.npmjs.com/package/browserir
+      url: https://www.npmjs.com/package/browserir-mcp
     permissions:
       actions: read
       contents: read
@@ -142,7 +144,7 @@ jobs:
       - name: Download the qualified candidate
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: browserir-npm-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+          name: browserir-npm-candidate-${{ github.run_id }}
           path: output/npm-candidate
 
       - name: Revalidate the retained hash and resolve the one archive
@@ -155,7 +157,7 @@ jobs:
             import { createHash } from "node:crypto";
             import { appendFileSync, lstatSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
             import { basename, dirname, resolve, sep } from "node:path";
-            const prefix = "browserir-v";
+            const prefix = "browserir-mcp-v";
             const tag = process.env.RELEASE_TAG ?? "";
             if (!tag.startsWith(prefix)) throw new Error(`Unexpected release tag: ${tag}`);
             const version = tag.slice(prefix.length);
@@ -163,8 +165,8 @@ jobs:
               throw new Error(`Unsafe release version: ${version}`);
             }
             const directory = resolve("output/npm-candidate");
-            const archiveName = `browserir-${version}.tgz`;
-            const reportName = `browserir-${version}-release-report.json`;
+            const archiveName = `browserir-mcp-${version}.tgz`;
+            const reportName = `browserir-mcp-${version}-release-report.json`;
             const entries = readdirSync(directory).sort();
             if (JSON.stringify(entries) !== JSON.stringify([archiveName, reportName].sort())) {
               throw new Error(`Unexpected candidate files: ${entries.join(", ") || "none"}`);
@@ -187,7 +189,7 @@ jobs:
             const digest = createHash("sha256").update(bytes).digest("hex");
             if (
               report.schemaVersion !== "browserir-release-verification/1" ||
-              report.package?.name !== "browserir" ||
+              report.package?.name !== "browserir-mcp" ||
               report.package?.version !== version ||
               report.archive?.filename !== archiveName ||
               report.archive?.bytes !== statSync(archive).size ||
@@ -204,10 +206,38 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -n "${NODE_AUTH_TOKEN:-}" ]]; then
-            if npm view browserir name --json >/dev/null 2>&1; then
-              echo '::error::NPM_TOKEN is allowed only for the one-time first publish. Delete it and use OIDC.'
+            node --input-type=module -e '
+              import { spawnSync } from "node:child_process";
+              const packageName = "browserir-mcp";
+              const result = spawnSync(
+                "npm",
+                ["view", packageName, "name", "--json", "--registry=https://registry.npmjs.org/"],
+                { encoding: "utf8" },
+              );
+              if (result.status === 0) {
+                console.error("::error::NPM_TOKEN is allowed only for the one-time first publish. Delete it and use OIDC.");
+                process.exit(1);
+              }
+              const response = `${result.stdout ?? ""}\n${result.stderr ?? ""}`;
+              if (
+                !/\bE404\b/.test(response) ||
+                !response.includes(`${packageName}@*`) ||
+                !response.includes("is not in this registry")
+              ) {
+                console.error("::error::Could not prove that browserir-mcp is absent from npm; refusing bootstrap-token publication.");
+                process.exit(1);
+              }
+            '
+            npm_identity="$(npm whoami --registry=https://registry.npmjs.org/ 2>/dev/null)" || {
+              echo '::error::The protected bootstrap token could not authenticate to npm.'
+              exit 1
+            }
+            if [[ "$npm_identity" != 'qng95' ]]; then
+              echo '::error::The protected bootstrap token must belong to the qng95 npm account.'
               exit 1
             fi
+            unset npm_identity
+            echo 'Authenticated the protected bootstrap token as the expected npm account.'
             echo 'Using the protected one-time bootstrap token for the first package version.'
           fi
           npm publish "$ARCHIVE_PATH" --ignore-scripts --access public --tag latest --provenance

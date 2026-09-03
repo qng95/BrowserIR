@@ -3,7 +3,7 @@
 > **Status:** source-only legacy/experimental package. It remains for the
 > retained full-graph runtime and is not the current BrowserIR thin-layer
 > product. For current integration, use
-> [`browserir`](../playwright-mcp/README.md).
+> [`browserir-mcp`](../playwright-mcp/README.md).
 
 Browser-independent BrowserIR types, reconciliation, revision safety, deltas,
 action verification, and compact model-facing view compilation.

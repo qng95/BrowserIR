@@ -181,14 +181,14 @@ evaluator-controlled fresh attempts.
 Task-level route audit: **16 sufficient passthroughs · 15 complete projections
 · 1 safe fallback · 0 demonstrated projection misses**.
 
-## Install after publication
+## Install after registry confirmation
 
-`browserir` wraps a caller-owned official MCP `Client`; it is not a replacement
-MCP server. Version `0.1.0` is the prepared release candidate; npm publication
-and ownership confirmation are still pending:
+`browserir-mcp` wraps a caller-owned official MCP `Client`; it is not a
+replacement MCP server. Version `0.1.0` is the prepared release candidate; use
+this command after npm confirms the package:
 
 ```sh
-npm install browserir
+npm install browserir-mcp
 ```
 
 <details>
@@ -198,16 +198,16 @@ npm install browserir
 npm install --global corepack@0.34.7
 corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm --filter browserir build
-pnpm --filter browserir test
+pnpm --filter browserir-mcp build
+pnpm --filter browserir-mcp test
 ```
 
 </details>
 
 ```ts
-import { createAdaptivePlaywrightTools } from 'browserir';
+import { createAdaptivePlaywrightTools } from 'browserir-mcp';
 import { createScheduleCoordinateReferencePolicy } from
-  'browserir/reference-policies';
+  'browserir-mcp/reference-policies';
 
 const tools = createAdaptivePlaywrightTools(client, {
   mode: 'auto',

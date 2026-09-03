@@ -3,7 +3,7 @@ import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute } from 'node:path';
 
 import type { CallToolResult } from '@modelcontextprotocol/client';
-import type { AdaptivePlaywrightRawClient } from 'browserir';
+import type { AdaptivePlaywrightRawClient } from 'browserir-mcp';
 import {
   ADAPTIVE_ACCURACY_HOLDOUT_CASE_IDS,
   ADAPTIVE_ACCURACY_HOLDOUT_CATALOG_SHA256,

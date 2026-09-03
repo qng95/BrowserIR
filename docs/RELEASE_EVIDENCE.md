@@ -2,7 +2,7 @@
 
 Scope: retained three-package release pipeline for `@browserir/core`,
 `@browserir/playwright`, and `@browserir/mcp`. It is not a release dossier or
-promotion path for the `browserir` thin layer. Its release path
+promotion path for the `browserir-mcp` thin layer. Its release path
 is documented separately in the [BrowserIR npm release guide](BROWSERIR_NPM_RELEASE.md).
 This legacy pipeline remains documented because its scripts, schemas, and tests
 still exist in this repository.

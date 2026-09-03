@@ -8,7 +8,7 @@ import type {
   AdaptivePlaywrightMode,
   AdaptivePlaywrightRawClient,
   AdaptivePlaywrightTelemetryEvent,
-} from 'browserir';
+} from 'browserir-mcp';
 import {
   ADAPTIVE_ACCURACY_HOLDOUT_CASE_IDS,
   ADAPTIVE_ACCURACY_HOLDOUT_WORLD_IDS,

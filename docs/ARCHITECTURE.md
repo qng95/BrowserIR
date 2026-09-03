@@ -103,7 +103,7 @@ Every action revalidates its target against the current revision before dispatch
 The current workspace packages are:
 
 ```text
-packages/playwright-mcp/      browserir; default thin adaptive Playwright layer
+packages/playwright-mcp/      browserir-mcp; default thin adaptive Playwright layer
 packages/browser-ir/          @browserir/core; intended public core contracts and runtime
 packages/playwright-driver/   @browserir/playwright; intended public Playwright driver
 packages/mcp-server/          @browserir/mcp; intended public MCP adapter and stdio CLI
@@ -112,9 +112,9 @@ packages/benchmark/           @browserir/benchmark; private benchmark and report
 ```
 
 None of the public-candidate packages are published yet. The thin
-`browserir` package is the default product direction; the core,
-driver, and full MCP server form the separately selected full graph runtime.
-The fixture and benchmark packages remain private development infrastructure.
+`browserir-mcp` package is the default product direction; the core, driver, and
+full MCP server form the separately selected full graph runtime. The fixture
+and benchmark packages remain private development infrastructure.
 
 The two source runtime directions are:
 

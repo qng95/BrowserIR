@@ -4,13 +4,13 @@ All notable changes to BrowserIR's current thin-layer product path are recorded
 here. The project intends to follow Semantic Versioning after its public
 contracts stabilize.
 
-Last updated: 2026-08-28
+Last updated: 2026-09-03
 
 ## Unreleased
 
 ### Added
 
-- The initial `browserir` `0.1` release, providing
+- The initial `browserir-mcp` `0.1` release, providing
   middleware around a
   caller-owned official MCP `Client`. It preserves the official tool catalog,
   refs, actions, and lifecycle while adding only complete, evidence-backed
@@ -35,6 +35,8 @@ Last updated: 2026-08-28
 
 ### Changed
 
+- Renamed the npm package and release tags from the unavailable `browserir`
+  identity to `browserir-mcp`; the initial public version remains `0.1.0`.
 - Advanced the schedule/resource projector to `schedule-coordinate-policy/3`.
   A one-pixel serialized final-resource overhang is accepted only at the
   schedule root edge; a two-pixel gap and all other incomplete or ambiguous
@@ -62,9 +64,9 @@ Last updated: 2026-08-28
 
 ### Known limitations
 
-- `browserir@0.1.0` is prepared as the default npm release but is not published
-  until package ownership and the protected release environment are confirmed.
-  The `0.x` API may change between minor versions.
+- `browserir-mcp@0.1.0` is prepared as the default npm release but is not
+  published until the protected release completes and the registry confirms
+  it. The `0.x` API may change between minor versions.
 - Only exact default snapshots are eligible. The host must select one policy
   family, and the current layer is not a prompt-driven general visual reasoner.
 - The real-agent run covers schedule-coordinate and cross-tree-label challenge

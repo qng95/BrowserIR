@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const packageName = 'browserir';
+const packageName = 'browserir-mcp';
 const semverPattern =
   /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 
@@ -33,7 +33,7 @@ export function candidateManifestFailures(manifest, archiveName) {
   if (manifest?.name !== packageName) failures.push(`package name must be ${packageName}`);
   if (typeof manifest?.version !== 'string' || !semverPattern.test(manifest.version)) {
     failures.push('package version must be valid SemVer');
-  } else if (archiveName !== `browserir-${manifest.version}.tgz`) {
+  } else if (archiveName !== `browserir-mcp-${manifest.version}.tgz`) {
     failures.push('archive filename must match the embedded package version');
   }
   if (manifest?.publishConfig?.registry !== 'https://registry.npmjs.org/') {
@@ -159,8 +159,8 @@ export function auditBrowserIrArchive({ archive, reportPath }) {
     ], { cwd: consumerRoot, env: environment });
 
     const probe = [
-      "const main = await import('browserir');",
-      "const policies = await import('browserir/reference-policies');",
+      "const main = await import('browserir-mcp');",
+      "const policies = await import('browserir-mcp/reference-policies');",
       "if (typeof main.createAdaptivePlaywrightTools !== 'function') throw new Error('missing main factory');",
       "for (const name of ['createGridCoordinateReferencePolicy', 'createScheduleCoordinateReferencePolicy', 'createCrossTreeLabelReferencePolicy']) {",
       "  if (typeof policies[name] !== 'function') throw new Error(`missing policy factory ${name}`);",

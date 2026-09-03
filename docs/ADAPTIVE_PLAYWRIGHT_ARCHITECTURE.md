@@ -1,7 +1,7 @@
 # Adaptive Playwright architecture
 
 Status: implemented 0.1 release candidate with development evidence
-Last updated: 2026-08-28
+Last updated: 2026-09-03
 
 ## Decision
 
@@ -29,7 +29,7 @@ standard Playwright observation needs help.
 
 ## Why this direction
 
-The `browserir` implementation has two complementary
+The `browserir-mcp` implementation has two complementary
 development signals. A 64-arm real-browser, zero-model preflight projected all
 15 independently demonstrated recoverable relations, retained one safe
 fallback, and recorded zero projection misses. A later 32-task A/B with
@@ -47,7 +47,7 @@ result](BROWSERIR_REAL_AGENT_RESULTS.md).
 The adaptive mode forwards the catalog of the caller-connected official
 Playwright MCP client; the package neither adds tools nor certifies the
 caller's catalog as safe. The current integration boundary is
-`browserir`; the existing `@browserir/mcp` graph surface remains
+`browserir-mcp`; the existing `@browserir/mcp` graph surface remains
 unchanged. BrowserIR adds no parallel `browser_observe`,
 `browser_inspect`, `browser_act`, or incompatible entity-reference namespace to
 adaptive mode.
@@ -101,7 +101,7 @@ The benchmark adapter, fresh-state retry executor, fixture corpus, independent
 recoverability witness, and real-model runner remain under
 [`packages/benchmark`](../packages/benchmark/). They measure the product bytes;
 they are not the product implementation. The adaptive wrapper is the current
-`browserir` npm release-candidate path, but it remains unpublished until the
+`browserir-mcp` npm release-candidate path, but it remains unpublished until the
 registry ownership and protected-release gates complete. It is not a new MCP
 server or the legacy graph interface.
 

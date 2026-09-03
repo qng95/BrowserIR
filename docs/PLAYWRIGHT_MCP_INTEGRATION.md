@@ -1,14 +1,14 @@
 # Playwright MCP integration guide
 
-Status: `browserir` 0.1 integration contract
+Status: `browserir-mcp` 0.1 integration contract
 
 Evidence boundary: current `/3` zero-model and real-agent development evidence
 
-Last reviewed: 2026-08-28
+Last reviewed: 2026-09-03
 
 ## What BrowserIR is
 
-`browserir` is Node.js middleware around the official raw MCP
+`browserir-mcp` is Node.js middleware around the official raw MCP
 `Client` methods `listTools` and `callTool`. The host chooses exactly one
 first-party reference policy and owns a boolean that selects:
 
@@ -21,7 +21,7 @@ policy pack, model-selected arm, fallback to the full BrowserIR graph, or
 hidden action cascade. Policy selection is deployment configuration and must
 not come from a model prompt or page content.
 
-The public package name is `browserir`. It is a library integration boundary,
+The public package name is `browserir-mcp`. It is a library integration boundary,
 not a drop-in Playwright MCP server, MCP client configuration extension,
 browser runtime, or hosted service.
 
@@ -38,10 +38,10 @@ import type { Client } from '@modelcontextprotocol/client';
 import {
   createAdaptivePlaywrightTools,
   type AdaptivePlaywrightTools,
-} from 'browserir';
+} from 'browserir-mcp';
 import {
   createScheduleCoordinateReferencePolicy,
-} from 'browserir/reference-policies';
+} from 'browserir-mcp/reference-policies';
 
 interface BrowserIRHostConfig {
   /** Host-owned startup flag. Only literal true enables enrichment. */

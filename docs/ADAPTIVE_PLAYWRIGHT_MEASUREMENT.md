@@ -1,11 +1,11 @@
 # Adaptive Playwright improvement measurement
 
 Status: development study completed; confirmatory design remains prospective
-Last updated: 2026-08-28
+Last updated: 2026-09-03
 
 ## Current implementation status
 
-The product layer lives in the `browserir` `0.1` release-candidate line.
+The product layer lives in the `browserir-mcp` `0.1` release-candidate line.
 The repository also contains a live official-Playwright-MCP adapter, the
 eight-case scored development corpus, a four-case Inventory mechanism corpus,
 fresh-state retry execution, exact database oracles, an append-only

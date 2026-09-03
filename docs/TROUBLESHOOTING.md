@@ -1,7 +1,7 @@
 # BrowserIR thin-layer troubleshooting
 
-This guide covers the `browserir@0.1.0` release candidate pending npm
-naming/ownership and protected publication.
+This guide covers the `browserir-mcp@0.1.0` release candidate pending protected
+npm publication.
 The package is host-side middleware around an already-connected official MCP
 `Client`; it is not a drop-in MCP server, browser launcher, or hosted service.
 
@@ -15,12 +15,12 @@ npm install --global corepack@0.34.7
 corepack enable
 corepack install --global pnpm@10.30.3
 pnpm install --frozen-lockfile
-pnpm --filter browserir build
-pnpm --filter browserir test
+pnpm --filter browserir-mcp build
+pnpm --filter browserir-mcp test
 ```
 
-Import the wrapper from `browserir` and a concrete first-party policy from
-`browserir/reference-policies`. Do not start
+Import the wrapper from `browserir-mcp` and a concrete first-party policy from
+`browserir-mcp/reference-policies`. Do not start
 `packages/mcp-server/dist/cli.js`; that executable belongs to the separate
 legacy full-graph runtime.
 
@@ -79,7 +79,7 @@ incomplete bijection must produce the original visible result rather than
 partial facts. Reduce a suspected miss to a fixture and run:
 
 ```sh
-pnpm --filter browserir test
+pnpm --filter browserir-mcp test
 ```
 
 The current real-agent evidence covers strict schedule-coordinate and

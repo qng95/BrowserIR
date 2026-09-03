@@ -42,7 +42,7 @@ manager signature verification.
 
 | Directory | Status and responsibility |
 | --- | --- |
-| `packages/playwright-mcp` | **Current product:** the `browserir` adaptive middleware and first-party reference policies. |
+| `packages/playwright-mcp` | **Current product:** the `browserir-mcp` adaptive middleware and first-party reference policies. |
 | `packages/benchmark` | Current and historical measurement runners, exact oracles, reports, and evidence tooling. |
 | `packages/fixture-app` | Deterministic test fixtures and database-backed task oracles. |
 | `packages/browser-ir` | Legacy/experimental full-graph core retained in source. |
@@ -55,7 +55,7 @@ should not be modified as part of a BrowserIR change.
 
 ## Thin-layer invariants
 
-A change to `browserir` must preserve these properties:
+A change to `browserir-mcp` must preserve these properties:
 
 - only an exact default `browser_snapshot` request is eligible;
 - sufficient, unsupported, failed, cancelled, changed-state, and unresolved
@@ -99,10 +99,10 @@ green.
 Useful current-path commands:
 
 ```sh
-pnpm --filter browserir typecheck
-pnpm --filter browserir build
-pnpm --filter browserir test
-pnpm --filter browserir exec vitest run tests/reference-policies.test.ts
+pnpm --filter browserir-mcp typecheck
+pnpm --filter browserir-mcp build
+pnpm --filter browserir-mcp test
+pnpm --filter browserir-mcp exec vitest run tests/reference-policies.test.ts
 ```
 
 Run the full workspace checks when shared fixtures, benchmark contracts, or
@@ -137,7 +137,7 @@ state and the audit log so already-true state cannot create a false pass.
 The current runtime dependency direction is intentionally narrow:
 
 ```text
-host agent -> browserir -> caller-owned official MCP Client
+host agent -> browserir-mcp -> caller-owned official MCP Client
 ```
 
 The fixture and benchmark packages measure that path but are not runtime

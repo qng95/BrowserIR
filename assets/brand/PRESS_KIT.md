@@ -1,6 +1,6 @@
 # BrowserIR press kit
 
-> **Draft for the `browserir` `0.1.0` launch.** Verify registry visibility and
+> **Draft for the `browserir-mcp` `0.1.0` launch.** Verify registry visibility and
 > the canonical result before publishing this copy.
 
 ## Headline
@@ -37,9 +37,8 @@ reused local corpus, not a sealed unseen-site study.
 
 ## Facts
 
-- Current package: `browserir@0.1.0`, a release candidate pending npm
-  naming/ownership and protected publication; verify registry availability
-  before announcing installation.
+- Current package: `browserir-mcp@0.1.0`, a release candidate pending protected
+  npm publication; verify registry availability before announcing installation.
 - Integration: in-process wrapper around a caller-owned official MCP `Client`.
 - Eligible observation: exact default `browser_snapshot` only.
 - Hidden work: at most one logical `{ boxes: true }` snapshot call; no internal

@@ -53,7 +53,7 @@ importers:
       '@think-dom/fixture-app':
         specifier: workspace:*
         version: link:../fixture-app
-      browserir:
+      browserir-mcp:
         specifier: workspace:*
         version: link:../playwright-mcp
       langchain:

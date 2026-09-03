@@ -1,6 +1,6 @@
 # BrowserIR documentation
 
-The current product is the `browserir` `0.1` release-candidate line: a thin
+The current product is the `browserir-mcp` `0.1` release-candidate line: a thin
 layer around an official Playwright MCP client. Start with these documents:
 
 | Need | Canonical document |

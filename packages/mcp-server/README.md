@@ -3,7 +3,7 @@
 > **Status:** source-only legacy/experimental package. This nine-tool stdio
 > server is a separate historical interface, not the current BrowserIR thin
 > layer and not a fallback from it. For the current product path, use
-> [`browserir`](../playwright-mcp/README.md) with a
+> [`browserir-mcp`](../playwright-mcp/README.md) with a
 > caller-owned official Playwright MCP client.
 
 Retained local stdio MCP server and embeddable APIs for the full-graph runtime,

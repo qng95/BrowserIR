@@ -1,7 +1,7 @@
 import type { CallToolResult } from '@modelcontextprotocol/client';
 import type {
   AdaptivePlaywrightTelemetryEvent,
-} from 'browserir';
+} from 'browserir-mcp';
 import {
   INVENTORY_BROWSERIR_V3_CASE_IDS,
   INVENTORY_BROWSERIR_V3_CATALOG_SHA256,

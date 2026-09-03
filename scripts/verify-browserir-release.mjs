@@ -19,7 +19,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 
 export const workspaceRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 export const packageDirectory = 'packages/playwright-mcp';
-export const packageName = 'browserir';
+export const packageName = 'browserir-mcp';
 
 const expectedDescription =
   'The semantic browser layer for AI agents.';
@@ -386,7 +386,7 @@ function retainArtifacts(artifactDirectory, archive, report) {
   }
   mkdirSync(artifactDirectory, { recursive: true });
   const retainedArchive = resolve(artifactDirectory, basename(archive));
-  const reportName = `browserir-${report.package.version}-release-report.json`;
+  const reportName = `browserir-mcp-${report.package.version}-release-report.json`;
   const retainedReport = resolve(artifactDirectory, reportName);
   if (existsSync(retainedArchive) || existsSync(retainedReport)) {
     throw new Error('Refusing to overwrite an existing release artifact or report.');
@@ -435,7 +435,7 @@ export async function verifyBrowserIrRelease({
     mkdirSync(packDirectory);
     mkdirSync(extractDirectory);
     const archive = packInto(packageRoot, packDirectory);
-    const expectedArchiveName = `browserir-${manifest.version}.tgz`;
+    const expectedArchiveName = `browserir-mcp-${manifest.version}.tgz`;
     if (basename(archive) !== expectedArchiveName) {
       throw new Error(
         `Packed filename must be ${expectedArchiveName}; found ${basename(archive)}.`,

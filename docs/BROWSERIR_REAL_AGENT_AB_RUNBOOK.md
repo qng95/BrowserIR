@@ -95,8 +95,8 @@ Run the deterministic unit gates:
 ```sh
 pnpm --filter @think-dom/fixture-app typecheck
 pnpm --filter @browserir/benchmark typecheck
-pnpm --filter browserir typecheck
-pnpm --filter browserir exec vitest run \
+pnpm --filter browserir-mcp typecheck
+pnpm --filter browserir-mcp exec vitest run \
   tests/reference-policies.test.ts \
   tests/schedule-projection-diagnostic.test.ts
 pnpm --filter @think-dom/fixture-app exec vitest run \

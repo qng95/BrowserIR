@@ -1,4 +1,4 @@
-# `browserir`
+# `browserir-mcp`
 
 **Keep Playwright. Add the relationships enterprise UIs leave implicit.**
 
@@ -8,22 +8,21 @@ flattens a provable relationship—such as button → row × column or action �
 queue—BrowserIR can append that complete mapping. When it cannot prove the
 mapping, it returns Playwright's original result unchanged.
 
-Once the package is present on npm:
+Install from npm:
 
 ```sh
-npm install browserir
+npm install browserir-mcp
 ```
 
-Version `0.1.0` is the prepared release candidate; npm publication and ownership
-confirmation are still pending. It requires ESM, Node.js `>=22.13.0`, and
+Version `0.1.0` requires ESM, Node.js `>=22.13.0`, and
 `@modelcontextprotocol/client@2.0.0`.
 
 ## Quick start
 
 ```ts
-import { createAdaptivePlaywrightTools } from 'browserir';
+import { createAdaptivePlaywrightTools } from 'browserir-mcp';
 import { createScheduleCoordinateReferencePolicy } from
-  'browserir/reference-policies';
+  'browserir-mcp/reference-policies';
 
 // `client` is your already-connected official MCP Client.
 const tools = createAdaptivePlaywrightTools(client, {

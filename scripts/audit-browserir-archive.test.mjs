@@ -7,7 +7,7 @@ import {
 } from './audit-browserir-archive.mjs';
 
 const manifest = () => ({
-  name: 'browserir',
+  name: 'browserir-mcp',
   version: '0.1.0',
   publishConfig: {
     access: 'public',
@@ -18,7 +18,7 @@ const manifest = () => ({
 
 test('accepts a version-bound public default candidate', () => {
   assert.deepEqual(
-    candidateManifestFailures(manifest(), 'browserir-0.1.0.tgz'),
+    candidateManifestFailures(manifest(), 'browserir-mcp-0.1.0.tgz'),
     [],
   );
 });

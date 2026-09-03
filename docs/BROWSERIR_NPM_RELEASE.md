@@ -1,18 +1,18 @@
-# Publishing `browserir`
+# Publishing `browserir-mcp`
 
 This is the only current BrowserIR npm release path. The legacy three-package
 release checklist does not apply to the Playwright MCP thin layer.
 
 Preparing these files does not publish anything. A release happens only when a
-maintainer pushes an approved `browserir-v*` tag and approves the protected
+maintainer pushes an approved `browserir-mcp-v*` tag and approves the protected
 `npm` environment deployment.
 
 ## Release invariants
 
-- The package name is exactly `browserir`.
+- The package name is exactly `browserir-mcp`.
 - Public releases use npm's default `latest` dist-tag and install as
-  `npm install browserir`.
-- A release tag is exactly `browserir-v<package.json version>`.
+  `npm install browserir-mcp`.
+- A release tag is exactly `browserir-mcp-v<package.json version>`.
 - The tag's commit must be contained in the repository's default branch.
 - GitHub environment `npm` must protect the publish job with required reviewers
   and allow only release tags.
@@ -25,22 +25,25 @@ maintainer pushes an approved `browserir-v*` tag and approves the protected
   the retained archive's SHA-256 and runs no repository code.
 - npm receives the exact `.tgz` archive that the release verifier inspected.
   Publish-time lifecycle scripts are disabled.
-- npm versions are immutable. Never rerun a failed version with changed bytes;
+- npm versions are immutable after publication. Never replace published bytes;
   fix the problem and choose a new version.
 
 ## Before the first public version
 
 Namespace availability is not publishing authority. The `0.1.0` manifest is a
-prepared release candidate. A local candidate tag may exist for review, but do
-not push or announce it as a release until the maintainer account is confirmed
-to have publish rights for the unscoped `browserir` name.
+prepared release candidate under the new `browserir-mcp` package identity. The
+earlier `browserir@0.1.0` attempts never created a registry version, so the
+initial `browserir-mcp` release remains `0.1.0`. A local candidate tag may exist
+for review, but do not push or announce it as a release until the maintainer
+account is confirmed to have publish rights for the unscoped `browserir-mcp`
+name.
 
 The package must exist on npm before npm can attach a GitHub trusted publisher
 to it. Bootstrap the first version once:
 
 1. Enable 2FA on the maintainer account that will own the unscoped package.
 2. Create a short-lived granular access token with the narrowest available
-   write access to `browserir` (or the narrowest account-level permission npm
+   write access to `browserir-mcp` (or the narrowest account-level permission npm
    permits before an unscoped package exists). Because this is a
    non-interactive first publish, enable bypass-2FA only on this temporary token.
    Do not use a classic token.
@@ -75,17 +78,17 @@ Run from the workspace root on the exact commit to tag:
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm --filter browserir build
-pnpm --filter browserir typecheck
-pnpm --filter browserir test
+pnpm --filter browserir-mcp build
+pnpm --filter browserir-mcp typecheck
+pnpm --filter browserir-mcp test
 pnpm test:release-verifier
 pnpm test:archive-auditor
 node scripts/verify-browserir-release.mjs \
   --artifact-directory output/npm-candidate \
   --expected-version <version>
 node scripts/audit-browserir-archive.mjs \
-  --archive output/npm-candidate/browserir-<version>.tgz \
-  --report output/npm-audit/browserir-<version>-audit.json
+  --archive output/npm-candidate/browserir-mcp-<version>.tgz \
+  --report output/npm-audit/browserir-mcp-<version>-audit.json
 ```
 
 The verifier and exact-archive auditor must reject the candidate unless all of
@@ -121,7 +124,7 @@ demonstrated; do not change this boundary during a release.
 1. Choose a new version and update the changelog and package documentation.
 2. Complete the candidate checks from a clean checkout.
 3. Merge the exact release commit to the protected default branch.
-4. Create and push `browserir-v<version>` at that commit.
+4. Create and push `browserir-mcp-v<version>` at that commit.
 5. Review the pending `npm` environment deployment. Confirm the commit, version,
    dependency diff, test result, retained candidate, and release-verifier report
    before approving it.
